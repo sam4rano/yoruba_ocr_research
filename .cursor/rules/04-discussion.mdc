@@ -1,0 +1,33 @@
+---
+description: Writing discussion, conclusion, limitations, future work
+globs: paper/sections/discussion.md, paper/sections/conclusion.md
+---
+
+# Skill: Discussion & Conclusion Writing
+
+## Discussion paragraph template
+1. Restate the key finding (different wording from results)
+2. Why does this happen? (architectural / data / linguistic reason)
+3. Comparison with prior work — does this agree or contradict?
+4. Implication for the field
+
+## Limitations — be specific
+NOT: "Our dataset is small and future work could expand it."
+YES: "The dataset currently covers a single book series
+(Yorùbá di Wúrà), limiting font diversity. Books with older
+typesetting conventions or handwritten elements are not represented."
+
+## Future work — make it concrete
+- Scaling to Igbo and Hausa (Ajami script)
+- OCR + language model correction pipeline
+- Synthetic data augmentation for rare diacritic combinations
+- Dialectal variation (Standard vs regional Yorùbá)
+
+## Conclusion structure (max 1 paragraph)
+Contribution 1 -> Contribution 2 -> Contribution 3 -> broader impact.
+No new information. No "in this paper we have shown."
+
+## Sovereign Intelligence framing (for DLI alignment)
+In the final paragraph, connect to African language sovereignty:
+this benchmark enables African researchers to build, evaluate,
+and own OCR infrastructure for their own languages.

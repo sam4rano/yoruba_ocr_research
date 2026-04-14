@@ -1,0 +1,23 @@
+{
+  "mcpServers": {
+    "zotero": {
+      "command": "npx",
+      "args": ["-y", "zotero-mcp-server"],
+      "description": "Query your Zotero library for citations"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/mac/Desktop/yoruba_ocr_research"
+      ],
+      "description": "Read/write project files directly"
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "description": "Fetch ArXiv papers, PaddleOCR docs, etc."
+    }
+  }
+}

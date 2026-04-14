@@ -1,0 +1,10 @@
+{
+  "editor.wordWrap": "on",
+  "editor.rulers": [80, 120],
+  "files.autoSave": "afterDelay",
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.wordWrap": "on"
+  },
+  "cursor.chat.defaultModel": "claude-sonnet-4-5"
+}

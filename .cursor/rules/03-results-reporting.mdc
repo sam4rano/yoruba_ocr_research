@@ -1,0 +1,37 @@
+---
+description: Writing results, analysis, and ablation study sections
+globs: paper/sections/results.md, results/**/*.csv, results/**/*.json
+---
+
+# Skill: Results Reporting
+
+## Lead with findings, not setups
+GOOD: "Fine-tuning reduces DER by 47% relative to the strongest baseline..."
+BAD: "Table 2 shows the results of our experiment comparing..."
+
+## Every number rule
+State value -> (Table/Figure reference) -> interpretation
+Example: "The fine-tuned model achieves a CER of 4.2% (Table 2),
+compared to 18.7% for the pretrained baseline — a 77% relative reduction."
+
+## Standard results table format
+| Model | CER ↓ | WER ↓ | DER ↓ | Notes |
+|---|---|---|---|---|
+Bold best result per column.
+Underline second-best.
+Report to 1 decimal place.
+
+## Ablation paragraph structure
+1. What was removed/changed
+2. Quantitative delta
+3. Interpretation: what this reveals about the model
+4. One sentence connecting back to the main finding
+
+## LLM vs fine-tuned analysis (key finding for this paper)
+Frame it as: LLMs recover semantic content but not tonal fidelity.
+This is the central insight — give it its own paragraph.
+
+## Language for uncertainty
+"suggests" not "proves"
+"we observe" not "we demonstrate"
+"consistent with" not "confirms"

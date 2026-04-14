@@ -1,0 +1,40 @@
+---
+description: Check any section for AI-sounding language, structural patterns, and originality issues. Invoke manually: "run originality check"
+globs: paper/**/*.md
+---
+
+# Skill: Originality & Naturalness Checker
+
+When asked to check a section, do ALL of the following:
+
+## Step 1 — AI phrase scan
+Flag any of these patterns:
+- "It is worth noting that..."
+- "This is a significant contribution..."
+- "In the realm of..."
+- "Delve into", "leverage", "game-changing"
+- "First... Second... Third..." list structures in body paragraphs
+- Three consecutive sentences of similar length
+- Passive voice in 3+ consecutive sentences
+
+## Step 2 — Structural symmetry scan
+AI writes symmetrically. Flag if:
+- Every paragraph is 4-5 sentences
+- Every paragraph ends with a forward-looking statement
+- Section reads like a numbered list in disguise
+
+## Step 3 — Specificity scan
+Generic claims are detectable. Flag if:
+- A claim could apply to any OCR paper, not specifically Yorùbá
+- Numbers are absent where they should be present
+- Example words don't use actual Yorùbá diacritic forms
+
+## Step 4 — Voice consistency
+Check that the section sounds like ONE person wrote it:
+- Terminology consistent with 00-project-identity.mdc
+- Same hedging register throughout ("we observe", "suggests")
+
+## Output format
+List flagged sentences with reason.
+Suggest 1 rewrite per flagged item — preserve meaning, change structure.
+Give overall score: PUBLISHABLE / NEEDS REVISION / MAJOR REVISION

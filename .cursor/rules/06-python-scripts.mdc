@@ -1,0 +1,35 @@
+---
+description: Writing and editing Python experiment scripts, data pipelines
+globs: scripts/**/*.py, notebooks/**/*.ipynb
+---
+
+# Skill: Research Python Coding
+
+## Required in every script
+- argparse with --help strings for every argument
+- logging module (not print statements)
+- pathlib for all file paths
+- if __name__ == "__main__": guard
+- docstring on every function
+
+## Experiment scripts must also include
+- Seed setting: random, numpy, torch
+- Result saving to results/tables/{experiment_name}.json
+- wandb or local CSV logging
+
+## Evaluation scripts
+- Compute CER, WER, DER in the same script
+- DER formula:
+  diacritic_chars = [c for c in text if unicodedata.combining(c)]
+  DER = edit_distance(pred_diacritics, gt_diacritics) / len(gt_diacritics)
+- Output a results dict with model name, metric values, timestamp
+
+## Yorùbá-specific
+- Always use unicodedata.normalize('NFC', text) before comparison
+- Character dictionary path: data/processed/dictionary/yoruba_dict.txt
+- Diacritic characters to track: ẹ ọ ṣ + combining grave/acute/macron
+
+## Never
+- Hardcode file paths
+- Use os.path (use pathlib)
+- Commit results to the repo without the generating script

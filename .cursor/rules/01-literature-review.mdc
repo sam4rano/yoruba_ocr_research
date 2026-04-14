@@ -1,0 +1,35 @@
+---
+description: Writing and editing literature review and related work sections
+globs: paper/sections/related_work.md, paper/sections/background.md
+---
+
+# Skill: Literature Review
+
+## Core rule
+Synthesise — never summarise one paper per paragraph.
+Group by research thread, not by paper.
+
+## The 4 threads for this paper
+1. OCR for low-resource and non-Latin scripts
+2. Diacritic handling in NLP and OCR systems
+3. African language NLP benchmarks and datasets
+4. Multimodal LLMs for document understanding
+
+## How to write each thread paragraph
+- Open with the thread's state of the art
+- Name 2-3 papers together, by what they share
+- Identify the collective limitation
+- Bridge to the next thread or to this paper's gap
+
+## Citation format
+Inline: (Author et al., YEAR)
+If citation unknown: [CITE: topic/claim description]
+Never invent DOIs, author names, or paper titles.
+
+## Prohibited patterns
+- "Author et al. proposed X." as a standalone sentence
+- Consecutive paragraphs starting with "Several studies have..."
+- Ending a paragraph with a citation and no analysis
+
+## Length target per thread
+3-5 sentences. Dense, not padded.

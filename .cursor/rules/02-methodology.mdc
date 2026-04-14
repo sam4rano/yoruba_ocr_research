@@ -1,0 +1,36 @@
+---
+description: Writing and editing methodology, experimental setup sections
+globs: paper/sections/methodology.md, paper/sections/experiments.md
+---
+
+# Skill: Methodology Writing
+
+## Structure for this paper's methodology
+1. Dataset Construction
+   - Collection pipeline (annotation platform -> export -> PaddleOCR format)
+   - Book-level split rationale
+   - Character dictionary construction
+   - Preprocessing steps
+
+2. Model Configurations
+   - Baseline setup (what was NOT changed)
+   - Fine-tuning setup (what WAS changed: epochs, lr, dict, layers)
+   - LLM prompting strategy (exact prompt used)
+
+3. Evaluation Protocol
+   - CER/WER definitions
+   - DER definition and formula: DER = diacritic_errors / total_diacritics
+   - Minimal pair test set construction
+
+## Writing rules
+- State exact hyperparameters, not ranges ("lr=0.001", not "a small learning rate")
+- Every design choice needs a one-sentence justification
+- Write so another researcher could reproduce exactly
+- Use past tense for what was done
+
+## Reproducibility checklist (include in section)
+- Hardware spec
+- Training time
+- Random seeds
+- Framework versions
+- Link to code/data release

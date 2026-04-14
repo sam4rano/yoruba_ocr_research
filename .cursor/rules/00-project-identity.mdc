@@ -1,0 +1,69 @@
+---
+description: Core project identity and terminology. Always active.
+alwaysApply: true
+---
+
+# Project: YorùbáOCR Research
+
+## What this project is
+A benchmark dataset + fine-tuning study for Yorùbá OCR submitted to
+Deep Learning Indaba 2026 (IJCAI volume). The researcher built a custom
+annotation platform (yoruba-ocr.vercel.app) and exported data in
+PaddleOCR VL-1.5 format.
+
+## Verified dataset facts (do not invent alternatives)
+- Source: Yorùbá di Wúrà Book Series (printed books, 2021)
+- Language: Standard Yorùbá, corrected=yes for all entries
+- Format: line crops (PNG) + tab-separated label files (PaddleOCR format)
+  - Each label line: images/{split}/hash_lineNNNN.png<TAB>ground_truth_text
+- 25+ independent annotation export batches in data/raw/
+- Approximate totals across all exports: ~3,481 train / ~350 val / ~539 test
+  (exact unique counts produced after running 01_consolidate_data.py)
+- Character dictionary: 102 chars including combining diacritics (U+0300, U+0301, U+0323)
+  and precomposed Yorùbá characters (ẹ, ọ, ṣ, and all tonal variants)
+- Metadata columns: image, text, source, year, dialect, corrected, parent_image, line_index
+- Consolidated data lives in data/processed/ after running 01_consolidate_data.py
+
+## Pipeline scripts (in execution order)
+1. scripts/01_consolidate_data.py  — merge exports, deduplicate, copy to data/processed/
+2. scripts/02_analyze_dataset.py   — EDA: char/diacritic distribution, text length stats
+3. scripts/03_generate_config.py   — download pretrained weights + write fine-tune YAML
+4. scripts/04_train_paddleocr.py   — run PaddleOCR fine-tuning (needs PaddleOCR repo)
+5. scripts/05_evaluate.py          — CER/WER/DER evaluation for any model
+6. scripts/06_baseline_pretrained.py — English pretrained model baseline
+
+## Models being compared
+1. PaddleOCR PP-OCRv4 (English pretrained — baseline, no fine-tuning)
+2. PaddleOCR PP-OCRv4 (fine-tuned on Yorùbá dataset)
+3. Tesseract (baseline — add later)
+4. Mistral OCR (zero-shot — add later)
+5. Qwen 2.5 VL (zero-shot multimodal — add later)
+
+## Metrics
+- CER — Character Error Rate (NFC-normalised edit distance / gt char count)
+- WER — Word Error Rate (NFC-normalised word-level edit distance / gt word count)
+- DER — Diacritic Error Rate (novel contribution):
+    pred_diacs = [c for c in NFD(pred) if unicodedata.combining(c)]
+    gt_diacs   = [c for c in NFD(gt)   if unicodedata.combining(c)]
+    DER = edit_distance(pred_diacs, gt_diacs) / len(gt_diacs)
+  Measures tone mark and subdot fidelity specifically — the key failure mode
+  of English pretrained models on Yorùbá text.
+
+## All results must be traceable
+- Every number in the paper must map to an entry in results/tables/metrics.csv
+- Per-sample JSONL logs are written alongside every eval run
+- Never write a metric value in prose that is not in results/tables/
+
+## Terminology: always use these exact forms
+- Yorùbá (with diacritics, never "Yoruba")
+- diacritic minimal pairs (not "similar characters")
+- toneme, tonograph, combining diacritic
+- low-resource (hyphenated when modifier)
+- fine-tuning (hyphenated)
+- CER, WER, DER (always capitalised)
+
+## Submission
+- Venue: Deep Learning Indaba 2026, Lagos, Nigeria
+- Track: Research Papers (IJCAI indexed)
+- Format: IJCAI, 7 pages excl. references
+- Theme: Sovereign Intelligence: African Scale

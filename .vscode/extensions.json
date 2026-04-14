@@ -1,0 +1,11 @@
+{
+  "recommendations": [
+    "yzhang.markdown-all-in-one",
+    "esbenp.prettier-vscode",
+    "valentjn.vscode-ltex",
+    "eamodio.gitlens",
+    "mechatroner.rainbow-csv",
+    "ms-python.python",
+    "ms-python.vscode-pylance"
+  ]
+}

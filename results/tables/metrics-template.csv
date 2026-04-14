@@ -1,0 +1,3 @@
+model,cer,wer,der,notes
+baseline,,,,initial run
+finetuned,,,,lora setup
