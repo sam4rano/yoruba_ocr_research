@@ -6,7 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib_common.sh"
 
 if [[ "${SKIP_QWEN:-1}" == "1" ]]; then
-  log "SKIP_QWEN=1 (default) — set SKIP_QWEN=0 to run Qwen baseline"
+  log "WARN: SKIP_QWEN=1 (default) — skipping Qwen baseline."
+  log "WARN: You are not running the full paper evaluation. Set SKIP_QWEN=0 to run."
   exit 0
 fi
 

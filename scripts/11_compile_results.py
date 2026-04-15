@@ -104,9 +104,30 @@ def load_results(csv_path: Path) -> dict[str, dict]:
             "Run the evaluation scripts first."
         )
     records: dict[str, dict] = {}
+    all_rows = []
+    fieldnames = []
     with csv_path.open(encoding="utf-8") as fh:
-        for row in csv.DictReader(fh):
-            records[row["model"]] = row
+        reader = csv.DictReader(fh)
+        fieldnames = reader.fieldnames
+        for row in reader:
+            all_rows.append(row)
+
+    # Keep only the last entry per (model, split)
+    seen = {}
+    for row in all_rows:
+        key = (row["model"], row.get("split", "test"))
+        seen[key] = row
+    
+    # Write deduplicated rows back to the CSV
+    with csv_path.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in seen.values():
+            writer.writerow(row)
+            
+    # For compilation, we only care about the latest entry per model label
+    for row in seen.values():
+        records[row["model"]] = row
     return records
 
 
@@ -115,11 +136,13 @@ def load_results(csv_path: Path) -> dict[str, dict]:
 # ---------------------------------------------------------------------------
 
 def pct(val: str | None) -> str:
-    """Convert a float string (0–1) to a percentage string with 1 decimal."""
+    """Convert a float string (0–1) to a percentage string with 1 decimal. Capped at 1.0 (100%)."""
     if val is None or val == "":
         return "—"
     try:
-        return f"{float(val) * 100:.1f}"
+        v = float(val)
+        v = min(v, 1.0)
+        return f"{v * 100:.1f}"
     except ValueError:
         return "—"
 

@@ -6,7 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib_common.sh"
 
 if [[ "${SKIP_ABLATION:-1}" == "1" ]]; then
-  log "SKIP_ABLATION=1 (default) — set SKIP_ABLATION=0 to run ablations"
+  log "WARN: SKIP_ABLATION=1 (default) — skipping ablation studies."
+  log "WARN: You are not running the full paper evaluation. Set SKIP_ABLATION=0 to run."
   exit 0
 fi
 

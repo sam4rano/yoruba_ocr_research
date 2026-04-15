@@ -9,6 +9,10 @@ _script_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 export PROJECT_ROOT="${PROJECT_ROOT:-$(cd "${_script_dir}/../.." && pwd)}"
 export PYTHON="${PYTHON:-python3}"
 
+# Configure Hugging Face to use a project-local cache, avoiding ~/.cache permissions issues
+export HF_HOME="${PROJECT_ROOT}/.hf_cache"
+export HF_HUB_CACHE="${HF_HOME}"
+
 log() {
   printf '[%s] %s\n' "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "$*" >&2
 }
@@ -36,6 +40,18 @@ run_py_keep() {
 
 require_python() {
   command -v "$PYTHON" >/dev/null 2>&1 || die "$PYTHON not found"
+}
+
+check_deps() {
+  cd_project
+  if [[ ! -d "PaddleOCR" ]]; then
+    die "PaddleOCR directory not found. Please clone: git clone https://github.com/PaddlePaddle/PaddleOCR.git"
+  fi
+  if ! command -v tesseract >/dev/null 2>&1; then
+    log "WARN: tesseract command not found. Phase 06 (Tesseract baseline) will fail if run."
+  fi
+  # Verify Paddle imports correctly or warn
+  "$PYTHON" -c "import paddle" 2>/dev/null || die "paddlepaddle is not installed or import failed in $PYTHON."
 }
 
 # Backup results (and optionally experiments) to a second location (e.g. Google Drive).

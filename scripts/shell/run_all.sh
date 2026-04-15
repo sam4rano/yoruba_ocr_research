@@ -16,6 +16,7 @@ source "${SCRIPT_DIR}/lib_common.sh"
 
 log "PROJECT_ROOT=$PROJECT_ROOT"
 require_python
+check_deps
 
 DEFAULT_PHASES="01 02 03 04 05 06 07 08 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
