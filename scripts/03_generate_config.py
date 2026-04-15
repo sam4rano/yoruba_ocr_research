@@ -85,6 +85,14 @@ def count_dict_chars(dict_path: Path) -> int:
         return sum(1 for line in fh if line.rstrip("\n"))
 
 
+def count_samples(label_path: Path) -> int:
+    """Return the number of samples in a label file."""
+    if not label_path.exists():
+        return 500
+    with label_path.open(encoding="utf-8") as fh:
+        return sum(1 for line in fh if line.strip())
+
+
 def build_config(
     project_root: Path,
     data_dir: Path,
@@ -97,6 +105,9 @@ def build_config(
     use_gpu: bool,
 ) -> dict:
     """Construct the full PaddleOCR YAML config as a Python dict."""
+    n_train = count_samples(data_dir / "labels" / "train.txt")
+    eval_step = max(20, min(2000, (n_train // batch_size) * 2))
+    
     return {
         "Global": {
             "use_gpu": use_gpu,
@@ -105,14 +116,14 @@ def build_config(
             "print_batch_step": 10,
             "save_model_dir": str(output_dir / "finetuned"),
             "save_epoch_step": 10,
-            "eval_batch_step": [0, 2000],
+            "eval_batch_step": [0, eval_step],
             "cal_metric_during_train": True,
             "pretrained_model": str(pretrained_model_dir / "best_accuracy"),
             "checkpoints": None,
             "save_inference_dir": None,
             "use_visualdl": False,
             "character_dict_path": str(dict_path),
-            "max_text_length": 80,
+            "max_text_length": 160,
             "infer_mode": False,
             "use_space_char": True,
             "distributed": False,
@@ -170,7 +181,7 @@ def build_config(
                     {"DecodeImage": {"img_mode": "BGR", "channel_first": False}},
                     {"RecAug": None},
                     {"CTCLabelEncode": None},
-                    {"RecResizeImg": {"image_shape": [3, 48, 320]}},
+                    {"RecResizeImg": {"image_shape": [3, 48, 512]}},
                     {"KeepKeys": {"keep_keys": ["image", "label", "length"]}},
                 ],
             },
@@ -189,7 +200,7 @@ def build_config(
                 "transforms": [
                     {"DecodeImage": {"img_mode": "BGR", "channel_first": False}},
                     {"CTCLabelEncode": None},
-                    {"RecResizeImg": {"image_shape": [3, 48, 320]}},
+                    {"RecResizeImg": {"image_shape": [3, 48, 512]}},
                     {"KeepKeys": {"keep_keys": ["image", "label", "length"]}},
                 ],
             },
@@ -264,7 +275,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--lr",
         type=float,
-        default=0.0005,
+        default=0.001,
         help="Initial learning rate.",
     )
     parser.add_argument(

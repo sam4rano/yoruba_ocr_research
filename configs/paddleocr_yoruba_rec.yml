@@ -7,14 +7,14 @@ Global:
   save_epoch_step: 10
   eval_batch_step:
   - 0
-  - 2000
+  - 102
   cal_metric_during_train: true
   pretrained_model: /Users/mac/Desktop/yoruba_ocr_research/experiments/baseline/pretrained/en_PP-OCRv4_rec_train/best_accuracy
   checkpoints: null
   save_inference_dir: null
   use_visualdl: false
   character_dict_path: /Users/mac/Desktop/yoruba_ocr_research/data/processed/dictionary/yoruba_char_dict.txt
-  max_text_length: 80
+  max_text_length: 160
   infer_mode: false
   use_space_char: true
   distributed: false
@@ -25,7 +25,7 @@ Optimizer:
   beta2: 0.999
   lr:
     name: MultiStepDecay
-    learning_rate: 0.0005
+    learning_rate: 0.001
     milestones:
     - 60
     - 80
@@ -82,7 +82,7 @@ Train:
         image_shape:
         - 3
         - 48
-        - 320
+        - 512
     - KeepKeys:
         keep_keys:
         - image
@@ -108,7 +108,7 @@ Eval:
         image_shape:
         - 3
         - 48
-        - 320
+        - 512
     - KeepKeys:
         keep_keys:
         - image

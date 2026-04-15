@@ -4,8 +4,8 @@
   "dict_size": 139,
   "epochs": 100,
   "batch_size": 64,
-  "lr": 0.0005,
+  "lr": 0.001,
   "pretrained_model_dir": "experiments/baseline/pretrained/en_PP-OCRv4_rec_train",
   "use_gpu": false,
-  "timestamp": "2026-04-15T01:38:50.794897+00:00"
+  "timestamp": "2026-04-15T17:42:05.062948+00:00"
 }
