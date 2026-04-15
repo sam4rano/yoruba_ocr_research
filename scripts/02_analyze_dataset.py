@@ -6,7 +6,8 @@ Computes and saves:
   - Character frequency table (top N chars)
   - Diacritic character distribution (tone marks + subdot)
   - Vocabulary coverage vs the character dictionary
-  - Optional matplotlib plots saved to results/tables/figures/
+  - With --plot: results/tables/figures/text_length_distribution.png and
+    char_frequency_top.png
 
 Usage:
     python scripts/02_analyze_dataset.py
@@ -121,7 +122,7 @@ def vocab_coverage(chars_in_data: set[str], dict_path: Path) -> dict:
 
 
 def save_plots(per_split: dict, output_dir: Path) -> None:
-    """Save matplotlib figures for text length and char frequency distributions."""
+    """Save matplotlib figures for text length and character frequency."""
     try:
         import matplotlib.pyplot as plt  # type: ignore
     except ImportError:
@@ -145,6 +146,25 @@ def save_plots(per_split: dict, output_dir: Path) -> None:
     fig.savefig(fig_dir / "text_length_distribution.png", dpi=120)
     plt.close(fig)
     log.info("Saved text length plot.")
+
+    # Top characters (pool all splits)
+    all_texts = [t for texts in per_split.values() for t in texts]
+    freq = char_frequency(all_texts)
+    top_n = 30
+    common = freq.most_common(top_n)
+    if common:
+        chars = [c if c != " " else "(space)" for c, _ in common]
+        counts = [n for _, n in common]
+        fig2, ax2 = plt.subplots(figsize=(12, 5))
+        ax2.bar(range(len(chars)), counts, color="steelblue", edgecolor="black")
+        ax2.set_xticks(range(len(chars)))
+        ax2.set_xticklabels(chars, fontsize=8, rotation=45, ha="right")
+        ax2.set_ylabel("count")
+        ax2.set_title(f"Yorùbá OCR — Top {top_n} characters (all splits)")
+        fig2.tight_layout()
+        fig2.savefig(fig_dir / "char_frequency_top.png", dpi=120)
+        plt.close(fig2)
+        log.info("Saved character frequency plot.")
 
 
 def parse_args() -> argparse.Namespace:

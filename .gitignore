@@ -42,3 +42,4 @@ wandb/
 # OS/editor
 .DS_Store
 Thumbs.db
+.hf_cache/

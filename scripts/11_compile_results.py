@@ -44,7 +44,6 @@ MODEL_DISPLAY = {
     "tesseract_eng":                    "Tesseract (eng)",
     "tesseract_yor":                    "Tesseract (yor)",
     "tesseract_eng+yor":                "Tesseract (eng+yor)",
-    "mistral_ocr_zero_shot":            "Mistral OCR (zero-shot)",
     "qwen25_vl_zero_shot":              "Qwen 2.5 VL (zero-shot)",
     "finetuned_paddleocr_v1":           "PaddleOCR PP-OCRv4 (fine-tuned)",
     # Ablation data size
@@ -66,7 +65,6 @@ TABLE1_ORDER = [
     "tesseract_eng",
     "tesseract_yor",
     "tesseract_eng+yor",
-    "mistral_ocr_zero_shot",
     "qwen25_vl_zero_shot",
     "finetuned_paddleocr_v1",
 ]

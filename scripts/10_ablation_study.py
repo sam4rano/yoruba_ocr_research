@@ -183,7 +183,9 @@ def ablation_data_size(gpus: str, epochs: int) -> None:
 
         # Patch config
         cfg = yaml.safe_load(yaml.dump(base_cfg))  # deep copy
-        cfg["Global"]["save_model_dir"] = str(ablation_dir / "model")
+        # Use an absolute path so training (cwd=PaddleOCR) and evaluation
+        # both refer to the same checkpoint directory.
+        cfg["Global"]["save_model_dir"] = str((ablation_dir / "model").resolve())
         cfg["Train"]["dataset"]["label_file_list"] = [str(sampled_label.resolve())]
         config_path = ablation_dir / "config.yml"
         save_config(cfg, config_path)
@@ -194,7 +196,9 @@ def ablation_data_size(gpus: str, epochs: int) -> None:
             log.error("Training failed for %s. Skipping eval.", model_name)
             continue
 
-        best_model = ablation_dir / "model" / "best_accuracy"
+        # Let the evaluator resolve best_accuracy or latest inside the model dir.
+        # Short ablation runs (few epochs) may not produce best_accuracy.* yet.
+        best_model = ablation_dir / "model"
         for split in ("val", "test"):
             run_evaluation(best_model, f"{model_name}_{split}", split)
 
@@ -226,7 +230,7 @@ def ablation_dictionary(gpus: str, epochs: int) -> None:
         ablation_dir.mkdir(parents=True, exist_ok=True)
 
         cfg = yaml.safe_load(yaml.dump(base_cfg))
-        cfg["Global"]["save_model_dir"] = str(ablation_dir / "model")
+        cfg["Global"]["save_model_dir"] = str((ablation_dir / "model").resolve())
         if dict_path is not None:
             cfg["Global"]["character_dict_path"] = dict_path
         else:
@@ -242,7 +246,7 @@ def ablation_dictionary(gpus: str, epochs: int) -> None:
             log.error("Training failed for %s. Skipping eval.", model_name)
             continue
 
-        best_model = ablation_dir / "model" / "best_accuracy"
+        best_model = ablation_dir / "model"
         for split in ("val", "test"):
             run_evaluation(best_model, f"{model_name}_{split}", split)
 
@@ -270,7 +274,7 @@ def ablation_augmentation(gpus: str, epochs: int) -> None:
         ablation_dir.mkdir(parents=True, exist_ok=True)
 
         cfg = yaml.safe_load(yaml.dump(base_cfg))
-        cfg["Global"]["save_model_dir"] = str(ablation_dir / "model")
+        cfg["Global"]["save_model_dir"] = str((ablation_dir / "model").resolve())
 
         if not use_aug:
             # Remove RecAug from the transforms list
@@ -288,7 +292,7 @@ def ablation_augmentation(gpus: str, epochs: int) -> None:
             log.error("Training failed for %s. Skipping eval.", model_name)
             continue
 
-        best_model = ablation_dir / "model" / "best_accuracy"
+        best_model = ablation_dir / "model"
         for split in ("val", "test"):
             run_evaluation(best_model, f"{model_name}_{split}", split)
 

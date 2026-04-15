@@ -1,8 +1,8 @@
 {
   "stage": "train",
-  "command": "/Users/mac/Desktop/yoruba_ocr_research/.venv/bin/python3 /Users/mac/Desktop/yoruba_ocr_research/PaddleOCR/tools/train.py -c /Users/mac/Desktop/yoruba_ocr_research/configs/paddleocr_yoruba_rec_final.yml -o Global.use_gpu=false",
+  "command": "/Users/mac/Desktop/yoruba_ocr_research/.venv/bin/python3 /Users/mac/Desktop/yoruba_ocr_research/PaddleOCR/tools/train.py -c /Users/mac/Desktop/yoruba_ocr_research/experiments/ablation/augmentation/no_aug/config.yml -o Global.epoch_num=5",
   "returncode": 0,
-  "elapsed_seconds": 13216.9,
+  "elapsed_seconds": 793.4,
   "success": true,
-  "timestamp": "2026-04-14T04:17:17.545027+00:00"
+  "timestamp": "2026-04-15T11:17:49.440188+00:00"
 }

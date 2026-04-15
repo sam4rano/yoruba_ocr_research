@@ -36,9 +36,6 @@ seaborn>=0.12.0
 # ── Baseline: Tesseract ──────────────────────────────────────────────────────
 pytesseract>=0.3.10          # Python wrapper; also install: brew install tesseract tesseract-lang
 
-# ── Baseline: Mistral OCR ────────────────────────────────────────────────────
-mistralai>=1.0.0             # requires MISTRAL_API_KEY env var
-
 # ── Baseline: Qwen 2.5 VL ───────────────────────────────────────────────────
 transformers>=4.45.0
 accelerate>=0.30.0

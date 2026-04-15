@@ -36,8 +36,7 @@ PaddleOCR VL-1.5 format.
 1. PaddleOCR PP-OCRv4 (English pretrained — baseline, no fine-tuning)
 2. PaddleOCR PP-OCRv4 (fine-tuned on Yorùbá dataset)
 3. Tesseract (baseline — add later)
-4. Mistral OCR (zero-shot — add later)
-5. Qwen 2.5 VL (zero-shot multimodal — add later)
+4. Qwen 2.5 VL (zero-shot multimodal — add later)
 
 ## Metrics
 - CER — Character Error Rate (NFC-normalised edit distance / gt char count)
