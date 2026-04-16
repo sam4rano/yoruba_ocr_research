@@ -2,9 +2,7 @@
 Generate the PaddleOCR fine-tuning YAML config with absolute paths resolved
 from the current machine's project root.
 
-Downloads the PP-OCRv4 English pretrained recognition weights if not present.
-Writes the final config to configs/paddleocr_yoruba_rec.yml (overwriting the
-template) and prints the training command to run next.
+Downloads the PP-OCRv3 English pretrained recognition weights if not present.
 
 Usage:
     python scripts/03_generate_config.py
@@ -33,22 +31,22 @@ import yaml  # PyYAML
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-# PP-OCRv4 English recognition pretrained weights
+# PP-OCRv3 English recognition pretrained weights
 PRETRAINED_URL = (
-    "https://paddleocr.bj.bcebos.com/PP-OCRv4/english/"
-    "en_PP-OCRv4_rec_train.tar"
+    "https://paddleocr.bj.bcebos.com/PP-OCRv3/english/"
+    "en_PP-OCRv3_rec_train.tar"
 )
-PRETRAINED_DIR_NAME = "en_PP-OCRv4_rec_train"
+PRETRAINED_DIR_NAME = "en_PP-OCRv3_rec_train"
 
 
 def download_pretrained(pretrained_dir: Path) -> Path:
     """
-    Download and extract PP-OCRv4 English recognition weights.
+    Download and extract PP-OCRv3 English recognition weights.
 
     Returns the path to the directory containing best_accuracy.pdparams.
     Skips download if the file already exists.
     """
-    tar_path = pretrained_dir / "en_PP-OCRv4_rec_train.tar"
+    tar_path = pretrained_dir / "en_PP-OCRv3_rec_train.tar"
     model_dir = pretrained_dir / PRETRAINED_DIR_NAME
 
     if (model_dir / "best_accuracy.pdparams").exists():

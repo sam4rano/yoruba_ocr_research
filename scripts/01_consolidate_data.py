@@ -152,25 +152,25 @@ def collect_registry(
     return registry
 
 
-def collect_char_dicts(exports: list[tuple[int, Path]]) -> list[str]:
+def collect_char_dicts_from_registry(registry: dict[str, dict]) -> list[str]:
     """
-    Merge all per-export character dictionaries into a sorted union list.
-
-    Each dict file has one character per line (may include a leading space char).
+    Build the character dictionary dynamically from all text in the consolidated dataset.
+    
+    This ensures that *every* character present in the labels (including any missing
+    diacritics or special characters like 'ố' and 'Ở') is included in the dictionary.
+    We explicitly remove the space character (' ') because PaddleOCR's CTCLabelEncode
+    handles it internally when use_space_char=True is set.
     """
     chars: set[str] = set()
-    for _, export_dir in exports:
-        for dict_file in (export_dir / "dictionary").glob("rec_char_dict*.txt"):
-            with dict_file.open(encoding="utf-8") as fh:
-                for line in fh:
-                    ch = line.rstrip("\n")
-                    if ch:  # preserve space char by checking length, not truthiness
-                        if re.match(r'^[cqvxz]$', ch, re.IGNORECASE):
-                            continue
-                        chars.add(ch)
-                    elif line == "\n":
-                        # A line containing only newline = the space character entry
-                        chars.add(" ")
+    for entry in registry.values():
+        text = entry["text"]
+        for ch in text:
+            chars.add(ch)
+            
+    # Explicitly remove space to avoid index shifting with use_space_char=True
+    if " " in chars:
+        chars.remove(" ")
+        
     return sorted(chars, key=lambda c: (ord(c[0]), c))
 
 
@@ -273,7 +273,7 @@ def main() -> None:
     log.info("Unique images after deduplication: %d", len(registry))
 
     log.info("Collecting character dictionaries ...")
-    chars = collect_char_dicts(exports)
+    chars = collect_char_dicts_from_registry(registry)
     log.info("Merged character set size: %d", len(chars))
 
     log.info("Copying images and writing label files ...")

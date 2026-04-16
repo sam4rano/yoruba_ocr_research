@@ -12,8 +12,14 @@ if [[ "${SKIP_TESSERACT:-0}" == "1" ]]; then
 fi
 
 if ! command -v tesseract >/dev/null 2>&1; then
-  log "ERROR: tesseract not on PATH. On Debian/Ubuntu: sudo apt-get install tesseract-ocr tesseract-ocr-yor"
-  exit 1
+  log "WARN: tesseract not on PATH."
+  if [[ "$(id -u)" == "0" ]] && command -v apt-get >/dev/null 2>&1; then
+    log "Auto-installing tesseract-ocr since we are running as root (e.g., Google Colab)..."
+    apt-get update -qq && apt-get install -qq -y tesseract-ocr tesseract-ocr-yor libtesseract-dev || exit 1
+  else
+    log "ERROR: Cannot auto-install. On Debian/Ubuntu run: sudo apt-get install tesseract-ocr tesseract-ocr-yor"
+    exit 1
+  fi
 fi
 
 # Default languages: eng, yor, eng+yor (quote the last token).

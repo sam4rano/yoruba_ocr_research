@@ -9,7 +9,7 @@ Global:
   - 0
   - 88
   cal_metric_during_train: true
-  pretrained_model: /Users/mac/Desktop/yoruba_ocr_research/experiments/baseline/pretrained/en_PP-OCRv4_rec_train/best_accuracy
+  pretrained_model: /Users/mac/Desktop/yoruba_ocr_research/experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy
   checkpoints: null
   save_inference_dir: null
   use_visualdl: false
