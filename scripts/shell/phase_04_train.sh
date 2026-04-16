@@ -17,5 +17,6 @@ TRAIN_ARGS=(
 [[ -n "${TRAIN_BATCH_OVERRIDE:-}" ]] && TRAIN_ARGS+=( --batch-size "${TRAIN_BATCH_OVERRIDE}" )
 [[ -n "${TRAIN_LR_OVERRIDE:-}" ]] && TRAIN_ARGS+=( --lr "${TRAIN_LR_OVERRIDE}" )
 [[ "${TRAIN_CPU:-0}" == "1" ]] && TRAIN_ARGS+=( --cpu )
+[[ "${TRAIN_RESUME:-0}" == "1" ]] && TRAIN_ARGS+=( --resume )
 
 run_py "${TRAIN_ARGS[@]}"

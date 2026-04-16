@@ -188,6 +188,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Override config: Global.use_gpu=false (macOS / CPU-only Paddle).",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Search for existing checkpoints in save_model_dir to resume training.",
+    )
     return parser.parse_args()
 
 
@@ -207,6 +212,23 @@ def main() -> None:
         overrides.append(f"Optimizer.lr.learning_rate={args.lr}")
     if args.cpu:
         overrides.append("Global.use_gpu=false")
+
+    if args.resume:
+        # Load the config to find the save_model_dir
+        try:
+            with args.config.open(encoding="utf-8") as f:
+                cfg = yaml.safe_load(f)
+            save_dir = Path(cfg.get("Global", {}).get("save_model_dir", "experiments/finetuned"))
+            # PaddleOCR saves latest as 'latest.pdparams', we provide the prefix 'latest'
+            latest_check = save_dir / "latest.pdparams"
+            if latest_check.exists():
+                checkpoint_prefix = str(save_dir / "latest")
+                log.info("Found checkpoint at %s. Resuming...", latest_check)
+                overrides.append(f"Global.checkpoints={checkpoint_prefix}")
+            else:
+                log.warning("No checkpoint found at %s. Starting from scratch.", latest_check)
+        except Exception as e:
+            log.warning("Could not check for checkpoints (needs PyYAML): %s", e)
 
     cmd = build_train_command(args.paddle_dir, args.config, args.gpus, overrides)
     result = run_training(cmd, args.paddle_dir, args.log_file)
