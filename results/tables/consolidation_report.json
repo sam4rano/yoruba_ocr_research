@@ -1,6 +1,6 @@
 {
   "stage": "consolidate",
-  "n_exports": 30,
+  "n_exports": 31,
   "export_ids": [
     16166,
     17520,
@@ -22,6 +22,7 @@
     61394,
     65854,
     65886,
+    65886,
     80921,
     81280,
     85019,
@@ -33,13 +34,13 @@
     97438,
     98446
   ],
-  "unique_images_total": 4155,
+  "unique_images_total": 3626,
   "split_counts": {
-    "train": 3312,
-    "val": 350,
-    "test": 493
+    "train": 2878,
+    "val": 317,
+    "test": 431
   },
-  "char_dict_size": 139,
+  "char_dict_size": 131,
   "output_dir": "data/processed",
-  "timestamp": "2026-04-13T23:28:37.586495+00:00"
+  "timestamp": "2026-04-15T18:45:07.815744+00:00"
 }

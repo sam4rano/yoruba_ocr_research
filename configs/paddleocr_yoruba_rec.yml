@@ -7,7 +7,7 @@ Global:
   save_epoch_step: 10
   eval_batch_step:
   - 0
-  - 102
+  - 88
   cal_metric_during_train: true
   pretrained_model: /Users/mac/Desktop/yoruba_ocr_research/experiments/baseline/pretrained/en_PP-OCRv4_rec_train/best_accuracy
   checkpoints: null

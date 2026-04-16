@@ -71,6 +71,33 @@ def read_label_file(label_path: Path) -> list[tuple[str, str]]:
     return entries
 
 
+def is_valid_yoruba(text: str) -> bool:
+    """Check if the text is clean, valid Yoruba and not English code-mixed or UI artifacts."""
+    # 1. No English-only consonants (c, q, v, x, z)
+    if re.search(r'[cqvxz]', text, re.IGNORECASE):
+        return False
+    
+    # 2. No fill-in-the-blank dots or underscores
+    if re.search(r'\.{3,}', text) or re.search(r'_{3,}', text):
+        return False
+        
+    # 3. No hanging equals signs often used for translation matching '... = ...'
+    if "=" in text:
+        return False
+        
+    # 4. No English months or Roman numerals used in list numbering
+    months_roman = r'\b(january|february|march|april|may|june|july|august|september|october|november|december|iv|vi|vii|viii|ix)\b'
+    if re.search(months_roman, text, re.IGNORECASE):
+        return False
+        
+    # 5. Generic bad English tokens found in the data or common stopwords
+    bad_words = r'\b(chest|child|breeze|chair|cup|bicycle|village|zebra|fox|camel|the|and|of|to|in|is|was|for|on|are|with)\b'
+    if re.search(bad_words, text, re.IGNORECASE):
+        return False
+        
+    return True
+
+
 def collect_registry(
     exports: list[tuple[int, Path]],
 ) -> dict[str, dict]:
@@ -107,6 +134,11 @@ def collect_registry(
                     log.debug("Image missing: %s", src_path)
                     continue
                 stem = Path(rel_path).name
+                
+                # Filter out invalid Yoruba text (Code-mixed English, blanks, etc.)
+                if not is_valid_yoruba(text):
+                    continue
+
                 if stem not in registry or export_id > registry[stem]["export_id"]:
                     registry[stem] = {
                         "text": text,
@@ -133,6 +165,8 @@ def collect_char_dicts(exports: list[tuple[int, Path]]) -> list[str]:
                 for line in fh:
                     ch = line.rstrip("\n")
                     if ch:  # preserve space char by checking length, not truthiness
+                        if re.match(r'^[cqvxz]$', ch, re.IGNORECASE):
+                            continue
                         chars.add(ch)
                     elif line == "\n":
                         # A line containing only newline = the space character entry
