@@ -1,6 +1,6 @@
 model_label,display_name,cer_pct,wer_pct,der_pct,n
-baseline_english_pretrained,PaddleOCR PP-OCRv4 (EN pretrained),100.0,100.0,89.8,493
-tesseract_eng,Tesseract (eng),100.0,100.0,77.0,493
-tesseract_yor,Tesseract (yor),100.0,100.0,78.3,493
-tesseract_eng+yor,Tesseract (eng+yor),100.0,100.0,77.6,493
-finetuned_paddleocr_v1,PaddleOCR PP-OCRv4 (fine-tuned),96.1,100.0,81.3,493
+baseline_english_pretrained,PaddleOCR PP-OCRv4 (EN pretrained),100.2,100.0,89.8,493
+tesseract_eng,Tesseract (eng),150.7,167.5,77.0,493
+tesseract_yor,Tesseract (yor),162.2,180.0,78.3,493
+tesseract_eng+yor,Tesseract (eng+yor),152.5,175.3,77.6,493
+finetuned_paddleocr_v1,PaddleOCR PP-OCRv4 (fine-tuned),96.1,101.2,81.3,493

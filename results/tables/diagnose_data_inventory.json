@@ -1,0 +1,13 @@
+{
+  "label_file": "data/processed/labels/test.txt",
+  "split": "test",
+  "lines_in_file": 431,
+  "tab_parsed_rows": 431,
+  "pairs_with_existing_image": 431,
+  "missing_image_skipped_by_loader": 0,
+  "char_len_min": 1,
+  "char_len_max": 768,
+  "char_len_mean": 37.109,
+  "sample_size": 20,
+  "sample_seed": 42
+}

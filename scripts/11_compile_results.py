@@ -96,38 +96,43 @@ def load_results(csv_path: Path) -> dict[str, dict]:
     """
     Load results CSV into a dict keyed by model label.
 
-    When a model appears multiple times (reruns), the LAST entry is used.
+    Deduplicates by (model, split), keeping the **last** row in file order for each key.
+    Does **not** rewrite metrics.csv (append-only history is preserved).
+
+    When the same ``model`` appears under multiple splits, **test** is preferred for
+    compilation, then **val**, then **train**.
     """
     if not csv_path.exists():
         raise FileNotFoundError(
             f"Results file not found: {csv_path}\n"
             "Run the evaluation scripts first."
         )
-    records: dict[str, dict] = {}
-    all_rows = []
-    fieldnames = []
+    all_rows: list[dict] = []
     with csv_path.open(encoding="utf-8") as fh:
         reader = csv.DictReader(fh)
-        fieldnames = reader.fieldnames
         for row in reader:
             all_rows.append(row)
 
-    # Keep only the last entry per (model, split)
-    seen = {}
+    seen: dict[tuple[str, str], dict] = {}
     for row in all_rows:
         key = (row["model"], row.get("split", "test"))
         seen[key] = row
-    
-    # Write deduplicated rows back to the CSV
-    with csv_path.open("w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in seen.values():
-            writer.writerow(row)
-            
-    # For compilation, we only care about the latest entry per model label
-    for row in seen.values():
-        records[row["model"]] = row
+
+    models = sorted({r["model"] for r in all_rows})
+    records: dict[str, dict] = {}
+    for model in models:
+        chosen: dict | None = None
+        for split in ("test", "val", "train"):
+            if (model, split) in seen:
+                chosen = seen[(model, split)]
+                break
+        if chosen is None:
+            for (m, _s), row in seen.items():
+                if m == model:
+                    chosen = row
+                    break
+        if chosen is not None:
+            records[model] = chosen
     return records
 
 
@@ -136,12 +141,16 @@ def load_results(csv_path: Path) -> dict[str, dict]:
 # ---------------------------------------------------------------------------
 
 def pct(val: str | None) -> str:
-    """Convert a float string (0–1) to a percentage string with 1 decimal. Capped at 1.0 (100%)."""
+    """
+    Convert a stored metric rate to a percentage-style display (value × 100, 1 decimal).
+
+    CER/WER may exceed 1.0 when insertions dominate; do not cap, or the table
+    collapses to 100.0 for every such model.
+    """
     if val is None or val == "":
         return "—"
     try:
         v = float(val)
-        v = min(v, 1.0)
         return f"{v * 100:.1f}"
     except ValueError:
         return "—"
@@ -259,14 +268,26 @@ def main() -> None:
     rows = load_results(args.results_csv)
     log.info("Loaded %d model result rows.", len(rows))
 
+    missing = [m for m in TABLE1_ORDER if m not in rows]
+    if missing:
+        log.warning(
+            "Table 1: no metrics row for: %s (run the corresponding eval or expect "
+            "— in tables).",
+            ", ".join(missing),
+        )
+
     # --- Table 1: Main Comparison ---
     table1_md = render_markdown_table(rows, TABLE1_ORDER)
     (args.output_dir / "table1_main_comparison.md").write_text(
         "# Table 1 — Main Model Comparison (test split)\n\n" + table1_md + "\n",
         encoding="utf-8",
     )
-    write_csv_table(rows, TABLE1_ORDER, args.output_dir / "table1_main_comparison.csv")
-    log.info("Table 1 written.")
+    table1_csv = args.output_dir / "table1_main_comparison.csv"
+    write_csv_table(rows, TABLE1_ORDER, table1_csv)
+    # Alias for notebooks / older docs that expect this filename
+    summary_alias = args.output_dir / "metrics_summary.csv"
+    summary_alias.write_text(table1_csv.read_text(encoding="utf-8"), encoding="utf-8")
+    log.info("Table 1 written (%s + metrics_summary.csv).", table1_csv.name)
 
     # --- Tables 2–4: Ablation Studies ---
     ablation_titles = {

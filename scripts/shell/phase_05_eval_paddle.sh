@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib_common.sh"
 
 require_python
-BASE_PRE="${BASELINE_PRETRAINED_DIR:-experiments/baseline/pretrained/en_PP-OCRv4_rec_train}"
+BASE_PRE="${BASELINE_PRETRAINED_DIR:-experiments/baseline/pretrained/en_PP-OCRv3_rec_train}"
 FINETUNE_DIR="${FINETUNED_DIR:-experiments/finetuned}"
 SPLIT="${EVAL_SPLIT:-test}"
 

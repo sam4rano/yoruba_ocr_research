@@ -2,4 +2,4 @@
 
 | Model | CER ↓ | WER ↓ | DER ↓ |
 |-------|------:|------:|------:|
-| Fine-tuned + English dict | **100.0** | **100.0** | **100.0** |
+| Fine-tuned + English dict | **136.1** | **100.0** | **104.4** |

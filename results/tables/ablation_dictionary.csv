@@ -1,2 +1,2 @@
 model_label,display_name,cer_pct,wer_pct,der_pct,n
-ablation_dict_english_dict_test,Fine-tuned + English dict,100.0,100.0,100.0,493
+ablation_dict_english_dict_test,Fine-tuned + English dict,136.1,100.0,104.4,493

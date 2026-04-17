@@ -74,7 +74,7 @@ def parse_args() -> argparse.Namespace:
         "--pretrained_dir",
         dest="pretrained_dir",
         type=Path,
-        default=Path("experiments/baseline/pretrained/en_PP-OCRv4_rec_train"),
+        default=Path("experiments/baseline/pretrained/en_PP-OCRv3_rec_train"),
         help="Directory containing the extracted pretrained checkpoint files.",
     )
     parser.add_argument(

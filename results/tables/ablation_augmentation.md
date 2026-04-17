@@ -2,5 +2,5 @@
 
 | Model | CER ↓ | WER ↓ | DER ↓ |
 |-------|------:|------:|------:|
-| Fine-tuned − RecAug | **97.0** | **100.0** | **77.5** |
-| Fine-tuned + RecAug | 100.0 | 100.0 | 80.1 |
+| Fine-tuned − RecAug | **97.0** | **104.7** | **77.5** |
+| Fine-tuned + RecAug | 101.6 | 107.9 | 80.1 |

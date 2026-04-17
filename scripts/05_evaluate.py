@@ -19,7 +19,7 @@ Usage:
 
     # Pretrained English baseline evaluation
     python scripts/05_evaluate.py \
-        --model-dir experiments/baseline/pretrained/en_PP-OCRv4_rec_train \
+        --model-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
         --data-dir data/processed \
         --split test \
         --model-name baseline_english_pretrained

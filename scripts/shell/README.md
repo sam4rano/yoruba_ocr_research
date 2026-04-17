@@ -12,7 +12,9 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 | `phase_06_tesseract.sh` | Tesseract baselines |
 | `phase_07_qwen.sh` | Qwen VL zero-shot (off unless `SKIP_QWEN=0`) |
 | `phase_08_ablation.sh` | Ablation study (off unless `SKIP_ABLATION=0`) |
-| `phase_09_compile.sh` | `11_compile_results.py` → table Markdown/CSV |
+| `phase_09_compile.sh` | `11_compile_results.py` → table Markdown/CSV + alignment check |
+| `phase_12_diagnose.sh` | Data vs eval vs setup diagnostics (`12_diagnose_hypotheses.py`) |
+| `phase_13_verify_eval.sh` | `metrics.csv` ``n`` vs label files (`13_verify_eval_alignment.py`) |
 | `phase_99_backup.sh` | Copy `results/` (+ optional `experiments/`) to `DRIVE_BACKUP_ROOT` |
 | `run_all.sh` | Runs phases in order (override with `PHASES="..."`) |
 
@@ -58,10 +60,15 @@ bash scripts/shell/run_all.sh
 | `DRIVE_BACKUP_ROOT` | Parent directory for timestamped backup (phase 99) |
 | `BACKUP_EXPERIMENTS` | `1` (default) includes `experiments/` in backup (large) |
 | `GIT_SNAPSHOT` | `1` + phase 99 runs optional `git commit` on `results/tables` |
+| `VERIFY_STRICT` | `1` + phase 13 exits non-zero if `n` ≠ current label pair count |
 
 ## Repo vs Drive
 
 - **Repo:** Running phases from `PROJECT_ROOT` writes directly into `results/` and `experiments/` in the working tree. Commit what your policy allows (often `results/tables/*` only; large checkpoints via Drive or Git LFS).
 - **Drive (or any second path):** Set `DRIVE_BACKUP_ROOT` and run phase `99` (included in `run_all.sh`) to copy artifacts. The last backup path is stored in `results/tables/.last_drive_backup_path.txt`.
 
-See also `docs/colab_pro_t4.md`.
+**Compiled tables:** `results/tables/table1_main_comparison.{md,csv}` and `metrics_summary.csv` (same as Table 1 CSV). See `docs/metrics_conventions.md`. After Qwen eval, run `DIAG_ONLY=replay` with `phase_12_diagnose.sh` on `qwen25_vl_zero_shot_test.jsonl`.
+
+**Strict alignment (before submission):** `VERIFY_STRICT=1 bash scripts/shell/phase_13_verify_eval.sh` — fails if any stored `n` ≠ current pair count.
+
+See also `docs/colab_pro_t4.md`, `docs/manual_qa_checklist.md`.
