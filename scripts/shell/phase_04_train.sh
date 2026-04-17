@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 4: fine-tune PaddleOCR (GPU: --gpus 0; CPU/mac: --cpu on 04_train_paddleocr.py).
+# Phase 4: PP-OCRv4 CRNN fine-tune — classical comparison / ablation target (GPU: --gpus 0; CPU/mac: --cpu).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib_common.sh

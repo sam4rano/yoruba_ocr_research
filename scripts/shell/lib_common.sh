@@ -32,12 +32,6 @@ run_py() {
   "$PYTHON" "$@"
 }
 
-run_py_keep() {
-  cd_project
-  log "RUN: $PYTHON $*"
-  "$PYTHON" "$@"
-}
-
 require_python() {
   command -v "$PYTHON" >/dev/null 2>&1 || die "$PYTHON not found"
 }

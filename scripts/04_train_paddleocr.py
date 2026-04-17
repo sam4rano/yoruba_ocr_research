@@ -1,5 +1,9 @@
 """
-Run PaddleOCR fine-tuning and log training metadata.
+Run PaddleOCR **PP-OCRv4** recognition fine-tuning (CRNN) and log training metadata.
+
+This is the **classical comparison** stack; the primary supervised model in this
+project is PaddleOCR-VL-1.5 LoRA (``16_train_paddleocr_vl_lora.py``). Ablations in
+``10_ablation_study.py`` vary this PP-OCRv4 pipeline only.
 
 Expects:
   - PaddleOCR repo cloned at --paddle-dir (default: ./PaddleOCR)

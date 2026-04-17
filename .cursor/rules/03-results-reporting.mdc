@@ -11,8 +11,10 @@ BAD: "Table 2 shows the results of our experiment comparing..."
 
 ## Every number rule
 State value -> (Table/Figure reference) -> interpretation
-Example: "The fine-tuned model achieves a CER of 4.2% (Table 2),
-compared to 18.7% for the pretrained baseline — a 77% relative reduction."
+When referring to the **primary supervised result**, name **PaddleOCR-VL-1.5 LoRA**
+unless the sentence is explicitly about PP-OCRv4 CRNN or ablations on that stack.
+Example: "The LoRA fine-tuned VL model achieves a CER of 4.2% (Table 1),
+compared to 18.7% for the pretrained PP-OCRv4 baseline — a 77% relative reduction."
 
 ## Standard results table format
 | Model | CER ↓ | WER ↓ | DER ↓ | Notes |

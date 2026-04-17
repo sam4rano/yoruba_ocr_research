@@ -4,9 +4,10 @@ Compile all evaluation results into the paper's final comparison tables.
 Reads results/tables/metrics.csv (written by all evaluation scripts)
 and produces:
 
-  Table 1 — Main Comparison
-    PP-OCRv4, Tesseract, PaddleOCR-VL-1.5, Qwen VL, on the test split.
-    Columns: Model | CER ↓ | WER ↓ | DER ↓
+  Table 1 — Main Comparison (test split)
+    Rows are ordered: OCR baselines → zero-shot multimodal models → **primary
+    supervised result (PaddleOCR-VL-1.5 LoRA)** → classical PP-OCRv4 CRNN
+    fine-tune as comparison. Columns: Model | CER ↓ | WER ↓ | DER ↓
 
   Table 2 — Ablation: Data Size
     Performance at 25/50/75/100% of training data.
@@ -46,22 +47,22 @@ MODEL_DISPLAY = {
     "tesseract_eng+yor":                "Tesseract (eng+yor)",
     "paddleocr_vl15_zero_shot":         "PaddleOCR-VL-1.5 (zero-shot)",
     "qwen25_vl_zero_shot":              "Qwen 2.5 VL (zero-shot)",
-    "finetuned_paddleocr_v1":           "PaddleOCR PP-OCRv4 (fine-tuned)",
-    "paddleocr_vl15_lora_finetuned":    "PaddleOCR-VL-1.5 (LoRA fine-tuned)",
-    # Ablation data size
-    "ablation_data_size_025pct_test":   "Fine-tuned 25% data",
-    "ablation_data_size_050pct_test":   "Fine-tuned 50% data",
-    "ablation_data_size_075pct_test":   "Fine-tuned 75% data",
-    "ablation_data_size_100pct_test":   "Fine-tuned 100% data",
+    "finetuned_paddleocr_v1":           "PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison)",
+    "paddleocr_vl15_lora_finetuned":    "PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised)",
+    # Ablation data size (PP-OCRv4 CRNN — not VL-1.5)
+    "ablation_data_size_025pct_test":   "PP-OCRv4 fine-tuned — 25% data",
+    "ablation_data_size_050pct_test":   "PP-OCRv4 fine-tuned — 50% data",
+    "ablation_data_size_075pct_test":   "PP-OCRv4 fine-tuned — 75% data",
+    "ablation_data_size_100pct_test":   "PP-OCRv4 fine-tuned — 100% data",
     # Ablation dictionary
-    "ablation_dict_yoruba_dict_test":   "Fine-tuned + Yorùbá dict",
-    "ablation_dict_english_dict_test":  "Fine-tuned + English dict",
+    "ablation_dict_yoruba_dict_test":   "PP-OCRv4 + Yorùbá dict",
+    "ablation_dict_english_dict_test":  "PP-OCRv4 + English dict",
     # Ablation augmentation
-    "ablation_aug_with_aug_test":       "Fine-tuned + RecAug",
-    "ablation_aug_no_aug_test":         "Fine-tuned − RecAug",
+    "ablation_aug_with_aug_test":       "PP-OCRv4 + RecAug",
+    "ablation_aug_no_aug_test":         "PP-OCRv4 − RecAug",
 }
 
-# Ordered model rows for Table 1
+# Ordered model rows for Table 1 (supervised VL LoRA before CRNN fine-tune for narrative)
 TABLE1_ORDER = [
     "baseline_english_pretrained",
     "tesseract_eng",
@@ -69,8 +70,8 @@ TABLE1_ORDER = [
     "tesseract_eng+yor",
     "paddleocr_vl15_zero_shot",
     "qwen25_vl_zero_shot",
-    "finetuned_paddleocr_v1",
     "paddleocr_vl15_lora_finetuned",
+    "finetuned_paddleocr_v1",
 ]
 
 # Ablation groupings for Tables 2–4

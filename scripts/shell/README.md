@@ -2,6 +2,8 @@
 
 Phased bash drivers live here so you can run one stage at a time (reproducibility, HPC, Colab) or the full chain.
 
+**Primary fine-tuned system:** PaddleOCR-VL-1.5 LoRA (phases **14 → 16 → 15** with adapter). Phases **04–05** train/evaluate **PP-OCRv4** as a classical CRNN comparison; phase **08** ablations vary that stack only—not the VL model.
+
 | Script | Phase |
 |--------|--------|
 | `phase_01_consolidate.sh` | Merge `data/raw` → `data/processed` |
@@ -20,6 +22,20 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 | `phase_13_verify_eval.sh` | `metrics.csv` ``n`` vs label files (`13_verify_eval_alignment.py`) |
 | `phase_99_backup.sh` | Copy `results/` (+ optional `experiments/`) to `DRIVE_BACKUP_ROOT` |
 | `run_all.sh` | Runs phases in order (override with `PHASES="..."`; supports `12`–`16`) |
+
+### Default vs paper-complete (why VL phases are not in the default `run_all`)
+
+The **primary supervised result** in the manuscript is PaddleOCR-VL-1.5 LoRA, but **default `PHASES`** in `run_all.sh` is still `01 … 08 09 99` (no **14–16**). That is intentional portability: phase **15** expects a GPU and `SKIP_VL15_EVAL=0`, phase **16** is a long HF job, and many environments only need PP-OCRv4 / Tesseract / compile. So “default run” ≠ “every Table 1 row populated” unless you add VL phases yourself.
+
+**Paper-complete Table 1 including VL rows** (after the usual data + PP-OCRv4 path):
+
+1. `bash scripts/shell/phase_14_export_vl15.sh`
+2. `export SKIP_VL15_EVAL=0` and `bash scripts/shell/phase_15_eval_vl15.sh` (zero-shot `paddleocr_vl15_zero_shot`)
+3. `bash scripts/shell/phase_16_train_vl15_lora.sh` (LoRA — long)
+4. `python scripts/15_baseline_paddleocr_vl15.py --adapter-path experiments/paddleocr_vl15_lora/adapter` (main supervised `paddleocr_vl15_lora_finetuned`)
+5. `bash scripts/shell/phase_09_compile.sh`
+
+You can merge (1) and (2) into a custom `PHASES=...` that includes `14` and `15`, but (3)–(4) stay separate because `run_all` does not run Python eval with `--adapter-path` and 16 is usually scheduled as its own job.
 
 ## Usage
 

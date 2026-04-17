@@ -120,13 +120,15 @@ If `processed` is already final, skip `01`.
 
 ## 6. End-to-end script order (GPU)
 
+**Framing:** the **primary supervised result** in compiled tables is **PaddleOCR-VL-1.5 LoRA** (shell phases **14 → 16 → 15** with adapter; see `docs/vl15_pipeline.md`). Step 3 below is **PP-OCRv4 CRNN** fine-tuning — classical comparison and target of ablations (`10_ablation_study.py`), not the main VL track.
+
 Run from `PROJECT_ROOT` with `python` (or `python3` if that is what Colab uses — be consistent).
 
 | Step | Script | Role |
 |------|--------|------|
 | 1 | `scripts/02_analyze_dataset.py` | EDA; updates local JSON under `results/tables/` |
 | 2 | `scripts/03_generate_config.py` | Downloads pretrained weights (if configured) + writes YAML |
-| 3 | `scripts/04_train_paddleocr.py` | Fine-tuning via `PaddleOCR/tools/train.py` |
+| 3 | `scripts/04_train_paddleocr.py` | PP-OCRv4 CRNN fine-tuning via `PaddleOCR/tools/train.py` (comparison + ablations) |
 
 **Training on T4 (single GPU):**
 
@@ -175,13 +177,13 @@ export HF_TOKEN="..."   # if required
 python scripts/09_baseline_qwen.py --split test --max-samples 50 --quantize --batch-size 10
 ```
 
-**PaddleOCR-VL-1.5 (Hugging Face):** install `transformers>=5` and `peft` as in `docs/vl15_pipeline.md`. Export does not touch `data/processed/`:
+**PaddleOCR-VL-1.5 (Hugging Face) — main supervised track:** install `transformers>=5` and `peft` as in `docs/vl15_pipeline.md`. Export does not touch `data/processed/`:
 
 ```bash
 bash scripts/shell/phase_14_export_vl15.sh
 export SKIP_VL15_EVAL=0
 bash scripts/shell/phase_15_eval_vl15.sh
-# optional LoRA:
+# LoRA fine-tune (primary supervised model):
 bash scripts/shell/phase_16_train_vl15_lora.sh
 python scripts/15_baseline_paddleocr_vl15.py --adapter-path experiments/paddleocr_vl15_lora/adapter
 ```

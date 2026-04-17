@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
-# Run the full Yorùbá OCR pipeline in order (phases 01–09, optional 99).
+# Run the Yorùbá OCR pipeline in order (default: phases 01–09, optional 99).
+#
+# DEFAULT DOES NOT include 14–16 on purpose: phase 15 needs GPU + Hugging Face
+# downloads; phase 16 is long. That avoids failing headless/CPU-only runs. The
+# primary supervised model (VL-1.5 LoRA) still requires running 14 → 15 → 16 →
+# 15(adapter) separately — see scripts/shell/README.md § “Default vs paper-complete”.
+#
 # Usage:
 #   cd /path/to/yoruba_ocr_research
 #   export DRIVE_BACKUP_ROOT="/content/drive/MyDrive/backup"   # optional
@@ -18,9 +24,10 @@ log "PROJECT_ROOT=$PROJECT_ROOT"
 require_python
 check_deps
 
-# Default: core pipeline. Add 12–16 manually if needed, e.g.
+# Default: core pipeline. For the **primary supervised VL-1.5 LoRA** row, add
+# 14 (export), 15 (set SKIP_VL15_EVAL=0), 16 (LoRA), then 15 again with adapter — or run those phases manually; e.g.
 #   PHASES="01 02 03 04 05 06 07 08 14 15 09 99" bash scripts/shell/run_all.sh
-# (14 export, 15 VL eval — set SKIP_VL15_EVAL=0; 16 train separate)
+# (16 is long; run phase_16_train_vl15_lora.sh separately, then eval 15 with adapter)
 DEFAULT_PHASES="01 02 03 04 05 06 07 08 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
 

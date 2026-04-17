@@ -1,8 +1,9 @@
 """
-Ablation studies for the Yorùbá OCR fine-tuning experiment.
+Ablation studies for **PP-OCRv4 (CRNN)** fine-tuning only.
 
+The primary supervised model (PaddleOCR-VL-1.5 LoRA) is not ablated here.
 Runs three structured ablation experiments, each isolating a single
-component of the fine-tuning pipeline to quantify its contribution:
+component of the PP-OCRv4 fine-tuning pipeline to quantify its contribution:
 
   Ablation A — Data Size
       Trains on 25%, 50%, 75%, and 100% of the training set.

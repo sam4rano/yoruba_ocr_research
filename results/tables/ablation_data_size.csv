@@ -1,5 +1,5 @@
 model_label,display_name,cer_pct,wer_pct,der_pct,n
-ablation_data_size_025pct_test,Fine-tuned 25% data,120.6,116.8,80.9,493
-ablation_data_size_050pct_test,Fine-tuned 50% data,103.9,118.7,80.8,493
-ablation_data_size_075pct_test,Fine-tuned 75% data,102.2,119.8,84.3,493
-ablation_data_size_100pct_test,Fine-tuned 100% data,99.4,112.9,77.0,493
+ablation_data_size_025pct_test,PP-OCRv4 fine-tuned — 25% data,120.6,116.8,80.9,493
+ablation_data_size_050pct_test,PP-OCRv4 fine-tuned — 50% data,103.9,118.7,80.8,493
+ablation_data_size_075pct_test,PP-OCRv4 fine-tuned — 75% data,102.2,119.8,84.3,493
+ablation_data_size_100pct_test,PP-OCRv4 fine-tuned — 100% data,99.4,112.9,77.0,493

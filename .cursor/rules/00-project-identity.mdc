@@ -7,9 +7,11 @@ alwaysApply: true
 
 ## What this project is
 A benchmark dataset + fine-tuning study for Yorùbá OCR submitted to
-Deep Learning Indaba 2026 (IJCAI volume). The researcher built a custom
-annotation platform (yoruba-ocr.vercel.app) and exported data in
-PaddleOCR VL-1.5 format.
+Deep Learning Indaba 2026 (IJCAI volume). The **primary supervised model**
+is **PaddleOCR-VL-1.5** (LoRA fine-tuned on Yorùbá line crops); PaddleOCR
+PP-OCRv4 fine-tuning remains a classical CRNN comparison and the target of
+scripted ablations. The researcher built a custom annotation platform
+(yoruba-ocr.vercel.app) and exported data in PaddleOCR line-crop format.
 
 ## Verified dataset facts (do not invent alternatives)
 - Source: Yorùbá di Wúrà Book Series (printed books, 2021)
@@ -28,17 +30,17 @@ PaddleOCR VL-1.5 format.
 1. scripts/01_consolidate_data.py  — merge exports, deduplicate, copy to data/processed/
 2. scripts/02_analyze_dataset.py   — EDA: char/diacritic distribution, text length stats
 3. scripts/03_generate_config.py   — download pretrained weights + write fine-tune YAML
-4. scripts/04_train_paddleocr.py   — run PaddleOCR fine-tuning (needs PaddleOCR repo)
+4. scripts/04_train_paddleocr.py   — PP-OCRv4 CRNN fine-tuning (comparison + ablations; needs PaddleOCR repo)
 5. scripts/05_evaluate.py          — CER/WER/DER evaluation for any model
 6. scripts/06_baseline_pretrained.py — English pretrained model baseline
-7. scripts/07_baseline_tesseract.py, scripts/09_baseline_qwen.py, scripts/10_ablation_study.py — other baselines / ablations
+7. scripts/07_baseline_tesseract.py, scripts/09_baseline_qwen.py, scripts/10_ablation_study.py — other baselines / PP-OCRv4 ablations
 8. scripts/11_compile_results.py   — paper tables from metrics.csv
-9. **PaddleOCR-VL-1.5 (HF):** scripts/14_export_paddleocr_vl_sft.py → 15_baseline_paddleocr_vl15.py → optional 16_train_paddleocr_vl_lora.py (does not overwrite ``data/processed``)
+9. **PaddleOCR-VL-1.5 (HF) — main supervised track:** scripts/14_export_paddleocr_vl_sft.py → 15 (zero-shot) → 16_train_paddleocr_vl_lora.py → 15 with adapter (does not overwrite ``data/processed``)
 
 ## Models being compared
-1. PaddleOCR PP-OCRv4 (English pretrained — baseline, no fine-tuning)
-2. PaddleOCR PP-OCRv4 (fine-tuned on Yorùbá dataset)
-3. PaddleOCR-VL-1.5 (Hugging Face — zero-shot and optional LoRA fine-tune; scripts 14–16)
+1. PaddleOCR-VL-1.5 (Hugging Face) — **zero-shot** and **LoRA fine-tuned on Yorùbá data (primary supervised result)**; scripts 14–16
+2. PaddleOCR PP-OCRv4 (English pretrained — baseline, no fine-tuning)
+3. PaddleOCR PP-OCRv4 (CRNN fine-tuned on Yorùbá dataset — classical comparison; ablations target this stack)
 4. Tesseract (multiple language configs)
 5. Qwen 2.5 VL (zero-shot multimodal)
 6. Mistral OCR — **not** in this repository
