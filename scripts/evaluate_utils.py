@@ -1,7 +1,8 @@
 """
 Shared evaluation utilities: metric computation, data loading, result persistence.
 
-Imported by 05_evaluate.py and 06_baseline_pretrained.py.
+Imported by evaluation and baseline scripts (e.g. 05_evaluate.py, 06_baseline_pretrained.py,
+09_baseline_qwen.py, 15_baseline_paddleocr_vl15.py).
 Not intended to be run directly.
 """
 

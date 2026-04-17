@@ -21,6 +21,9 @@ data/processed/**
 !data/processed/**/
 !data/processed/**/.gitkeep
 
+# Regenerated from labels via scripts/14 (large JSONL — keep local or Drive)
+data/paddleocr_vl15_sft/
+
 # Checkpoints & training runs (keep only placeholder .gitkeep dirs if present)
 experiments/**
 !experiments/**/

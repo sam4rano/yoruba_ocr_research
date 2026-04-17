@@ -13,10 +13,13 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 | `phase_07_qwen.sh` | Qwen VL zero-shot (off unless `SKIP_QWEN=0`) |
 | `phase_08_ablation.sh` | Ablation study (off unless `SKIP_ABLATION=0`) |
 | `phase_09_compile.sh` | `11_compile_results.py` → table Markdown/CSV + alignment check |
+| `phase_14_export_vl15.sh` | Export JSONL for PaddleOCR-VL-1.5 SFT (`data/paddleocr_vl15_sft/`) |
+| `phase_15_eval_vl15.sh` | VL-1.5 zero-shot eval (off unless `SKIP_VL15_EVAL=0`) |
+| `phase_16_train_vl15_lora.sh` | LoRA fine-tune VL-1.5 on phase-14 export |
 | `phase_12_diagnose.sh` | Data vs eval vs setup diagnostics (`12_diagnose_hypotheses.py`) |
 | `phase_13_verify_eval.sh` | `metrics.csv` ``n`` vs label files (`13_verify_eval_alignment.py`) |
 | `phase_99_backup.sh` | Copy `results/` (+ optional `experiments/`) to `DRIVE_BACKUP_ROOT` |
-| `run_all.sh` | Runs phases in order (override with `PHASES="..."`) |
+| `run_all.sh` | Runs phases in order (override with `PHASES="..."`; supports `12`–`16`) |
 
 ## Usage
 
@@ -56,6 +59,8 @@ bash scripts/shell/run_all.sh
 | `EVAL_USE_GPU` | `1` → `--use-gpu` on Paddle eval |
 | `SKIP_TESSERACT` | `1` = skip Tesseract |
 | `SKIP_QWEN` | `0` to run Qwen (default `1`) |
+| `SKIP_VL15_EVAL` | `0` to run PaddleOCR-VL-1.5 eval (default `1`) |
+| `PADDLE_VL15_EXPORT_DIR` | Override export dir for phases 14/16 (default `data/paddleocr_vl15_sft`) |
 | `SKIP_ABLATION` | `0` to run ablations (default `1`) |
 | `DRIVE_BACKUP_ROOT` | Parent directory for timestamped backup (phase 99) |
 | `BACKUP_EXPERIMENTS` | `1` (default) includes `experiments/` in backup (large) |

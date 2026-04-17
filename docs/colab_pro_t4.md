@@ -175,6 +175,17 @@ export HF_TOKEN="..."   # if required
 python scripts/09_baseline_qwen.py --split test --max-samples 50 --quantize --batch-size 10
 ```
 
+**PaddleOCR-VL-1.5 (Hugging Face):** install `transformers>=5` and `peft` as in `docs/vl15_pipeline.md`. Export does not touch `data/processed/`:
+
+```bash
+bash scripts/shell/phase_14_export_vl15.sh
+export SKIP_VL15_EVAL=0
+bash scripts/shell/phase_15_eval_vl15.sh
+# optional LoRA:
+bash scripts/shell/phase_16_train_vl15_lora.sh
+python scripts/15_baseline_paddleocr_vl15.py --adapter-path experiments/paddleocr_vl15_lora/adapter
+```
+
 **Compile tables:**
 
 ```bash

@@ -42,3 +42,6 @@ accelerate>=0.30.0
 qwen-vl-utils>=0.0.8
 # torch>=2.2.0               # install manually with correct CUDA version
 # bitsandbytes>=0.43.0       # optional: 4-bit quantisation for Qwen on smaller GPUs
+
+# ── PaddleOCR-VL-1.5 (HF): scripts/14–16 — use transformers>=5 when running VL-1.5
+# peft>=0.13.0               # optional: LoRA (16_train_paddleocr_vl_lora.py)

@@ -18,6 +18,9 @@ log "PROJECT_ROOT=$PROJECT_ROOT"
 require_python
 check_deps
 
+# Default: core pipeline. Add 12–16 manually if needed, e.g.
+#   PHASES="01 02 03 04 05 06 07 08 14 15 09 99" bash scripts/shell/run_all.sh
+# (14 export, 15 VL eval — set SKIP_VL15_EVAL=0; 16 train separate)
 DEFAULT_PHASES="01 02 03 04 05 06 07 08 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
 
@@ -34,8 +37,13 @@ run_phase() {
     07) f="${SCRIPT_DIR}/phase_07_qwen.sh" ;;
     08) f="${SCRIPT_DIR}/phase_08_ablation.sh" ;;
     09) f="${SCRIPT_DIR}/phase_09_compile.sh" ;;
+    12) f="${SCRIPT_DIR}/phase_12_diagnose.sh" ;;
+    13) f="${SCRIPT_DIR}/phase_13_verify_eval.sh" ;;
+    14) f="${SCRIPT_DIR}/phase_14_export_vl15.sh" ;;
+    15) f="${SCRIPT_DIR}/phase_15_eval_vl15.sh" ;;
+    16) f="${SCRIPT_DIR}/phase_16_train_vl15_lora.sh" ;;
     99) f="${SCRIPT_DIR}/phase_99_backup.sh" ;;
-    *) die "unknown phase id: $id (use 01–09 or 99)" ;;
+    *) die "unknown phase id: $id (use 01–09, 12–16, or 99)" ;;
   esac
   [[ -f "$f" ]] || die "missing $f"
   log "========== Phase $id: $(basename "$f") =========="

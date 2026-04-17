@@ -31,12 +31,17 @@ PaddleOCR VL-1.5 format.
 4. scripts/04_train_paddleocr.py   — run PaddleOCR fine-tuning (needs PaddleOCR repo)
 5. scripts/05_evaluate.py          — CER/WER/DER evaluation for any model
 6. scripts/06_baseline_pretrained.py — English pretrained model baseline
+7. scripts/07_baseline_tesseract.py, scripts/09_baseline_qwen.py, scripts/10_ablation_study.py — other baselines / ablations
+8. scripts/11_compile_results.py   — paper tables from metrics.csv
+9. **PaddleOCR-VL-1.5 (HF):** scripts/14_export_paddleocr_vl_sft.py → 15_baseline_paddleocr_vl15.py → optional 16_train_paddleocr_vl_lora.py (does not overwrite ``data/processed``)
 
 ## Models being compared
 1. PaddleOCR PP-OCRv4 (English pretrained — baseline, no fine-tuning)
 2. PaddleOCR PP-OCRv4 (fine-tuned on Yorùbá dataset)
-3. Tesseract (baseline — add later)
-4. Qwen 2.5 VL (zero-shot multimodal — add later)
+3. PaddleOCR-VL-1.5 (Hugging Face — zero-shot and optional LoRA fine-tune; scripts 14–16)
+4. Tesseract (multiple language configs)
+5. Qwen 2.5 VL (zero-shot multimodal)
+6. Mistral OCR — **not** in this repository
 
 ## Metrics
 - CER — Character Error Rate (NFC-normalised edit distance / gt char count)

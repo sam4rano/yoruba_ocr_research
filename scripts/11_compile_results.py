@@ -5,7 +5,7 @@ Reads results/tables/metrics.csv (written by all evaluation scripts)
 and produces:
 
   Table 1 — Main Comparison
-    Baseline models vs fine-tuned PaddleOCR, on the test split.
+    PP-OCRv4, Tesseract, PaddleOCR-VL-1.5, Qwen VL, on the test split.
     Columns: Model | CER ↓ | WER ↓ | DER ↓
 
   Table 2 — Ablation: Data Size
@@ -44,8 +44,10 @@ MODEL_DISPLAY = {
     "tesseract_eng":                    "Tesseract (eng)",
     "tesseract_yor":                    "Tesseract (yor)",
     "tesseract_eng+yor":                "Tesseract (eng+yor)",
+    "paddleocr_vl15_zero_shot":         "PaddleOCR-VL-1.5 (zero-shot)",
     "qwen25_vl_zero_shot":              "Qwen 2.5 VL (zero-shot)",
     "finetuned_paddleocr_v1":           "PaddleOCR PP-OCRv4 (fine-tuned)",
+    "paddleocr_vl15_lora_finetuned":    "PaddleOCR-VL-1.5 (LoRA fine-tuned)",
     # Ablation data size
     "ablation_data_size_025pct_test":   "Fine-tuned 25% data",
     "ablation_data_size_050pct_test":   "Fine-tuned 50% data",
@@ -65,8 +67,10 @@ TABLE1_ORDER = [
     "tesseract_eng",
     "tesseract_yor",
     "tesseract_eng+yor",
+    "paddleocr_vl15_zero_shot",
     "qwen25_vl_zero_shot",
     "finetuned_paddleocr_v1",
+    "paddleocr_vl15_lora_finetuned",
 ]
 
 # Ablation groupings for Tables 2–4
