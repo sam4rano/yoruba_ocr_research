@@ -1,0 +1,29 @@
+{
+  "created_at": "2026-04-19T02:06:25.627846+00:00",
+  "data_dir": "/Users/mac/Desktop/yoruba_ocr_research/data/processed",
+  "out_dir": "/Users/mac/Desktop/yoruba_ocr_research/data/paddleocr_vl15_sft",
+  "splits": {
+    "train": {
+      "split": "train",
+      "jsonl": "/Users/mac/Desktop/yoruba_ocr_research/data/paddleocr_vl15_sft/train.jsonl",
+      "exported": 2878,
+      "skipped": [],
+      "ids_sha256": "50835358a0a51d9d7107dbc122ff6d115512adcb9fc6743537faf62def986d76"
+    },
+    "val": {
+      "split": "val",
+      "jsonl": "/Users/mac/Desktop/yoruba_ocr_research/data/paddleocr_vl15_sft/val.jsonl",
+      "exported": 317,
+      "skipped": [],
+      "ids_sha256": "4cda0c642cfbcd6e63bbfbe0f69a3d36885ddd65798ea1d4bd3edb33e24c3b73"
+    },
+    "test": {
+      "split": "test",
+      "jsonl": "/Users/mac/Desktop/yoruba_ocr_research/data/paddleocr_vl15_sft/test.jsonl",
+      "exported": 431,
+      "skipped": [],
+      "ids_sha256": "0c6bd4d0770d95c3f1bf81e2b7bcc1ab9743554b8ad31749736b238a19fd7d4a"
+    }
+  },
+  "dictionary_path": "/Users/mac/Desktop/yoruba_ocr_research/data/processed/dictionary/yoruba_char_dict.txt"
+}
