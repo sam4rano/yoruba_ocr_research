@@ -4,7 +4,8 @@ Export consolidated PaddleOCR-format data to JSONL for PaddleOCR-VL-1.5 SFT / Lo
 **Does not read or write ``data/processed`` labels in place** — only creates new files
 under ``--out-dir`` (default ``data/paddleocr_vl15_sft``).
 
-Each line is one sample with OpenAI-style messages + absolute image path for traceability.
+Each line is one sample with OpenAI-style messages + image path (repo-relative when
+``--repo-root`` contains ``data-dir``, else resolved absolute) for portability across machines.
 
 Usage:
     python scripts/14_export_paddleocr_vl_sft.py
@@ -50,6 +51,12 @@ def parse_args() -> argparse.Namespace:
         help="Optional: record dictionary path in manifest (default: data-dir/dictionary/yoruba_char_dict.txt if present).",
     )
     parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="Repository root; image paths in JSONL are relative to this when under it (default: cwd).",
+    )
+    parser.add_argument(
         "--splits",
         nargs="+",
         default=["train", "val", "test"],
@@ -59,7 +66,18 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def portable_path(repo_root: Path, path: Path) -> str:
+    """Return posix path relative to repo_root when possible (for Colab / other clones)."""
+    root = repo_root.resolve()
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(root).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
 def export_split(
+    repo_root: Path,
     data_dir: Path,
     out_dir: Path,
     split: str,
@@ -98,15 +116,16 @@ def export_split(
                 continue
             gt = unicodedata.normalize("NFC", text)
             sample_id = img_path.stem
+            img_ref = portable_path(repo_root, img_path)
             record = {
                 "id": sample_id,
                 "source_relative": rel_path.replace("\\", "/"),
-                "source_image": str(img_path.resolve()),
+                "source_image": img_ref,
                 "messages": [
                     {
                         "role": "user",
                         "content": [
-                            {"type": "image", "image": str(img_path.resolve())},
+                            {"type": "image", "image": img_ref},
                             {"type": "text", "text": user_prompt},
                         ],
                     },
@@ -119,7 +138,7 @@ def export_split(
 
     return {
         "split": split,
-        "jsonl": str(out_jsonl.resolve()),
+        "jsonl": portable_path(repo_root, out_jsonl),
         "exported": exported,
         "skipped": skipped,
         "ids_sha256": hashlib.sha256(
@@ -134,6 +153,7 @@ def main() -> None:
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
 
+    repo_root = args.repo_root
     args.out_dir.mkdir(parents=True, exist_ok=True)
     dict_path = args.dict_path
     if dict_path is None:
@@ -142,16 +162,19 @@ def main() -> None:
 
     manifest: dict = {
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "data_dir": str(args.data_dir.resolve()),
-        "out_dir": str(args.out_dir.resolve()),
+        "repo_root": portable_path(repo_root, repo_root.resolve()),
+        "data_dir": portable_path(repo_root, args.data_dir.resolve()),
+        "out_dir": portable_path(repo_root, args.out_dir.resolve()),
         "splits": {},
-        "dictionary_path": str(dict_path.resolve()) if dict_path else None,
+        "dictionary_path": portable_path(repo_root, dict_path.resolve())
+        if dict_path
+        else None,
     }
 
     for sp in args.splits:
         log.info("Exporting split '%s' ...", sp)
         manifest["splits"][sp] = export_split(
-            args.data_dir, args.out_dir, sp, USER_TEXT_OCR_YORUBA
+            repo_root, args.data_dir, args.out_dir, sp, USER_TEXT_OCR_YORUBA
         )
         log.info(
             "  wrote %d samples (%d skipped)",
