@@ -2,10 +2,15 @@
 Export the consolidated datasets into an LLM/VLM conversational JSONL format (e.g. for Qwen-VL).
 
 Produces a dataset where the system instructs the AI to extract Yoruba text from the image.
+Image paths in JSONL are repo-relative when under ``--repo-root`` (default: cwd) so clones
+and Colab runs resolve files without machine-specific absolute prefixes.
 
 Usage:
     python scripts/08_export_qwen_finetune.py
+    python scripts/08_export_qwen_finetune.py --repo-root .
 """
+
+from __future__ import annotations
 
 import argparse
 import json
@@ -15,7 +20,20 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-def export_qwen(data_dir: Path, out_dir: Path, split: str) -> None:
+
+def portable_path(repo_root: Path, path: Path) -> str:
+    """Return posix path relative to repo_root when possible."""
+    root = repo_root.resolve()
+    resolved = path.resolve()
+    try:
+        return resolved.relative_to(root).as_posix()
+    except ValueError:
+        return resolved.as_posix()
+
+
+def export_qwen(
+    data_dir: Path, out_dir: Path, split: str, repo_root: Path
+) -> None:
     label_file = data_dir / "labels" / f"{split}.txt"
     if not label_file.exists():
         log.warning(f"Label file not found: {label_file}")
@@ -40,12 +58,16 @@ def export_qwen(data_dir: Path, out_dir: Path, split: str) -> None:
             if not src_img.exists():
                 continue
 
+            img_ref = portable_path(repo_root, src_img)
             entry = {
                 "id": src_img.stem,
                 "conversations": [
                     {
                         "from": "user",
-                        "value": f"Picture 1: <img>{src_img.absolute()}</img>\nExtract the Yorùbá text from this image exactly as written."
+                        "value": (
+                            f"Picture 1: <img>{img_ref}</img>\n"
+                            "Extract the Yorùbá text from this image exactly as written."
+                        ),
                     },
                     {
                         "from": "assistant",
@@ -59,14 +81,20 @@ def export_qwen(data_dir: Path, out_dir: Path, split: str) -> None:
 
     log.info(f"Exported {count} pairs for '{split}' to {out_jsonl}")
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Export to Qwen conversational JSONL format.")
     parser.add_argument("--data-dir", type=Path, default=Path("data/processed"))
     parser.add_argument("--out-dir", type=Path, default=Path("data/qwen_finetune"))
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path("."),
+        help="Repository root for portable image paths in JSONL (default: cwd).",
+    )
     args = parser.parse_args()
 
     for split in ["train", "val", "test"]:
-        export_qwen(args.data_dir, args.out_dir, split)
+        export_qwen(args.data_dir, args.out_dir, split, args.repo_root)
 
     log.info("Qwen VLM export complete! Ready for use with LLaMA-Factory / Swift.")
 

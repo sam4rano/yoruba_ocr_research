@@ -1,12 +1,14 @@
 """
 Export the consolidated datasets into Tesseract's `tesstrain` format.
 
-Tesseract fine-tuning requires each image file to have a matching 
+Tesseract fine-tuning requires each image file to have a matching
 text file with the `.gt.txt` extension containing exactly the ground truth text.
 
 Usage:
     python scripts/08_export_tesseract_finetune.py
 """
+
+from __future__ import annotations
 
 import argparse
 import logging

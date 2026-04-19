@@ -22,6 +22,7 @@ import json
 import logging
 import subprocess
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -316,7 +317,16 @@ def main() -> None:
         pretrained_model_dir = args.pretrained_dir / PRETRAINED_DIR_NAME
         log.warning("Skipping download. Expecting weights at %s", pretrained_model_dir)
     else:
-        pretrained_model_dir = download_pretrained(args.pretrained_dir)
+        try:
+            pretrained_model_dir = download_pretrained(args.pretrained_dir)
+        except (urllib.error.URLError, OSError) as exc:
+            log.error("Pretrained download failed: %s", exc)
+            log.error(
+                "If weights are already local, re-run with --skip-download "
+                "(expects %s/best_accuracy.pdparams).",
+                args.pretrained_dir / PRETRAINED_DIR_NAME,
+            )
+            sys.exit(1)
 
     if args.cpu and args.force_gpu:
         log.error("Use only one of --cpu or --force-gpu.")
