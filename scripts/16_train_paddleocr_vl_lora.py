@@ -118,12 +118,12 @@ def main() -> None:
     samples = load_train_samples(args.export_dir, args.max_samples)
     log.info("Training samples: %d", len(samples))
 
-    processor = AutoProcessor.from_pretrained(args.model_id, trust_remote_code=True)
+    processor = AutoProcessor.from_pretrained(args.model_id, trust_remote_code=False)
     model = AutoModelForImageTextToText.from_pretrained(
         args.model_id,
         torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
         device_map="auto",
-        trust_remote_code=True,
+        trust_remote_code=False,
     )
 
     wanted = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")

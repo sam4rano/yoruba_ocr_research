@@ -164,7 +164,9 @@ def load_model_and_processor(
             "Install transformers>=5 for PaddleOCR-VL-1.5: pip install 'transformers>=5'"
         ) from exc
 
-    kwargs: dict = {"trust_remote_code": True}
+    # transformers>=5 ships native PaddleOCR-VL; trust_remote_code pulls hub config
+    # that mismatches modeling (text_config vs get_text_config). See PaddleOCR#17666.
+    kwargs: dict = {"trust_remote_code": False}
     if quantize_4bit:
         try:
             from transformers import BitsAndBytesConfig  # type: ignore
@@ -177,7 +179,7 @@ def load_model_and_processor(
         kwargs["device_map"] = "auto"
 
     model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
-    processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=True)
+    processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=False)
 
     if adapter_path is not None:
         if not adapter_path.is_dir():
