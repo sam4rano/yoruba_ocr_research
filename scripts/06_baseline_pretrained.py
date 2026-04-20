@@ -78,6 +78,17 @@ def parse_args() -> argparse.Namespace:
         help="Directory containing the extracted pretrained checkpoint files.",
     )
     parser.add_argument(
+        "--rec-config",
+        "--rec_config",
+        dest="rec_config",
+        type=Path,
+        default=Path("configs/paddleocr_yoruba_rec.yml"),
+        help=(
+            "YAML passed to scripts/05_evaluate.py — must match the PP-OCRv3/v4 family of "
+            "--pretrained-dir. Default matches 03_generate_config / 04_train."
+        ),
+    )
+    parser.add_argument(
         "--results-csv",
         "--results_csv",
         dest="results_csv",
@@ -128,6 +139,8 @@ def run_baseline(args: argparse.Namespace) -> None:
     ]
     if args.use_gpu:
         cmd.append("--use-gpu")
+
+    cmd += ["--rec-config", str(args.rec_config)]
 
     log.info("Running baseline evaluation:\n  %s", " ".join(cmd))
     subprocess.run(cmd, check=True)

@@ -15,4 +15,4 @@ require_python
 run_py scripts/10_ablation_study.py \
   --ablation "${ABLATION_WHICH:-all}" \
   --gpus "${ABLATION_GPUS:-0}" \
-  --epochs "${ABLATION_EPOCHS:-100}"
+  --epochs "${ABLATION_EPOCHS:-40}"

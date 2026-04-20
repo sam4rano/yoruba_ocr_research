@@ -32,6 +32,8 @@
    bash scripts/shell/phase_16_train_vl15_lora.sh
    ```
 
+   Optional: `VL15_GRAD_ACCUM=4` (passed as `--gradient-accumulation-steps`) for fewer optimizer updates per epoch; `VL15_LORA_MAX_SAMPLES` for smoke tests.
+
 4. **Eval fine-tuned adapter**:
 
    ```bash
@@ -44,6 +46,10 @@
 
 Character constraints for **PP-OCRv4 training** live in `data/processed/dictionary/`. The VL model uses a **subword tokenizer**; DER/CER/WER are still computed on **Unicode NFC** strings. Optional dictionary path is recorded in **14**’s `manifest.json` for provenance.
 
-## Training caveat (script 16)
+## Training objective (script 16)
 
-`16_train_paddleocr_vl_lora.py` optimises a **full-sequence** causal loss for reproducibility. For stronger results, mask user tokens or use an external SFT toolkit with the **same** JSONL export — without changing source labels.
+`16_train_paddleocr_vl_lora.py` uses **assistant-only** causal LM loss: prompt tokens (vision + user text + generation header) are set to `-100` in `labels`, consistent with common Hugging Face / TRL supervised fine-tuning. The flag `--full-sequence-loss` restores the old behaviour for ablations only.
+
+Prefix tokens are checked against the full sequence; on mismatch the step is **skipped** (multimodal chat templates can occasionally diverge; see `docs/research_standards_review.md`).
+
+For publication-grade training you may still prefer **TRL** (e.g. `SFTTrainer`) or **LLaMA-Factory** with the same JSONL export — without changing source labels.

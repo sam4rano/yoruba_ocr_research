@@ -1,10 +1,13 @@
 """
 LoRA fine-tuning for PaddleOCR-VL-1.5 on exported JSONL (see ``14_export_paddleocr_vl_sft.py``).
 
-**Training objective:** causal LM loss on the tokenised multimodal sequence (including the
-user turn). For publication-grade results, consider masking user tokens only (future work)
-or an external trainer (e.g. LLaMA-Factory) with the same export — this script is a
-reproducible in-repo path that **does not** alter ``data/processed``.
+**Training objective:** causal LM loss with **assistant tokens only** (standard SFT):
+prompt positions (vision + user text + generation header) are masked with ``-100`` in
+``labels``, matching common HF/TRL practice. Use ``--full-sequence-loss`` only for
+debugging or ablations.
+
+Optional **gradient accumulation** (``--gradient-accumulation-steps``) reduces optimizer
+frequency and can improve stability; micro-batch size remains one image (typical for VL).
 
 Outputs a PEFT adapter under ``--output-dir``; evaluate with
 ``15_baseline_paddleocr_vl15.py --adapter-path <that dir>/adapter``.
@@ -12,6 +15,7 @@ Outputs a PEFT adapter under ``--output-dir``; evaluate with
 Usage:
     python scripts/14_export_paddleocr_vl_sft.py
     python scripts/16_train_paddleocr_vl_lora.py --epochs 1 --max-samples 500
+    python scripts/16_train_paddleocr_vl_lora.py --gradient-accumulation-steps 4
 """
 
 from __future__ import annotations
@@ -21,6 +25,7 @@ import json
 import logging
 import sys
 from pathlib import Path
+from typing import Any
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -68,6 +73,17 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=42,
     )
+    parser.add_argument(
+        "--gradient-accumulation-steps",
+        type=int,
+        default=1,
+        help="Optimizer step every N forward passes (default 1).",
+    )
+    parser.add_argument(
+        "--full-sequence-loss",
+        action="store_true",
+        help="Train on full sequence (no label masking). Not recommended for SFT.",
+    )
     return parser.parse_args()
 
 
@@ -90,6 +106,88 @@ def load_train_samples(export_dir: Path, max_samples: int | None) -> list[dict]:
     if not rows:
         raise ValueError(f"No samples in {path}")
     return rows
+
+
+def build_labels_assistant_only(
+    processor,
+    image,
+    assistant_text: str,
+    full_inputs: dict,
+    device: Any,
+    max_pixels: int,
+    user_prompt: str,
+) -> tuple[Any, bool]:
+    """
+    Build ``labels`` for supervised fine-tuning: ``-100`` on non-assistant positions.
+
+    Uses the same pattern as TRL/HF docs: tokenize user (+ image) with
+    ``add_generation_prompt=True``, then mask ``labels[:, :prefix_len] = -100``.
+    Returns (labels, ok). If ok is False (mismatch, empty assistant, or no trainable
+    tokens), the caller should skip the optimization step.
+    """
+    import torch
+
+    images_kwargs = {
+        "size": {
+            "shortest_edge": getattr(
+                processor.image_processor, "min_pixels", 28 * 28 * 4
+            ),
+            "longest_edge": max_pixels,
+        }
+    }
+    prompt_messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "image": image},
+                {"type": "text", "text": user_prompt},
+            ],
+        },
+    ]
+    prompt_inputs = processor.apply_chat_template(
+        prompt_messages,
+        add_generation_prompt=True,
+        tokenize=True,
+        return_dict=True,
+        return_tensors="pt",
+        images_kwargs=images_kwargs,
+    )
+    if hasattr(prompt_inputs, "to"):
+        prompt_inputs = prompt_inputs.to(device)
+    else:
+        prompt_inputs = {k: v.to(device) for k, v in prompt_inputs.items()}
+
+    input_ids = full_inputs["input_ids"]
+    labels = input_ids.clone()
+    prefix_len = int(prompt_inputs["input_ids"].shape[-1])
+    seq_len = int(input_ids.shape[-1])
+
+    if prefix_len >= seq_len:
+        log.warning(
+            "prefix_len=%d >= seq_len=%d; skip assistant-only masking this step.",
+            prefix_len,
+            seq_len,
+        )
+        return labels, False
+
+    p_ids = prompt_inputs["input_ids"][0, :prefix_len]
+    f_ids = input_ids[0, :prefix_len]
+    if not torch.equal(p_ids, f_ids):
+        log.warning(
+            "Prompt tokenization mismatch vs full sequence (prefix_len=%d); skip step.",
+            prefix_len,
+        )
+        return labels, False
+
+    labels[:, :prefix_len] = -100
+    if "attention_mask" in full_inputs:
+        am = full_inputs["attention_mask"]
+        labels = labels.masked_fill(am == 0, -100)
+    trainable = labels != -100
+    if not trainable.any():
+        log.warning("No trainable label positions after masking; skip step.")
+        return labels, False
+    return labels, True
 
 
 def main() -> None:
@@ -154,10 +252,16 @@ def main() -> None:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     adapter_dir = args.output_dir / "adapter"
     max_pixels = 1280 * 28 * 28
+    device = next(model.parameters()).device
+    grad_accum = max(1, int(args.gradient_accumulation_steps))
 
     for epoch in range(args.epochs):
         total_loss = 0.0
-        n_step = 0
+        micro_steps = 0
+        opt_steps = 0
+        accum_counter = 0
+        opt.zero_grad()
+
         for rec in samples:
             msgs = rec["messages"]
             image_path = None
@@ -168,7 +272,10 @@ def main() -> None:
             if not image_path:
                 continue
             image = Image.open(image_path).convert("RGB")
-            assistant_text = msgs[1]["content"]
+            raw_asst = msgs[1]["content"]
+            assistant_text = (
+                raw_asst if isinstance(raw_asst, str) else str(raw_asst)
+            )
             user_messages = [
                 {
                     "role": "user",
@@ -194,29 +301,63 @@ def main() -> None:
                     }
                 },
             )
-            device = next(model.parameters()).device
             if hasattr(inputs, "to"):
                 inputs = inputs.to(device)
             else:
                 inputs = {k: v.to(device) for k, v in inputs.items()}
 
-            labels = inputs["input_ids"].clone()
+            if args.full_sequence_loss:
+                labels = inputs["input_ids"].clone()
+                if "attention_mask" in inputs:
+                    labels = labels.masked_fill(inputs["attention_mask"] == 0, -100)
+            else:
+                labels, ok = build_labels_assistant_only(
+                    processor,
+                    image,
+                    assistant_text,
+                    inputs,
+                    device,
+                    max_pixels,
+                    USER_TEXT_OCR_YORUBA,
+                )
+                if not ok:
+                    continue
+
             out = model(**inputs, labels=labels)
             loss = out.loss
             if loss is None or torch.isnan(loss):
                 continue
-            opt.zero_grad()
+            loss = loss / grad_accum
             loss.backward()
+            accum_counter += 1
+            total_loss += float(loss.item()) * grad_accum
+            micro_steps += 1
+
+            if accum_counter >= grad_accum:
+                opt.step()
+                opt.zero_grad()
+                accum_counter = 0
+                opt_steps += 1
+                if opt_steps % 50 == 0:
+                    log.info(
+                        "epoch %d opt_step %d micro=%d mean_loss=%.4f",
+                        epoch + 1,
+                        opt_steps,
+                        micro_steps,
+                        total_loss / max(micro_steps, 1),
+                    )
+
+        if accum_counter > 0:
             opt.step()
-            total_loss += float(loss.item())
-            n_step += 1
-            if n_step % 50 == 0:
-                log.info("epoch %d step %d loss=%.4f", epoch + 1, n_step, total_loss / n_step)
+            opt.zero_grad()
+            opt_steps += 1
 
         log.info(
-            "epoch %d done: mean_loss=%.4f",
+            "epoch %d done: micro_steps=%d opt_steps=%d mean_loss=%.4f",
             epoch + 1,
-            total_loss / max(n_step, 1),
+            micro_steps,
+            opt_steps,
+            total_loss / max(micro_steps, 1),
         )
 
     model.save_pretrained(adapter_dir)

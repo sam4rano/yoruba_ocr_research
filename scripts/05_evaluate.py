@@ -246,7 +246,13 @@ def parse_args() -> argparse.Namespace:
         dest="rec_config",
         type=Path,
         default=None,
-        help="PaddleOCR YAML config used for training. Defaults to experiments/finetuned/config.yml if present, else configs/paddleocr_yoruba_rec_final.yml.",
+        help=(
+            "PaddleOCR YAML config used for training (must match checkpoint family). "
+            "Defaults to experiments/finetuned/config.yml if present, else "
+            "configs/paddleocr_yoruba_rec.yml (same as scripts/03_generate_config.py and "
+            "04_train_paddleocr.py). If you trained with configs/paddleocr_yoruba_rec_final.yml "
+            "(PP-OCRv4 pretrained), pass that path explicitly for both baseline and fine-tuned eval."
+        ),
     )
     parser.add_argument(
         "--results-csv",
@@ -277,7 +283,10 @@ def main() -> None:
     rec_config = args.rec_config
     if rec_config is None:
         cand = Path("experiments/finetuned/config.yml")
-        rec_config = cand if cand.exists() else Path("configs/paddleocr_yoruba_rec_final.yml")
+        # Align with 03_generate_config / 04_train default (PP-OCRv3 English pretrained).
+        # Using paddleocr_yoruba_rec_final.yml without the matching v4 checkpoint + train
+        # run mis-loads weights and makes baseline vs fine-tuned metrics meaningless.
+        rec_config = cand if cand.exists() else Path("configs/paddleocr_yoruba_rec.yml")
     if not rec_config.exists():
         raise FileNotFoundError(f"Config not found: {rec_config}")
     per_sample_log = args.per_sample_log or (

@@ -278,8 +278,9 @@ python scripts/05_evaluate.py \
   --data-dir data/processed \
   --split test \
   --model-name baseline_english_pretrained \
+  --rec-config configs/paddleocr_yoruba_rec_final.yml \
   --use-gpu \
   --paddle-dir PaddleOCR
 ```
 
-If this completes and appends a row to `metrics.csv`, your Colab env, data paths, and PaddleOCR clone are aligned for full training.
+Use the same `--rec-config` you used for training (default pipeline is `configs/paddleocr_yoruba_rec.yml` with `en_PP-OCRv3_rec_train`). If this completes and appends a row to `metrics.csv`, your Colab env, data paths, and PaddleOCR clone are aligned for full training.

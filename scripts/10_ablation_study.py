@@ -332,7 +332,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
+        default=40,
         help="Epochs per ablation run. Use a smaller value for quick testing.",
     )
     return parser.parse_args()

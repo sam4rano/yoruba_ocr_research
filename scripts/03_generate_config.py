@@ -10,7 +10,7 @@ Usage:
         --data-dir data/processed \
         --output-config configs/paddleocr_yoruba_rec.yml \
         --pretrained-dir experiments/baseline/pretrained \
-        --epochs 100 \
+        --epochs 40 \
         --batch-size 64 \
         --lr 0.0005
 """
@@ -261,8 +261,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--epochs",
         type=int,
-        default=100,
-        help="Number of fine-tuning epochs.",
+        default=40,
+        help=(
+            "Number of fine-tuning epochs for PP-OCR CRNN (typical 30–50; "
+            "100 is usually unnecessary and slow)."
+        ),
     )
     parser.add_argument(
         "--batch-size",

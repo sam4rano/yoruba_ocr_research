@@ -15,11 +15,14 @@ if [[ "${EVAL_USE_GPU:-0}" == "1" ]]; then
   GPU=( --use-gpu )
 fi
 
+REC_CONFIG="${PADDLE_REC_CONFIG:-configs/paddleocr_yoruba_rec.yml}"
+
 run_py scripts/05_evaluate.py \
   --model-dir "$BASE_PRE" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "$SPLIT" \
   --model-name baseline_english_pretrained \
+  --rec-config "$REC_CONFIG" \
   "${GPU[@]}" \
   --paddle-dir "${PADDLE_DIR:-PaddleOCR}"
 
@@ -28,5 +31,6 @@ run_py scripts/05_evaluate.py \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "$SPLIT" \
   --model-name finetuned_paddleocr_v1 \
+  --rec-config "$REC_CONFIG" \
   "${GPU[@]}" \
   --paddle-dir "${PADDLE_DIR:-PaddleOCR}"

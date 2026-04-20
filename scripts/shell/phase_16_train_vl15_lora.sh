@@ -13,6 +13,9 @@ EXTRA=()
 if [[ -n "${VL15_LORA_MAX_SAMPLES:-}" ]]; then
   EXTRA+=(--max-samples "$VL15_LORA_MAX_SAMPLES")
 fi
+if [[ -n "${VL15_GRAD_ACCUM:-}" ]]; then
+  EXTRA+=(--gradient-accumulation-steps "$VL15_GRAD_ACCUM")
+fi
 
 require_python
 run_py scripts/16_train_paddleocr_vl_lora.py \
