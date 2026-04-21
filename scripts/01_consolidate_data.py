@@ -36,6 +36,19 @@ SPLITS = ("train", "val", "test")
 # Match "yoruba_ocr_NNNNN" and "yoruba_ocr_NNNNN (Unzipped Files)"
 EXPORT_PATTERN = re.compile(r"^yoruba_ocr_(\d+)")
 
+# Single source of truth for the Yorùbá Unicode whitelist — see
+# scripts/yoruba_charset.py. We import the helper here instead of
+# re-defining it so the hygiene filter and the audit tool can never
+# drift apart.
+# Support both "python scripts/01_consolidate_data.py" and module-style
+# invocation from the repo root.
+import sys as _sys
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in _sys.path:
+    _sys.path.insert(0, str(_SCRIPTS_DIR))
+from yoruba_charset import has_only_whitelisted_codepoints  # noqa: E402
+
 
 def find_export_dirs(raw_dir: Path) -> list[tuple[int, Path]]:
     """Return (export_id, path) pairs sorted ascending by export_id."""
@@ -98,9 +111,29 @@ def is_valid_yoruba(text: str) -> bool:
     return True
 
 
+def _get_image_height(path: Path) -> int | None:
+    """Return image height in pixels, or ``None`` if Pillow is unavailable or
+    the image cannot be opened."""
+    try:
+        from PIL import Image  # type: ignore
+    except ImportError:
+        return None
+    try:
+        with Image.open(path) as im:
+            return int(im.size[1])
+    except (OSError, FileNotFoundError):
+        return None
+
+
 def collect_registry(
     exports: list[tuple[int, Path]],
-) -> dict[str, dict]:
+    *,
+    hygiene: bool,
+    min_label_len: int,
+    max_label_len: int,
+    max_image_height: int,
+    strict_charset: bool,
+) -> tuple[dict[str, dict], dict[str, int]]:
     """
     Build a registry keyed by image stem (filename without directory).
 
@@ -108,19 +141,29 @@ def collect_registry(
     numerically highest export_id takes precedence — reflecting the most
     recent annotation decision.
 
-    Returns:
-        {
-          "0a785293_line0001.png": {
-              "text": "Ẹ̀KỌ́ KẸTÀDÍNLÓGÚN",
-              "src_path": Path(...),
-              "split": "train",
-              "export_id": 85456,
-          },
-          ...
-        }
+    When ``hygiene=True`` (default), samples are additionally dropped for:
+
+    * label length outside ``[min_label_len, max_label_len]``
+    * image height ``> max_image_height`` (treated as multi-line noise)
+    * any codepoint outside the Yorùbá whitelist (only when
+      ``strict_charset=True``)
+
+    Returns ``(registry, drop_counts)`` where ``drop_counts`` tracks the
+    number of entries eliminated by each filter so the consolidation
+    report can make the decisions auditable.
     """
     registry: dict[str, dict] = {}
-    skipped_missing = 0
+    drops: dict[str, int] = {
+        "missing_image": 0,
+        "invalid_yoruba": 0,
+        "label_too_short": 0,
+        "label_too_long": 0,
+        "image_too_tall": 0,
+        "non_whitelisted_codepoint": 0,
+    }
+
+    # Cache image heights so duplicates across exports don't re-read the file.
+    height_cache: dict[Path, int | None] = {}
 
     for export_id, export_dir in exports:
         for split in SPLITS:
@@ -130,14 +173,32 @@ def collect_registry(
             for rel_path, text in read_label_file(label_file):
                 src_path = export_dir / rel_path
                 if not src_path.exists():
-                    skipped_missing += 1
+                    drops["missing_image"] += 1
                     log.debug("Image missing: %s", src_path)
                     continue
                 stem = Path(rel_path).name
-                
-                # Filter out invalid Yoruba text (Code-mixed English, blanks, etc.)
+
                 if not is_valid_yoruba(text):
+                    drops["invalid_yoruba"] += 1
                     continue
+
+                if hygiene:
+                    if len(text) < min_label_len:
+                        drops["label_too_short"] += 1
+                        continue
+                    if len(text) > max_label_len:
+                        drops["label_too_long"] += 1
+                        continue
+                    if strict_charset and not has_only_whitelisted_codepoints(text):
+                        drops["non_whitelisted_codepoint"] += 1
+                        continue
+                    if max_image_height > 0:
+                        if src_path not in height_cache:
+                            height_cache[src_path] = _get_image_height(src_path)
+                        h = height_cache[src_path]
+                        if h is not None and h > max_image_height:
+                            drops["image_too_tall"] += 1
+                            continue
 
                 if stem not in registry or export_id > registry[stem]["export_id"]:
                     registry[stem] = {
@@ -147,9 +208,9 @@ def collect_registry(
                         "export_id": export_id,
                     }
 
-    if skipped_missing:
-        log.warning("Skipped %d entries with missing image files.", skipped_missing)
-    return registry
+    if drops["missing_image"]:
+        log.warning("Skipped %d entries with missing image files.", drops["missing_image"])
+    return registry, drops
 
 
 def collect_char_dicts_from_registry(registry: dict[str, dict]) -> list[str]:
@@ -257,6 +318,41 @@ def parse_args() -> argparse.Namespace:
         default=Path("results/tables/consolidation_report.json"),
         help="JSON file to record consolidation statistics.",
     )
+    parser.add_argument(
+        "--no-hygiene",
+        dest="hygiene",
+        action="store_false",
+        help="Disable length/height/charset filters (keeps legacy behaviour).",
+    )
+    parser.set_defaults(hygiene=True)
+    parser.add_argument(
+        "--min-label-len",
+        type=int,
+        default=3,
+        help="Minimum label length in characters when hygiene is enabled.",
+    )
+    parser.add_argument(
+        "--max-label-len",
+        type=int,
+        default=100,
+        help="Maximum label length in characters when hygiene is enabled.",
+    )
+    parser.add_argument(
+        "--max-image-height",
+        type=int,
+        default=180,
+        help=(
+            "Maximum accepted image height (px). Taller images are treated as "
+            "multi-line noise. Set to 0 to disable the height filter."
+        ),
+    )
+    parser.add_argument(
+        "--no-strict-charset",
+        dest="strict_charset",
+        action="store_false",
+        help="Disable the Yorùbá Unicode whitelist (keeps annotation noise).",
+    )
+    parser.set_defaults(strict_charset=True)
     return parser.parse_args()
 
 
@@ -268,9 +364,26 @@ def main() -> None:
     exports = find_export_dirs(args.raw_dir)
     log.info("Found %d export directories.", len(exports))
 
-    log.info("Building image registry ...")
-    registry = collect_registry(exports)
+    log.info(
+        "Building image registry (hygiene=%s, min=%d, max=%d, max_h=%d, strict_charset=%s) ...",
+        args.hygiene,
+        args.min_label_len,
+        args.max_label_len,
+        args.max_image_height,
+        args.strict_charset,
+    )
+    registry, drops = collect_registry(
+        exports,
+        hygiene=args.hygiene,
+        min_label_len=args.min_label_len,
+        max_label_len=args.max_label_len,
+        max_image_height=args.max_image_height,
+        strict_charset=args.strict_charset,
+    )
     log.info("Unique images after deduplication: %d", len(registry))
+    for k, v in drops.items():
+        if v:
+            log.info("  dropped %s: %d", k, v)
 
     log.info("Collecting character dictionaries ...")
     chars = collect_char_dicts_from_registry(registry)
@@ -291,6 +404,14 @@ def main() -> None:
         "char_dict_size": len(chars),
         "output_dir": str(args.output_dir),
         "timestamp": datetime.now(timezone.utc).isoformat(),
+        "hygiene": {
+            "enabled": args.hygiene,
+            "min_label_len": args.min_label_len,
+            "max_label_len": args.max_label_len,
+            "max_image_height": args.max_image_height,
+            "strict_charset": args.strict_charset,
+            "drop_counts": drops,
+        },
     }
     save_report(report, args.log_file)
 

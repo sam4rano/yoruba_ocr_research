@@ -102,11 +102,47 @@ def build_config(
     batch_size: int,
     lr: float,
     use_gpu: bool,
+    *,
+    max_text_length: int = 100,
+    image_width: int = 960,
+    warmup_epoch: int = 2,
+    lr_schedule: str = "Cosine",
 ) -> dict:
-    """Construct the full PaddleOCR YAML config as a Python dict."""
+    """Construct the full PaddleOCR YAML config as a Python dict.
+
+    The defaults reflect the P2/P3 forensic-analysis fixes:
+
+    * ``max_text_length=100`` matches the hygiene cap applied during
+      consolidation; any larger value would silently truncate labels.
+    * ``image_width=960`` gives roughly 120 CTC timesteps after the
+      PP-OCRv3 backbone's ~8x width downsampling, leaving ≥20 timesteps
+      of headroom above ``max_text_length`` (CTC requires timesteps ≥
+      label length, and closer to 2x is preferred for stable training).
+    * ``lr_schedule='Cosine'`` replaces the previous MultiStepDecay
+      whose hard-coded milestones (``[60, 80]``) never fired at 40
+      epochs. Cosine decays smoothly across the full schedule.
+    """
     n_train = count_samples(data_dir / "labels" / "train.txt")
     eval_step = max(20, min(2000, (n_train // batch_size) * 2))
-    
+    image_shape = [3, 48, image_width]
+
+    if lr_schedule == "Cosine":
+        lr_block: dict = {
+            "name": "Cosine",
+            "learning_rate": lr,
+            "warmup_epoch": warmup_epoch,
+        }
+    elif lr_schedule == "MultiStepDecay":
+        lr_block = {
+            "name": "MultiStepDecay",
+            "learning_rate": lr,
+            "milestones": [int(epochs * 0.6), int(epochs * 0.8)],
+            "gamma": 0.1,
+            "warmup_epoch": warmup_epoch,
+        }
+    else:
+        raise ValueError(f"Unknown lr_schedule: {lr_schedule!r}")
+
     return {
         "Global": {
             "use_gpu": use_gpu,
@@ -122,7 +158,7 @@ def build_config(
             "save_inference_dir": None,
             "use_visualdl": False,
             "character_dict_path": str(dict_path),
-            "max_text_length": 160,
+            "max_text_length": max_text_length,
             "infer_mode": False,
             "use_space_char": True,
             "distributed": False,
@@ -134,13 +170,7 @@ def build_config(
             "name": "Adam",
             "beta1": 0.9,
             "beta2": 0.999,
-            "lr": {
-                "name": "MultiStepDecay",
-                "learning_rate": lr,
-                "milestones": [int(epochs * 0.6), int(epochs * 0.8)],
-                "gamma": 0.1,
-                "warmup_epoch": 5,
-            },
+            "lr": lr_block,
             "regularizer": {"name": "L2", "factor": 3.0e-05},
         },
         "Architecture": {
@@ -180,7 +210,7 @@ def build_config(
                     {"DecodeImage": {"img_mode": "BGR", "channel_first": False}},
                     {"RecAug": None},
                     {"CTCLabelEncode": None},
-                    {"RecResizeImg": {"image_shape": [3, 48, 512]}},
+                    {"RecResizeImg": {"image_shape": image_shape}},
                     {"KeepKeys": {"keep_keys": ["image", "label", "length"]}},
                 ],
             },
@@ -199,7 +229,7 @@ def build_config(
                 "transforms": [
                     {"DecodeImage": {"img_mode": "BGR", "channel_first": False}},
                     {"CTCLabelEncode": None},
-                    {"RecResizeImg": {"image_shape": [3, 48, 512]}},
+                    {"RecResizeImg": {"image_shape": image_shape}},
                     {"KeepKeys": {"keep_keys": ["image", "label", "length"]}},
                 ],
             },
@@ -281,6 +311,44 @@ def parse_args() -> argparse.Namespace:
         help="Initial learning rate.",
     )
     parser.add_argument(
+        "--max-text-length",
+        "--max_text_length",
+        dest="max_text_length",
+        type=int,
+        default=100,
+        help=(
+            "Maximum label length in characters. Must be ≥ longest label "
+            "after hygiene filtering (currently 100)."
+        ),
+    )
+    parser.add_argument(
+        "--image-width",
+        "--image_width",
+        dest="image_width",
+        type=int,
+        default=960,
+        help=(
+            "Input image width after RecResizeImg; height is fixed at 48. "
+            "Controls CTC timesteps; width/8 must exceed max_text_length."
+        ),
+    )
+    parser.add_argument(
+        "--lr-schedule",
+        "--lr_schedule",
+        dest="lr_schedule",
+        choices=["Cosine", "MultiStepDecay"],
+        default="Cosine",
+        help="Learning-rate schedule. Cosine is recommended for short runs.",
+    )
+    parser.add_argument(
+        "--warmup-epoch",
+        "--warmup_epoch",
+        dest="warmup_epoch",
+        type=int,
+        default=2,
+        help="Number of LR warmup epochs.",
+    )
+    parser.add_argument(
         "--skip-download",
         "--skip_download",
         action="store_true",
@@ -342,6 +410,15 @@ def main() -> None:
         use_gpu = default_use_gpu()
     log.info("Global.use_gpu = %s", use_gpu)
 
+    if args.image_width // 8 <= args.max_text_length:
+        log.warning(
+            "image_width/8 (%d) ≤ max_text_length (%d); CTC may fail to "
+            "converge. Consider --image-width %d or larger.",
+            args.image_width // 8,
+            args.max_text_length,
+            args.max_text_length * 8 + 64,
+        )
+
     config = build_config(
         project_root=project_root,
         data_dir=args.data_dir.resolve(),
@@ -352,6 +429,10 @@ def main() -> None:
         batch_size=args.batch_size,
         lr=args.lr,
         use_gpu=use_gpu,
+        max_text_length=args.max_text_length,
+        image_width=args.image_width,
+        warmup_epoch=args.warmup_epoch,
+        lr_schedule=args.lr_schedule,
     )
 
     args.output_config.parent.mkdir(parents=True, exist_ok=True)
@@ -367,6 +448,10 @@ def main() -> None:
         "epochs": args.epochs,
         "batch_size": args.batch_size,
         "lr": args.lr,
+        "lr_schedule": args.lr_schedule,
+        "warmup_epoch": args.warmup_epoch,
+        "max_text_length": args.max_text_length,
+        "image_width": args.image_width,
         "pretrained_model_dir": str(pretrained_model_dir),
         "use_gpu": use_gpu,
         "timestamp": datetime.now(timezone.utc).isoformat(),

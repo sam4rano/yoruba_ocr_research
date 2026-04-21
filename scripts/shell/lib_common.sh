@@ -76,12 +76,6 @@ backup_artifacts() {
     cp -a configs/paddleocr_yoruba_rec.yml "$dest/configs_snippet/" 2>/dev/null || true
   fi
 
-  # Optional: final training YAML used for the main run
-  if [[ -f configs/paddleocr_yoruba_rec_final.yml ]]; then
-    mkdir -p "$dest/configs_snippet"
-    cp -a configs/paddleocr_yoruba_rec_final.yml "$dest/configs_snippet/" 2>/dev/null || true
-  fi
-
   mkdir -p "${PROJECT_ROOT}/results/tables"
   echo "$dest" > "${PROJECT_ROOT}/results/tables/.last_drive_backup_path.txt"
   log "Backup complete: $dest"

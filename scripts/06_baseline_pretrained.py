@@ -2,11 +2,24 @@
 Evaluate the English pretrained PaddleOCR recognition model (no fine-tuning)
 on the test set to establish the baseline CER/WER/DER.
 
-Important: `paddleocr` (pip) v3.x is a PaddleX pipeline and its Python API is
-not compatible with the legacy `ocr(..., det=..., cls=...)` call signature.
-For consistent evaluation (and to ensure we are comparing like-for-like),
-this script delegates to `scripts/05_evaluate.py`, which loads checkpoints
-via the cloned PaddleOCR repo (`ppocr.*`).
+Critical (P4 fix): the English PP-OCRv3 checkpoint has a CTC head whose
+output dimension matches the *English* dictionary (95 characters + blank).
+Loading it against the Yorùbá dictionary (98 chars) produces a shape
+mismatch that PaddleOCR's ``load_model`` silently skips, leaving a
+randomly-initialised head. That was the root cause of the previous
+"baseline CER ≈ 1.0" phantom result.
+
+This script therefore evaluates the model with its own English dict so
+the head weights actually load. The reported CER/WER are the honest
+baseline for "English OCR applied to Yorùbá text": the model can output
+ASCII characters approximating base letters but cannot produce
+combining diacritics, so DER will be near 1.0.
+
+Important: ``paddleocr`` (pip) v3.x is a PaddleX pipeline and its Python
+API is not compatible with the legacy ``ocr(..., det=..., cls=...)``
+signature. For consistent evaluation this script delegates to
+``scripts/05_evaluate.py``, which loads checkpoints via the cloned
+PaddleOCR repo (``ppocr.*``).
 """
 
 from __future__ import annotations
@@ -44,7 +57,24 @@ def parse_args() -> argparse.Namespace:
         dest="dict_path",
         type=Path,
         default=None,
-        help="Yorùbá character dictionary. Defaults to data-dir/dictionary/yoruba_char_dict.txt.",
+        help=(
+            "Character dictionary passed to 05_evaluate.py. Defaults to "
+            "PaddleOCR/ppocr/utils/en_dict.txt so the English pretrained "
+            "checkpoint's CTC head loads correctly. Override with the "
+            "Yorùbá dict only if you deliberately want to reproduce the "
+            "phantom-head baseline (which the integrity gate will reject)."
+        ),
+    )
+    parser.add_argument(
+        "--use-yoruba-dict",
+        "--use_yoruba_dict",
+        dest="use_yoruba_dict",
+        action="store_true",
+        help=(
+            "Force evaluation with the Yorùbá dictionary. Causes a CTC "
+            "head shape mismatch and will trigger PhantomCheckpointError "
+            "unless --allow-head-reinit is also passed through."
+        ),
     )
     parser.add_argument(
         "--split",
@@ -104,6 +134,17 @@ def parse_args() -> argparse.Namespace:
         default=Path(f"results/tables/{MODEL_NAME}_test.jsonl"),
         help="JSONL file for per-sample predictions.",
     )
+    parser.add_argument(
+        "--allow-head-reinit",
+        "--allow_head_reinit",
+        dest="allow_head_reinit",
+        action="store_true",
+        help=(
+            "Pass --allow-head-reinit through to 05_evaluate.py. Only use "
+            "together with --use-yoruba-dict to reproduce the phantom "
+            "baseline on purpose."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -114,9 +155,24 @@ def run_baseline(args: argparse.Namespace) -> None:
     The English model is loaded without a custom rec_model_dir — PaddleOCR
     will download and cache it automatically on first run.
     """
-    dict_path = args.dict_path or (args.data_dir / "dictionary" / "yoruba_char_dict.txt")
+    if args.dict_path is not None:
+        dict_path = args.dict_path
+    elif args.use_yoruba_dict:
+        dict_path = args.data_dir / "dictionary" / "yoruba_char_dict.txt"
+    else:
+        dict_path = args.paddle_dir / "ppocr" / "utils" / "en_dict.txt"
 
-    # Delegate evaluation to scripts/05_evaluate.py for consistent checkpoint loading.
+    if not dict_path.exists():
+        log.error(
+            "Dictionary not found at %s. The English baseline expects "
+            "ppocr/utils/en_dict.txt inside the cloned PaddleOCR repo. "
+            "Check --paddle-dir or pass --dict-path explicitly.",
+            dict_path,
+        )
+        sys.exit(1)
+
+    log.info("Using character dict: %s", dict_path)
+
     cmd = [
         sys.executable,
         "scripts/05_evaluate.py",
@@ -139,6 +195,8 @@ def run_baseline(args: argparse.Namespace) -> None:
     ]
     if args.use_gpu:
         cmd.append("--use-gpu")
+    if args.allow_head_reinit:
+        cmd.append("--allow-head-reinit")
 
     cmd += ["--rec-config", str(args.rec_config)]
 

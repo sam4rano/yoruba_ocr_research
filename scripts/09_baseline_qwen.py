@@ -30,6 +30,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
 import sys
 import unicodedata
@@ -255,12 +256,24 @@ def main() -> None:
         metrics["der"],
         metrics["n"],
     )
+    provenance = {
+        "model_kind": "qwen2_vl",
+        "base_model_id": args.model_id,
+        "quantize_4bit": bool(args.quantize),
+        "max_new_tokens": 128,
+        "do_sample": False,
+        "prompt": USER_PROMPT,
+        "prompt_sha256": hashlib.sha256(USER_PROMPT.encode("utf-8")).hexdigest(),
+        "data_dir": str(args.data_dir),
+        "n_images": len(pairs),
+    }
     save_results(
         metrics,
         model_name=MODEL_LABEL,
         split=args.split,
         csv_path=args.results_csv,
         jsonl_path=args.per_sample_log,
+        provenance=provenance,
     )
     log.info("Results appended to %s", args.results_csv)
 

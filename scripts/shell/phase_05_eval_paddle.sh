@@ -26,6 +26,19 @@ run_py scripts/05_evaluate.py \
   "${GPU[@]}" \
   --paddle-dir "${PADDLE_DIR:-PaddleOCR}"
 
+# PP-OCRv4 fine-tuned checkpoint is OPTIONAL (classical CRNN comparison).
+# Skip automatically when:
+#   - SKIP_PADDLE_FINETUNE=1 is set explicitly (recommended if phase 04 was not run), or
+#   - the checkpoint directory does not exist.
+if [[ "${SKIP_PADDLE_FINETUNE:-0}" == "1" ]]; then
+  log "SKIP_PADDLE_FINETUNE=1 — skipping fine-tuned PP-OCRv4 evaluation"
+  exit 0
+fi
+if [[ ! -d "$FINETUNE_DIR" ]]; then
+  log "No fine-tuned checkpoint at $FINETUNE_DIR — skipping (run phase 04 first or set SKIP_PADDLE_FINETUNE=1)"
+  exit 0
+fi
+
 run_py scripts/05_evaluate.py \
   --model-dir "$FINETUNE_DIR" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \

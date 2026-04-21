@@ -13,6 +13,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import logging
 import sys
 from pathlib import Path
@@ -22,6 +23,29 @@ log = logging.getLogger(__name__)
 
 MODEL_ZERO_SHOT = "paddleocr_vl15_zero_shot"
 MODEL_FINETUNED = "paddleocr_vl15_lora_finetuned"
+
+
+def _hash_adapter(adapter_path: Path | None) -> dict:
+    """Return ``{file: sha256}`` for the key files in a PEFT adapter dir."""
+    if adapter_path is None or not adapter_path.is_dir():
+        return {}
+    tracked = ("adapter_config.json", "adapter_model.safetensors", "adapter_model.bin")
+    out: dict[str, str] = {}
+    for name in tracked:
+        p = adapter_path / name
+        if not p.exists():
+            continue
+        h = hashlib.sha256()
+        with p.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 16), b""):
+                h.update(chunk)
+        out[name] = h.hexdigest()
+    return out
+
+
+def _sha256_text(text: str) -> str:
+    """Return the hex SHA-256 of ``text`` encoded as UTF-8."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def parse_args() -> argparse.Namespace:
@@ -244,12 +268,31 @@ def main() -> None:
         metrics["der"],
         metrics["n"],
     )
+    provenance: dict = {
+        "model_kind": "paddleocr_vl",
+        "base_model_id": args.model_id,
+        "adapter_path": str(args.adapter_path) if args.adapter_path else None,
+        "adapter_sha256": _hash_adapter(args.adapter_path),
+        "quantize_4bit": bool(args.quantize_4bit),
+        "max_new_tokens": args.max_new_tokens,
+        "do_sample": False,
+        "prompt": USER_TEXT_OCR_YORUBA,
+        "prompt_sha256": _sha256_text(USER_TEXT_OCR_YORUBA),
+        "data_dir": str(args.data_dir),
+        "n_images": len(pairs),
+        "device": device,
+        "torch_dtype": (
+            "bfloat16" if (not args.quantize_4bit and torch.cuda.is_available())
+            else ("4bit" if args.quantize_4bit else "float32")
+        ),
+    }
     save_results(
         metrics,
         model_name=model_label,
         split=args.split,
         csv_path=args.results_csv,
         jsonl_path=args.per_sample_log,
+        provenance=provenance,
     )
     log.info("Results appended to %s", args.results_csv)
 

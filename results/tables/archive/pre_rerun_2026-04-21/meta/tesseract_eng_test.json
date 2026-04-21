@@ -1,0 +1,36 @@
+{
+  "model": "tesseract_eng",
+  "split": "test",
+  "timestamp": "2026-04-21T08:17:53.479354+00:00",
+  "phantom": "n/a",
+  "metrics": {
+    "n": 302,
+    "cer": 1.2273,
+    "wer": 1.476,
+    "der": 0.9604
+  },
+  "git_sha": "da89872",
+  "env": {
+    "cwd": "/Users/mac/Desktop/yoruba_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/tesseract_eng_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": null,
+    "checkpoint_sha256": null,
+    "dict_path": null,
+    "dict_sha256": null,
+    "dict_size": null,
+    "rec_config": null,
+    "rec_config_sha256": null
+  },
+  "provenance": {
+    "model_kind": "tesseract",
+    "tesseract_version": "tesseract 5.5.2",
+    "lang": "eng",
+    "psm": 7,
+    "oem": 3,
+    "data_dir": "data/processed",
+    "n_images": 302
+  }
+}

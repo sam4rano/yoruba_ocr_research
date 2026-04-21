@@ -7,14 +7,14 @@ Global:
   save_epoch_step: 10
   eval_batch_step:
   - 0
-  - 88
+  - 64
   cal_metric_during_train: true
   pretrained_model: /Users/mac/Desktop/yoruba_ocr_research/experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy
   checkpoints: null
   save_inference_dir: null
   use_visualdl: false
   character_dict_path: /Users/mac/Desktop/yoruba_ocr_research/data/processed/dictionary/yoruba_char_dict.txt
-  max_text_length: 160
+  max_text_length: 100
   infer_mode: false
   use_space_char: true
   distributed: false
@@ -24,13 +24,9 @@ Optimizer:
   beta1: 0.9
   beta2: 0.999
   lr:
-    name: MultiStepDecay
+    name: Cosine
     learning_rate: 0.001
-    milestones:
-    - 60
-    - 80
-    gamma: 0.1
-    warmup_epoch: 5
+    warmup_epoch: 2
   regularizer:
     name: L2
     factor: 3.0e-05
@@ -79,10 +75,10 @@ Train:
     - RecAug: null
     - CTCLabelEncode: null
     - RecResizeImg:
-        image_shape:
+        image_shape: &id001
         - 3
         - 48
-        - 512
+        - 960
     - KeepKeys:
         keep_keys:
         - image
@@ -105,10 +101,7 @@ Eval:
         channel_first: false
     - CTCLabelEncode: null
     - RecResizeImg:
-        image_shape:
-        - 3
-        - 48
-        - 512
+        image_shape: *id001
     - KeepKeys:
         keep_keys:
         - image

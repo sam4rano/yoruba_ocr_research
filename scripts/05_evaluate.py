@@ -45,6 +45,142 @@ from evaluate_utils import (  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
+# Checkpoint integrity
+# ---------------------------------------------------------------------------
+
+def _classify_param(key: str) -> str:
+    """Bucket a parameter name into 'head', 'backbone', or 'other'.
+
+    PaddleOCR recognition models namespace parameters as
+    ``backbone.*`` / ``neck.*`` / ``head.*``. The CTC head (the part that
+    maps encoder features to the output vocabulary) is what silently goes
+    random when the dictionary size is swapped at eval time, so we flag any
+    key under ``head`` for the strict check.
+    """
+    k = key.lower()
+    if k.startswith("head") or ".head." in k or ".ctc_head." in k or "ctc_encoder" in k:
+        return "head"
+    if k.startswith("backbone") or k.startswith("neck"):
+        return "backbone"
+    return "other"
+
+
+def inspect_checkpoint_restoration(ckpt_prefix: Path, model) -> dict:
+    """Compare a Paddle checkpoint against a freshly built model.
+
+    Runs **before** ``ppocr.utils.save_load.load_model``, so we can abort
+    on shape mismatches that ``load_model`` otherwise only logs as a
+    warning (historically this is how "phantom baselines" ended up in
+    ``metrics.csv`` — the English encoder restored but the CTC head stayed
+    random after we swapped in the Yorùbá dictionary).
+
+    Returns a report dict with per-key status buckets. ``missing`` and
+    ``shape_mismatch`` entries on head weights are the blocking signal.
+    """
+    import paddle  # type: ignore  # local import: only when running eval
+
+    params_path = ckpt_prefix.with_suffix(".pdparams")
+    if not params_path.exists():
+        raise FileNotFoundError(f"Checkpoint not found: {params_path}")
+
+    ckpt = paddle.load(str(params_path))
+    model_state = model.state_dict()
+
+    restored: list[str] = []
+    missing: list[str] = []
+    shape_mismatch: list[dict] = []
+    extra: list[str] = []
+
+    for key, val in model_state.items():
+        if key not in ckpt:
+            missing.append(key)
+            continue
+        src = ckpt[key]
+        if list(src.shape) != list(val.shape):
+            shape_mismatch.append(
+                {"key": key, "model_shape": list(val.shape), "ckpt_shape": list(src.shape)}
+            )
+            continue
+        restored.append(key)
+
+    extra = [k for k in ckpt.keys() if k not in model_state]
+
+    def _by_component(keys: list[str]) -> dict[str, int]:
+        counts: dict[str, int] = {"head": 0, "backbone": 0, "other": 0}
+        for k in keys:
+            counts[_classify_param(k)] += 1
+        return counts
+
+    report = {
+        "ckpt_prefix": str(ckpt_prefix),
+        "n_model_params": len(model_state),
+        "n_ckpt_params": len(ckpt),
+        "n_restored": len(restored),
+        "n_missing": len(missing),
+        "n_shape_mismatch": len(shape_mismatch),
+        "n_extra_in_ckpt": len(extra),
+        "missing_by_component": _by_component(missing),
+        "shape_mismatch_by_component": _by_component([m["key"] for m in shape_mismatch]),
+        "missing_sample": missing[:10],
+        "shape_mismatch_sample": shape_mismatch[:10],
+    }
+    return report
+
+
+class PhantomCheckpointError(RuntimeError):
+    """Raised when a checkpoint cannot faithfully restore the model it was
+    asked to evaluate — i.e. the metrics we would record would measure a
+    randomly-initialised head rather than the trained model.
+    """
+
+
+def enforce_checkpoint_integrity(
+    report: dict,
+    *,
+    allow_head_reinit: bool = False,
+) -> None:
+    """Raise ``PhantomCheckpointError`` when a head weight cannot be restored.
+
+    The default policy (strict) is appropriate for evaluation: an unrestored
+    head parameter means the CTC projection is random and any metric
+    produced is meaningless. Pass ``allow_head_reinit=True`` only when
+    deliberately evaluating a fresh head (e.g. a dictionary ablation where
+    we *expect* reinit and want to record CER ≈ 1.0 as the zero-skill
+    lower bound).
+    """
+    head_missing = report["missing_by_component"].get("head", 0)
+    head_shape_mismatch = report["shape_mismatch_by_component"].get("head", 0)
+    head_bad = head_missing + head_shape_mismatch
+
+    if head_bad == 0:
+        return
+
+    msg_lines = [
+        "PHANTOM CHECKPOINT DETECTED — refusing to record eval metrics.",
+        f"  checkpoint : {report['ckpt_prefix']}.pdparams",
+        f"  head weights not restored: {head_bad} "
+        f"(missing={head_missing}, shape_mismatch={head_shape_mismatch})",
+        "  this model's CTC head would be random; CER/WER/DER would be meaningless.",
+    ]
+    if report["shape_mismatch_sample"]:
+        msg_lines.append("  first mismatches:")
+        for m in report["shape_mismatch_sample"][:5]:
+            msg_lines.append(
+                f"    - {m['key']}: model={m['model_shape']} ckpt={m['ckpt_shape']}"
+            )
+    msg_lines.append(
+        "  fix: retrain with the matching dictionary, or pass "
+        "--allow-head-reinit if this is a deliberate zero-skill/ablation run."
+    )
+    if allow_head_reinit:
+        log.warning("\n".join(msg_lines))
+        log.warning("--allow-head-reinit set; proceeding with random head.")
+        return
+
+    raise PhantomCheckpointError("\n".join(msg_lines))
+
+
+# ---------------------------------------------------------------------------
 # Inference
 # ---------------------------------------------------------------------------
 
@@ -55,11 +191,15 @@ def run_inference(
     use_gpu: bool,
     paddle_dir: Path,
     rec_config: Path,
-) -> list[tuple[str, str]]:
+    allow_head_reinit: bool = False,
+) -> tuple[list[tuple[str, str]], dict]:
     """
     Run PaddleOCR recognition-only inference on a list of image paths.
 
-    Returns list of (prediction, ground_truth) strings.
+    Returns ``(pairs, integrity_report)`` where ``integrity_report`` is the
+    dict produced by :func:`inspect_checkpoint_restoration` and should be
+    persisted next to the metrics row so phantom baselines are visible in
+    the audit trail.
     """
     # PaddleOCR>=3.x (pip) no longer supports passing training checkpoints and
     # custom dictionaries via the legacy `PaddleOCR(..., use_gpu=..., rec_model_dir=...)`.
@@ -140,6 +280,19 @@ def run_inference(
             config["Architecture"]["Head"]["out_channels"] = char_num
 
     model = build_model(config["Architecture"])
+
+    integrity_report = inspect_checkpoint_restoration(ckpt_prefix, model)
+    log.info(
+        "Checkpoint integrity: restored=%d/%d  missing=%d  shape_mismatch=%d",
+        integrity_report["n_restored"],
+        integrity_report["n_model_params"],
+        integrity_report["n_missing"],
+        integrity_report["n_shape_mismatch"],
+    )
+    enforce_checkpoint_integrity(
+        integrity_report, allow_head_reinit=allow_head_reinit
+    )
+
     load_model(config, model)
     model.eval()
 
@@ -173,7 +326,7 @@ def run_inference(
 
         results.append((pred_text, gt))
 
-    return results
+    return results, integrity_report
 
 
 # ---------------------------------------------------------------------------
@@ -250,8 +403,8 @@ def parse_args() -> argparse.Namespace:
             "PaddleOCR YAML config used for training (must match checkpoint family). "
             "Defaults to experiments/finetuned/config.yml if present, else "
             "configs/paddleocr_yoruba_rec.yml (same as scripts/03_generate_config.py and "
-            "04_train_paddleocr.py). If you trained with configs/paddleocr_yoruba_rec_final.yml "
-            "(PP-OCRv4 pretrained), pass that path explicitly for both baseline and fine-tuned eval."
+            "04_train_paddleocr.py). Override only if you trained with a custom YAML; "
+            "the baseline and fine-tuned runs MUST use the same --rec-config."
         ),
     )
     parser.add_argument(
@@ -270,6 +423,19 @@ def parse_args() -> argparse.Namespace:
         default=None,
         help="JSONL file for per-sample predictions. Defaults to results/tables/{model_name}_{split}.jsonl.",
     )
+    parser.add_argument(
+        "--allow-head-reinit",
+        "--allow_head_reinit",
+        dest="allow_head_reinit",
+        action="store_true",
+        default=False,
+        help=(
+            "Proceed even when the CTC head weights cannot be restored from the "
+            "checkpoint (i.e. a random head). Use ONLY for deliberate zero-skill "
+            "lower-bound runs such as the dictionary ablation; never for baselines "
+            "that will be presented as trained models."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -284,8 +450,8 @@ def main() -> None:
     if rec_config is None:
         cand = Path("experiments/finetuned/config.yml")
         # Align with 03_generate_config / 04_train default (PP-OCRv3 English pretrained).
-        # Using paddleocr_yoruba_rec_final.yml without the matching v4 checkpoint + train
-        # run mis-loads weights and makes baseline vs fine-tuned metrics meaningless.
+        # Mixing an arbitrary YAML with a mismatched checkpoint silently re-initialises
+        # weights and makes baseline vs fine-tuned metrics meaningless.
         rec_config = cand if cand.exists() else Path("configs/paddleocr_yoruba_rec.yml")
     if not rec_config.exists():
         raise FileNotFoundError(f"Config not found: {rec_config}")
@@ -297,13 +463,14 @@ def main() -> None:
     pairs = load_test_pairs(args.data_dir, args.split)
     log.info("Loaded %d labelled examples.", len(pairs))
 
-    pred_pairs = run_inference(
+    pred_pairs, integrity_report = run_inference(
         pairs,
         args.model_dir,
         dict_path,
         args.use_gpu,
         paddle_dir=args.paddle_dir,
         rec_config=rec_config,
+        allow_head_reinit=args.allow_head_reinit,
     )
 
     metrics = aggregate_metrics(pred_pairs)
@@ -321,6 +488,15 @@ def main() -> None:
         split=args.split,
         csv_path=args.results_csv,
         jsonl_path=per_sample_log,
+        provenance={
+            "script": "scripts/05_evaluate.py",
+            "model_dir": str(args.model_dir),
+            "dict_path": str(dict_path),
+            "rec_config": str(rec_config),
+            "split": args.split,
+            "allow_head_reinit": args.allow_head_reinit,
+            "checkpoint_integrity": integrity_report,
+        },
     )
     log.info("Results appended to %s", args.results_csv)
     log.info("Per-sample log written to %s", per_sample_log)

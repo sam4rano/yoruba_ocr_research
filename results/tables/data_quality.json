@@ -1,0 +1,222 @@
+{
+  "data_dir": "data/processed",
+  "thresholds": {
+    "min_label_len": 3,
+    "max_label_len": 100,
+    "max_image_height": 180
+  },
+  "per_split": {
+    "train": {
+      "n": 2066,
+      "label_length_chars": {
+        "min": 3.0,
+        "p50": 22.0,
+        "p90": 56.0,
+        "p95": 73.0,
+        "p99": 91.0,
+        "max": 100.0
+      },
+      "label_length_words": {
+        "min": 1.0,
+        "p50": 5.0,
+        "p90": 12.0,
+        "p95": 15.0,
+        "p99": 20.0,
+        "max": 26.0
+      },
+      "image_width_px": {
+        "min": 856.0,
+        "p50": 1000.0,
+        "p90": 1000.0,
+        "p95": 1000.0,
+        "p99": 1072.0,
+        "max": 1104.0
+      },
+      "image_height_px": {
+        "min": 41.0,
+        "p50": 77.0,
+        "p90": 130.0,
+        "p95": 152.0,
+        "p99": 176.0,
+        "max": 180.0
+      },
+      "n_with_image_dims": 2066,
+      "block_histogram": {
+        "ascii": 36614,
+        "latin-1-supplement": 10595,
+        "latin-extended-additional": 5742,
+        "combining-diacritics": 3228,
+        "latin-extended-a": 273,
+        "general-punctuation": 35,
+        "latin-extended-b": 10
+      },
+      "top_offending_codepoints": [],
+      "sample_offending_texts": [],
+      "would_drop": {
+        "label_too_short": {
+          "threshold_min_len": 3,
+          "count": 0,
+          "examples": []
+        },
+        "label_too_long": {
+          "threshold_max_len": 100,
+          "count": 0,
+          "examples": []
+        },
+        "image_too_tall": {
+          "threshold_max_height_px": 180,
+          "count": 0,
+          "example_heights": []
+        },
+        "non_yoruba_codepoint": {
+          "count": 0
+        }
+      }
+    },
+    "val": {
+      "n": 213,
+      "label_length_chars": {
+        "min": 5.0,
+        "p50": 21.0,
+        "p90": 59.0,
+        "p95": 74.0,
+        "p99": 87.0,
+        "max": 97.0
+      },
+      "label_length_words": {
+        "min": 1.0,
+        "p50": 4.0,
+        "p90": 14.0,
+        "p95": 16.0,
+        "p99": 18.0,
+        "max": 29.0
+      },
+      "image_width_px": {
+        "min": 1000.0,
+        "p50": 1000.0,
+        "p90": 1000.0,
+        "p95": 1060.0,
+        "p99": 1060.0,
+        "max": 1060.0
+      },
+      "image_height_px": {
+        "min": 56.0,
+        "p50": 81.0,
+        "p90": 136.0,
+        "p95": 139.0,
+        "p99": 149.0,
+        "max": 158.0
+      },
+      "n_with_image_dims": 213,
+      "block_histogram": {
+        "ascii": 3921,
+        "latin-1-supplement": 1233,
+        "latin-extended-additional": 563,
+        "combining-diacritics": 309,
+        "latin-extended-a": 25
+      },
+      "top_offending_codepoints": [],
+      "sample_offending_texts": [],
+      "would_drop": {
+        "label_too_short": {
+          "threshold_min_len": 3,
+          "count": 0,
+          "examples": []
+        },
+        "label_too_long": {
+          "threshold_max_len": 100,
+          "count": 0,
+          "examples": []
+        },
+        "image_too_tall": {
+          "threshold_max_height_px": 180,
+          "count": 0,
+          "example_heights": []
+        },
+        "non_yoruba_codepoint": {
+          "count": 0
+        }
+      }
+    },
+    "test": {
+      "n": 302,
+      "label_length_chars": {
+        "min": 4.0,
+        "p50": 25.0,
+        "p90": 60.0,
+        "p95": 76.0,
+        "p99": 86.0,
+        "max": 97.0
+      },
+      "label_length_words": {
+        "min": 1.0,
+        "p50": 5.0,
+        "p90": 14.0,
+        "p95": 17.0,
+        "p99": 19.0,
+        "max": 23.0
+      },
+      "image_width_px": {
+        "min": 820.0,
+        "p50": 1000.0,
+        "p90": 1000.0,
+        "p95": 1000.0,
+        "p99": 1000.0,
+        "max": 1000.0
+      },
+      "image_height_px": {
+        "min": 47.0,
+        "p50": 90.0,
+        "p90": 135.0,
+        "p95": 149.0,
+        "p99": 175.0,
+        "max": 175.0
+      },
+      "n_with_image_dims": 302,
+      "block_histogram": {
+        "ascii": 5857,
+        "latin-1-supplement": 1561,
+        "latin-extended-additional": 973,
+        "combining-diacritics": 513,
+        "latin-extended-a": 32,
+        "general-punctuation": 1,
+        "latin-extended-b": 1
+      },
+      "top_offending_codepoints": [],
+      "sample_offending_texts": [],
+      "would_drop": {
+        "label_too_short": {
+          "threshold_min_len": 3,
+          "count": 0,
+          "examples": []
+        },
+        "label_too_long": {
+          "threshold_max_len": 100,
+          "count": 0,
+          "examples": []
+        },
+        "image_too_tall": {
+          "threshold_max_height_px": 180,
+          "count": 0,
+          "example_heights": []
+        },
+        "non_yoruba_codepoint": {
+          "count": 0
+        }
+      }
+    }
+  },
+  "totals": {
+    "would_drop": {
+      "label_too_short": 0,
+      "label_too_long": 0,
+      "image_too_tall": 0,
+      "non_yoruba_codepoint": 0
+    },
+    "n": {
+      "train": 2066,
+      "val": 213,
+      "test": 302
+    }
+  }
+}

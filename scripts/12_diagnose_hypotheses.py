@@ -3,10 +3,11 @@ Hypothesis tests for OCR evaluation: separate data issues, metric bugs, and mode
 
 Run from repo root in this order:
 
-1. eval      — Assert known (pred, gt) pairs produce expected CER/WER/DER.
-2. identity  — Ground-truth as prediction → all metrics must be 0 (loader + metrics).
-3. data      — Label file stats, missing images, optional random sample for human review.
-4. replay    — Recompute metrics from a per-sample JSONL log (must match saved rows).
+1. eval        — Assert known (pred, gt) pairs produce expected CER/WER/DER.
+2. identity    — Ground-truth as prediction → all metrics must be 0 (loader + metrics).
+3. data        — Label file stats, missing images, optional random sample for human review.
+4. replay      — Recompute metrics from a per-sample JSONL log (must match saved rows).
+5. checkpoints — Flag rows in metrics.csv that came from phantom / unverifiable checkpoints.
 
 Setup (Qwen, Paddle, etc.) is validated indirectly: if (1)–(3) pass, bad model scores
 reflect the recogniser or prompt, not the dataset or eval code.
@@ -16,6 +17,7 @@ Usage:
     python scripts/12_diagnose_hypotheses.py identity --data-dir data/processed --split test
     python scripts/12_diagnose_hypotheses.py data --split test --sample 15 --seed 0
     python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/qwen25_vl_zero_shot_test.jsonl
+    python scripts/12_diagnose_hypotheses.py checkpoints --csv results/tables/metrics.csv
 """
 
 from __future__ import annotations
@@ -200,6 +202,144 @@ def run_replay(jsonl_path: Path, tolerance: float) -> None:
     log.info("replay: PASS — %d rows match recomputed CER/WER/DER", n)
 
 
+def run_checkpoints_audit(
+    csv_path: Path,
+    *,
+    write_report: Path | None = None,
+    fail_on_phantom: bool = False,
+) -> None:
+    """Audit a metrics CSV against sibling ``meta.json`` files.
+
+    A row is flagged as:
+
+    * ``phantom``   — the integrity report attached to the row's meta file
+      says at least one CTC-head weight was not restored. The row is
+      measuring a randomly-initialised head and should be treated as a
+      zero-skill reference, not a trained model.
+    * ``no_meta``   — no ``meta.json`` was ever written for this row (i.e.
+      it predates the provenance patch). Treat with caution; the row could
+      be phantom and we have no way to prove otherwise.
+    * ``stale``     — the meta file exists but the checkpoint it refers to
+      has since disappeared, so the evidence backing this row is gone.
+    * ``ok``        — integrity report attached and clean.
+
+    This surfaces exactly the class of problem we documented in the
+    forensic analysis: baseline/fine-tune rows whose CER/WER numbers came
+    from a random CTC projection on top of an English encoder.
+    """
+    import csv as _csv
+
+    if not csv_path.exists():
+        raise SystemExit(f"checkpoints: metrics CSV not found: {csv_path}")
+
+    tables_dir = csv_path.parent
+    meta_dir = tables_dir / "meta"
+
+    summary: list[dict] = []
+    counts: dict[str, int] = {"ok": 0, "phantom": 0, "no_meta": 0, "stale": 0}
+
+    with csv_path.open("r", encoding="utf-8", newline="") as fh:
+        reader = _csv.DictReader(fh)
+        for row in reader:
+            model = row.get("model", "")
+            split = row.get("split", "")
+            csv_phantom_flag = (row.get("phantom") or "").strip().lower()
+            meta_path = meta_dir / f"{model}_{split}.json"
+
+            status = "ok"
+            notes: list[str] = []
+            ckpt_sha: str | None = None
+            ckpt_path: str | None = None
+
+            if not meta_path.exists():
+                status = "no_meta"
+                if csv_phantom_flag == "true":
+                    status = "phantom"
+                    notes.append("CSV phantom=true but no sibling meta.json")
+            else:
+                try:
+                    meta = json.loads(meta_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError) as exc:
+                    status = "no_meta"
+                    notes.append(f"unreadable meta.json: {exc}")
+                    meta = None
+
+                if meta is not None:
+                    phantom = str(meta.get("phantom", "")).lower()
+                    artifacts = meta.get("artifacts") or {}
+                    ckpt_path = artifacts.get("checkpoint_pdparams")
+                    ckpt_sha = artifacts.get("checkpoint_sha256")
+
+                    if phantom == "true":
+                        status = "phantom"
+                        integrity = (
+                            meta.get("provenance", {}).get("checkpoint_integrity") or {}
+                        )
+                        bad_head = (
+                            integrity.get("missing_by_component", {}).get("head", 0)
+                            + integrity.get("shape_mismatch_by_component", {}).get("head", 0)
+                        )
+                        notes.append(f"head weights not restored: {bad_head}")
+
+                    if ckpt_path:
+                        ckpt_file = Path(ckpt_path)
+                        if not ckpt_file.exists():
+                            if status == "ok":
+                                status = "stale"
+                            notes.append(f"checkpoint missing on disk: {ckpt_path}")
+
+            counts[status] = counts.get(status, 0) + 1
+            summary.append(
+                {
+                    "model": model,
+                    "split": split,
+                    "status": status,
+                    "cer": row.get("cer"),
+                    "wer": row.get("wer"),
+                    "der": row.get("der"),
+                    "meta_path": str(meta_path) if meta_path.exists() else None,
+                    "checkpoint_pdparams": ckpt_path,
+                    "checkpoint_sha256": ckpt_sha,
+                    "notes": notes,
+                }
+            )
+
+    log.info(
+        "checkpoints: scanned %d rows — ok=%d phantom=%d no_meta=%d stale=%d",
+        len(summary),
+        counts.get("ok", 0),
+        counts.get("phantom", 0),
+        counts.get("no_meta", 0),
+        counts.get("stale", 0),
+    )
+    for row in summary:
+        if row["status"] != "ok":
+            log.warning(
+                "  %-10s %s/%s cer=%s wer=%s der=%s %s",
+                row["status"].upper(),
+                row["model"],
+                row["split"],
+                row["cer"],
+                row["wer"],
+                row["der"],
+                "; ".join(row["notes"]) if row["notes"] else "",
+            )
+
+    if write_report is not None:
+        write_report.parent.mkdir(parents=True, exist_ok=True)
+        write_report.write_text(
+            json.dumps({"counts": counts, "rows": summary}, indent=2, ensure_ascii=False)
+            + "\n",
+            encoding="utf-8",
+        )
+        log.info("checkpoints: report written to %s", write_report)
+
+    if fail_on_phantom and counts.get("phantom", 0) > 0:
+        raise SystemExit(
+            f"checkpoints: FAILED — {counts['phantom']} phantom rows in {csv_path}"
+        )
+
+
 def run_setup_hint() -> None:
     """Print how to isolate Qwen vs Paddle without conflating eval issues."""
     log.info(
@@ -265,6 +405,29 @@ def parse_args() -> argparse.Namespace:
         help="Allowed float drift for stored vs recomputed metrics.",
     )
 
+    p_c = sub.add_parser(
+        "checkpoints",
+        help="Flag metrics.csv rows whose checkpoint cannot be verified",
+    )
+    p_c.add_argument(
+        "--csv",
+        type=Path,
+        default=Path("results/tables/metrics.csv"),
+        help="Metrics CSV to audit (default: results/tables/metrics.csv).",
+    )
+    p_c.add_argument(
+        "--report",
+        type=Path,
+        default=Path("results/tables/checkpoint_audit.json"),
+        help="Where to write the per-row JSON audit report.",
+    )
+    p_c.add_argument(
+        "--fail-on-phantom",
+        action="store_true",
+        default=False,
+        help="Exit non-zero when any row is flagged as phantom (for CI).",
+    )
+
     sub.add_parser("setup-hint", help="Reminders for isolating Qwen/Paddle issues")
 
     return parser.parse_args()
@@ -288,6 +451,12 @@ def main() -> None:
         )
     elif args.command == "replay":
         run_replay(args.jsonl, args.tolerance)
+    elif args.command == "checkpoints":
+        run_checkpoints_audit(
+            args.csv,
+            write_report=args.report,
+            fail_on_phantom=args.fail_on_phantom,
+        )
     elif args.command == "setup-hint":
         run_setup_hint()
     else:

@@ -274,13 +274,13 @@ The repo includes `scripts/shell/` with one script per phase plus `run_all.sh`. 
 
 ```bash
 python scripts/05_evaluate.py \
-  --model-dir experiments/baseline/pretrained/en_PP-OCRv4_rec_train \
+  --model-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
   --data-dir data/processed \
   --split test \
   --model-name baseline_english_pretrained \
-  --rec-config configs/paddleocr_yoruba_rec_final.yml \
+  --rec-config configs/paddleocr_yoruba_rec.yml \
   --use-gpu \
   --paddle-dir PaddleOCR
 ```
 
-Use the same `--rec-config` you used for training (default pipeline is `configs/paddleocr_yoruba_rec.yml` with `en_PP-OCRv3_rec_train`). If this completes and appends a row to `metrics.csv`, your Colab env, data paths, and PaddleOCR clone are aligned for full training.
+Always pass the same `--rec-config` for baseline and fine-tuned eval. The repo's default pipeline is `configs/paddleocr_yoruba_rec.yml` with the `en_PP-OCRv3_rec_train` pretrained checkpoint. If this completes and appends a row to `metrics.csv`, your Colab env, data paths, and PaddleOCR clone are aligned for full training.

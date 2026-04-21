@@ -1,0 +1,46 @@
+{
+  "counts": {
+    "ok": 3,
+    "phantom": 0,
+    "no_meta": 0,
+    "stale": 0
+  },
+  "rows": [
+    {
+      "model": "tesseract_eng",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2273",
+      "wer": "1.476",
+      "der": "0.9604",
+      "meta_path": "results/tables/meta/tesseract_eng_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "tesseract_yor",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2567",
+      "wer": "1.5174",
+      "der": "0.903",
+      "meta_path": "results/tables/meta/tesseract_yor_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "tesseract_eng+yor",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2228",
+      "wer": "1.4918",
+      "der": "0.931",
+      "meta_path": "results/tables/meta/tesseract_eng+yor_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    }
+  ]
+}

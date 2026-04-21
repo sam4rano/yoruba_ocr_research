@@ -51,6 +51,23 @@ def tesseract_is_installed() -> bool:
     return result.returncode == 0
 
 
+def tesseract_version() -> str | None:
+    """Return the tesseract version string, or ``None`` if unavailable."""
+    try:
+        result = subprocess.run(
+            ["tesseract", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+    if result.returncode != 0:
+        return None
+    first = (result.stdout or result.stderr).splitlines()[:1]
+    return first[0].strip() if first else None
+
+
 def yor_pack_available() -> bool:
     """Return True if the Yoruba (yor) language data is installed."""
     result = subprocess.run(
@@ -181,6 +198,8 @@ def main() -> None:
         )
         args.langs = [l for l in args.langs if "yor" not in l]  # noqa: E741
 
+    tess_version = tesseract_version()
+
     for lang in args.langs:
         log.info("Evaluating Tesseract lang=%s ...", lang)
         pred_pairs = evaluate_lang(lang, pairs, args.psm)
@@ -197,12 +216,22 @@ def main() -> None:
         per_sample_log = (
             Path("results/tables") / f"{model_name}_{args.split}.jsonl"
         )
+        provenance = {
+            "model_kind": "tesseract",
+            "tesseract_version": tess_version,
+            "lang": lang,
+            "psm": args.psm,
+            "oem": 3,
+            "data_dir": str(args.data_dir),
+            "n_images": len(pairs),
+        }
         save_results(
             metrics,
             model_name=model_name,
             split=args.split,
             csv_path=args.results_csv,
             jsonl_path=per_sample_log,
+            provenance=provenance,
         )
         log.info("Results for %s appended to %s", model_name, args.results_csv)
 
