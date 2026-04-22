@@ -1,7 +1,7 @@
 {
   "stage": "generate_config",
   "config_path": "configs/paddleocr_yoruba_rec.yml",
-  "dict_size": 98,
+  "dict_size": 99,
   "epochs": 40,
   "batch_size": 64,
   "lr": 0.001,
@@ -11,5 +11,5 @@
   "image_width": 960,
   "pretrained_model_dir": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train",
   "use_gpu": false,
-  "timestamp": "2026-04-21T08:13:07.757141+00:00"
+  "timestamp": "2026-04-21T14:04:59.473043+00:00"
 }

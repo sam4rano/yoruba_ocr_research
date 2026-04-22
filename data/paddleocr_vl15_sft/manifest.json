@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-04-19T02:11:48.518310+00:00",
+  "created_at": "2026-04-21T15:18:11.588318+00:00",
   "repo_root": ".",
   "data_dir": "data/processed",
   "out_dir": "data/paddleocr_vl15_sft",
@@ -7,23 +7,23 @@
     "train": {
       "split": "train",
       "jsonl": "data/paddleocr_vl15_sft/train.jsonl",
-      "exported": 2878,
+      "exported": 2367,
       "skipped": [],
-      "ids_sha256": "50835358a0a51d9d7107dbc122ff6d115512adcb9fc6743537faf62def986d76"
+      "ids_sha256": "b451a7cb7532331b7f44ba71073dea2ee95f7c9adaa8297e07efd28edaa9b095"
     },
     "val": {
       "split": "val",
       "jsonl": "data/paddleocr_vl15_sft/val.jsonl",
-      "exported": 317,
+      "exported": 252,
       "skipped": [],
-      "ids_sha256": "4cda0c642cfbcd6e63bbfbe0f69a3d36885ddd65798ea1d4bd3edb33e24c3b73"
+      "ids_sha256": "e96f649af3ecd0e42112d1d6103b0b20c9f7c3d557466c1a6420aabaa228922f"
     },
     "test": {
       "split": "test",
       "jsonl": "data/paddleocr_vl15_sft/test.jsonl",
-      "exported": 431,
+      "exported": 326,
       "skipped": [],
-      "ids_sha256": "0c6bd4d0770d95c3f1bf81e2b7bcc1ab9743554b8ad31749736b238a19fd7d4a"
+      "ids_sha256": "6c3f57b3a6f7a5f11af685c332165661fc097862842f097860b8fe55b46b66e9"
     }
   },
   "dictionary_path": "data/processed/dictionary/yoruba_char_dict.txt"

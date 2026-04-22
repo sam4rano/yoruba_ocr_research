@@ -284,7 +284,7 @@ def main() -> None:
                         {"type": "text", "text": USER_TEXT_OCR_YORUBA},
                     ],
                 },
-                {"role": "assistant", "content": assistant_text},
+                {"role": "assistant", "content": [{"type": "text", "text": assistant_text}]},
             ]
             inputs = processor.apply_chat_template(
                 user_messages,

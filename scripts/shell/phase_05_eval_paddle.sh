@@ -24,6 +24,7 @@ run_py scripts/05_evaluate.py \
   --model-name baseline_english_pretrained \
   --rec-config "$REC_CONFIG" \
   "${GPU[@]}" \
+  --allow-head-reinit \
   --paddle-dir "${PADDLE_DIR:-PaddleOCR}"
 
 # PP-OCRv4 fine-tuned checkpoint is OPTIONAL (classical CRNN comparison).
