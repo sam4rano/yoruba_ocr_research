@@ -26,6 +26,8 @@ import logging
 import sys
 from pathlib import Path
 from typing import Any
+import os
+os.environ["PYTORCH_ALLOC_CONF"] = "expandable_segments:True"
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -219,10 +221,16 @@ def main() -> None:
     processor = AutoProcessor.from_pretrained(args.model_id, trust_remote_code=False)
     model = AutoModelForImageTextToText.from_pretrained(
         args.model_id,
-        torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+        dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+
         device_map="auto",
         trust_remote_code=False,
     )
+    
+    # Enable gradient checkpointing to save memory
+    if hasattr(model, "enable_input_require_grads"):
+        model.enable_input_require_grads()
+    model.gradient_checkpointing_enable()
 
     wanted = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")
     found: set[str] = set()
@@ -251,7 +259,8 @@ def main() -> None:
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     adapter_dir = args.output_dir / "adapter"
-    max_pixels = 1280 * 28 * 28
+    # Reduce max_pixels to avoid OOM on 15GB GPUs (was 1280)
+    max_pixels = 336 * 28 * 28  # = 263,424
     device = next(model.parameters()).device
     grad_accum = max(1, int(args.gradient_accumulation_steps))
 
