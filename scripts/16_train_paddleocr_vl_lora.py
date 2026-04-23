@@ -130,7 +130,6 @@ def build_labels_assistant_only(
     import torch
 
     images_kwargs = {
-        "max_pixels": max_pixels,  # Try passing it directly as well
         "size": {
             "shortest_edge": getattr(
                 processor.image_processor, "min_pixels", 28 * 28 * 4
@@ -338,7 +337,6 @@ def main() -> None:
                 return_dict=True,
                 return_tensors="pt",
                 images_kwargs={
-                    "max_pixels": max_pixels,  # Direct kwarg as fallback
                     "size": {
                         "shortest_edge": getattr(
                             processor.image_processor, "min_pixels", 28 * 28 * 4

@@ -161,7 +161,6 @@ def transcribe_one(
         return_dict=True,
         return_tensors="pt",
         images_kwargs={
-            "max_pixels": max_pixels,
             "size": {
                 "shortest_edge": getattr(
                     processor.image_processor, "min_pixels", 28 * 28 * 4
