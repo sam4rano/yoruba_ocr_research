@@ -130,6 +130,7 @@ def build_labels_assistant_only(
     import torch
 
     images_kwargs = {
+        "max_pixels": max_pixels,  # Try passing it directly as well
         "size": {
             "shortest_edge": getattr(
                 processor.image_processor, "min_pixels", 28 * 28 * 4
@@ -232,14 +233,22 @@ def main() -> None:
         model.enable_input_require_grads()
     model.gradient_checkpointing_enable()
 
+    # Only adapt the LANGUAGE MODEL layers, not the vision encoder.
+    # The vision encoder (SigLIP) is already well-trained on image features;
+    # adapting it on only 2.3k samples causes overfitting to scan artefacts.
     wanted = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")
-    found: set[str] = set()
-    for name in wanted:
-        for n, _ in model.named_modules():
-            if n.endswith(name):
-                found.add(name)
+    lm_targets: list[str] = []
+    for n, _ in model.named_modules():
+        # Skip anything in the vision encoder ("visual", "vision_model", etc.)
+        if "visual" in n or "vision" in n:
+            continue
+        for suffix in wanted:
+            if n.endswith(suffix):
+                lm_targets.append(n)
                 break
-    target_modules = sorted(found) or ["q_proj", "v_proj"]
+    # Deduplicate to just the short names for PEFT
+    target_modules = sorted({n.split('.')[-1] for n in lm_targets}) or ["q_proj", "v_proj"]
+    log.info("LoRA target modules (LM only): %s", target_modules)
 
     lora_config = LoraConfig(
         r=16,
@@ -251,27 +260,45 @@ def main() -> None:
     model.print_trainable_parameters()
 
     opt = torch.optim.AdamW(
-        [p for p in model.parameters() if p.requires_grad], lr=args.lr
+        [p for p in model.parameters() if p.requires_grad], lr=args.lr, weight_decay=0.01
     )
+
+    # Learning rate scheduler: linear warmup + cosine decay
+    total_steps = (len(samples) * args.epochs) // max(1, int(args.gradient_accumulation_steps))
+    warmup_steps = max(1, total_steps // 10)  # 10% warmup
+    from torch.optim.lr_scheduler import LambdaLR
+    import math
+    def lr_lambda(step: int) -> float:
+        if step < warmup_steps:
+            return step / warmup_steps
+        progress = (step - warmup_steps) / max(1, total_steps - warmup_steps)
+        return 0.5 * (1.0 + math.cos(math.pi * progress))
+    scheduler = LambdaLR(opt, lr_lambda)
+    log.info("LR schedule: %d warmup → cosine decay over %d total steps", warmup_steps, total_steps)
 
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
     adapter_dir = args.output_dir / "adapter"
-    # Reduce max_pixels to avoid OOM on 15GB GPUs (was 1280)
-    max_pixels = 336 * 28 * 28  # = 263,424
+    # Must match eval (15_baseline_paddleocr_vl15.py) resolution to avoid
+    # train/eval distribution shift.  768 * 28 * 28 = 602,112 is safe for T4.
+    max_pixels = 768 * 28 * 28
     device = next(model.parameters()).device
     grad_accum = max(1, int(args.gradient_accumulation_steps))
 
     for epoch in range(args.epochs):
+        # Shuffle training data each epoch to prevent order memorization
+        random.shuffle(samples)
+
         total_loss = 0.0
         micro_steps = 0
         opt_steps = 0
+        skipped = 0
         accum_counter = 0
         opt.zero_grad()
 
-        for rec in samples:
+        for rec_idx, rec in enumerate(samples):
             msgs = rec["messages"]
             image_path = None
             for part in msgs[0]["content"]:
@@ -281,6 +308,15 @@ def main() -> None:
             if not image_path:
                 continue
             image = Image.open(image_path).convert("RGB")
+            
+            # Manually cap image resolution to prevent OOM. Some processors ignore images_kwargs!
+            # 800x800 is ~640k pixels, which fits safely in 15GB VRAM with gradient checkpointing.
+            try:
+                resample_filter = Image.Resampling.LANCZOS
+            except AttributeError:
+                resample_filter = Image.LANCZOS
+            image.thumbnail((800, 800), resample_filter)
+            
             raw_asst = msgs[1]["content"]
             assistant_text = (
                 raw_asst if isinstance(raw_asst, str) else str(raw_asst)
@@ -302,6 +338,7 @@ def main() -> None:
                 return_dict=True,
                 return_tensors="pt",
                 images_kwargs={
+                    "max_pixels": max_pixels,  # Direct kwarg as fallback
                     "size": {
                         "shortest_edge": getattr(
                             processor.image_processor, "min_pixels", 28 * 28 * 4
@@ -332,9 +369,20 @@ def main() -> None:
                 if not ok:
                     continue
 
-            out = model(**inputs, labels=labels)
+            # OOM-safe forward pass: skip sample on memory error instead of crashing
+            try:
+                out = model(**inputs, labels=labels)
+            except torch.cuda.OutOfMemoryError:
+                log.warning("OOM on sample %d — clearing cache and skipping.", rec_idx)
+                torch.cuda.empty_cache()
+                opt.zero_grad()
+                accum_counter = 0
+                skipped += 1
+                continue
+
             loss = out.loss
             if loss is None or torch.isnan(loss):
+                skipped += 1
                 continue
             loss = loss / grad_accum
             loss.backward()
@@ -343,29 +391,43 @@ def main() -> None:
             micro_steps += 1
 
             if accum_counter >= grad_accum:
+                # Gradient clipping to prevent training instability
+                torch.nn.utils.clip_grad_norm_(
+                    [p for p in model.parameters() if p.requires_grad], max_norm=1.0
+                )
                 opt.step()
+                scheduler.step()
                 opt.zero_grad()
                 accum_counter = 0
                 opt_steps += 1
-                if opt_steps % 50 == 0:
+                if opt_steps % 10 == 0:
+                    current_lr = scheduler.get_last_lr()[0]
                     log.info(
-                        "epoch %d opt_step %d micro=%d mean_loss=%.4f",
+                        "epoch %d step %d/%d micro=%d loss=%.4f lr=%.2e skipped=%d",
                         epoch + 1,
                         opt_steps,
+                        total_steps,
                         micro_steps,
                         total_loss / max(micro_steps, 1),
+                        current_lr,
+                        skipped,
                     )
 
         if accum_counter > 0:
+            torch.nn.utils.clip_grad_norm_(
+                [p for p in model.parameters() if p.requires_grad], max_norm=1.0
+            )
             opt.step()
+            scheduler.step()
             opt.zero_grad()
             opt_steps += 1
 
         log.info(
-            "epoch %d done: micro_steps=%d opt_steps=%d mean_loss=%.4f",
+            "epoch %d done: micro_steps=%d opt_steps=%d skipped=%d mean_loss=%.4f",
             epoch + 1,
             micro_steps,
             opt_steps,
+            skipped,
             total_loss / max(micro_steps, 1),
         )
 

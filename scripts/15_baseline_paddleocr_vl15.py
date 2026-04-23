@@ -133,6 +133,15 @@ def transcribe_one(
     from paddle_vl_shared import clean_vl_transcript  # noqa: E402
 
     image = Image.open(img_path).convert("RGB")
+
+    # Cap resolution to match training (16_train_paddleocr_vl_lora.py).
+    # Avoids train/eval distribution shift in the vision encoder.
+    try:
+        resample_filter = Image.Resampling.LANCZOS
+    except AttributeError:
+        resample_filter = Image.LANCZOS
+    image.thumbnail((800, 800), resample_filter)
+
     messages = [
         {
             "role": "user",
@@ -143,7 +152,8 @@ def transcribe_one(
         }
     ]
 
-    max_pixels = 1280 * 28 * 28
+    # Must match training max_pixels (768 * 28 * 28 = 602,112)
+    max_pixels = 768 * 28 * 28
     inputs = processor.apply_chat_template(
         messages,
         add_generation_prompt=True,
@@ -151,6 +161,7 @@ def transcribe_one(
         return_dict=True,
         return_tensors="pt",
         images_kwargs={
+            "max_pixels": max_pixels,
             "size": {
                 "shortest_edge": getattr(
                     processor.image_processor, "min_pixels", 28 * 28 * 4
