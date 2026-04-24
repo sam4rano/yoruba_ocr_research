@@ -41,25 +41,25 @@ log = logging.getLogger(__name__)
 
 # Display names for the model labels used across all eval scripts
 MODEL_DISPLAY = {
-    "baseline_english_pretrained":      "PaddleOCR PP-OCRv4 (EN pretrained)",
-    "tesseract_eng":                    "Tesseract (eng)",
-    "tesseract_yor":                    "Tesseract (yor)",
-    "tesseract_eng+yor":                "Tesseract (eng+yor)",
-    "paddleocr_vl15_zero_shot":         "PaddleOCR-VL-1.5 (zero-shot)",
-    "qwen25_vl_zero_shot":              "Qwen 2.5 VL (zero-shot)",
-    "finetuned_paddleocr_v1":           "PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison)",
-    "paddleocr_vl15_lora_finetuned":    "PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised)",
+    "baseline_english_pretrained": "PaddleOCR PP-OCRv4 (EN pretrained)",
+    "tesseract_eng": "Tesseract (eng)",
+    "tesseract_yor": "Tesseract (yor)",
+    "tesseract_eng+yor": "Tesseract (eng+yor)",
+    "paddleocr_vl15_zero_shot": "PaddleOCR-VL-1.5 (zero-shot)",
+    "qwen25_vl_zero_shot": "Qwen 2.5 VL (zero-shot)",
+    "finetuned_paddleocr_v1": "PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison)",
+    "paddleocr_vl15_lora_finetuned": "PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised)",
     # Ablation data size (PP-OCRv4 CRNN — not VL-1.5)
-    "ablation_data_size_025pct_test":   "PP-OCRv4 fine-tuned — 25% data",
-    "ablation_data_size_050pct_test":   "PP-OCRv4 fine-tuned — 50% data",
-    "ablation_data_size_075pct_test":   "PP-OCRv4 fine-tuned — 75% data",
-    "ablation_data_size_100pct_test":   "PP-OCRv4 fine-tuned — 100% data",
+    "ablation_data_size_025pct_test": "PP-OCRv4 fine-tuned — 25% data",
+    "ablation_data_size_050pct_test": "PP-OCRv4 fine-tuned — 50% data",
+    "ablation_data_size_075pct_test": "PP-OCRv4 fine-tuned — 75% data",
+    "ablation_data_size_100pct_test": "PP-OCRv4 fine-tuned — 100% data",
     # Ablation dictionary
-    "ablation_dict_yoruba_dict_test":   "PP-OCRv4 + Yorùbá dict",
-    "ablation_dict_english_dict_test":  "PP-OCRv4 + English dict",
+    "ablation_dict_yoruba_dict_test": "PP-OCRv4 + Yorùbá dict",
+    "ablation_dict_english_dict_test": "PP-OCRv4 + English dict",
     # Ablation augmentation
-    "ablation_aug_with_aug_test":       "PP-OCRv4 + RecAug",
-    "ablation_aug_no_aug_test":         "PP-OCRv4 − RecAug",
+    "ablation_aug_with_aug_test": "PP-OCRv4 + RecAug",
+    "ablation_aug_no_aug_test": "PP-OCRv4 − RecAug",
 }
 
 # Ordered model rows for Table 1 (supervised VL LoRA before CRNN fine-tune for narrative)
@@ -97,6 +97,7 @@ ABLATION_GROUPS = {
 # Loading
 # ---------------------------------------------------------------------------
 
+
 def load_results(csv_path: Path) -> dict[str, dict]:
     """
     Load results CSV into a dict keyed by model label.
@@ -109,8 +110,7 @@ def load_results(csv_path: Path) -> dict[str, dict]:
     """
     if not csv_path.exists():
         raise FileNotFoundError(
-            f"Results file not found: {csv_path}\n"
-            "Run the evaluation scripts first."
+            f"Results file not found: {csv_path}\n" "Run the evaluation scripts first."
         )
     all_rows: list[dict] = []
     with csv_path.open(encoding="utf-8") as fh:
@@ -144,6 +144,7 @@ def load_results(csv_path: Path) -> dict[str, dict]:
 # ---------------------------------------------------------------------------
 # Formatting
 # ---------------------------------------------------------------------------
+
 
 def pct(val: str | None) -> str:
     """
@@ -218,7 +219,14 @@ def write_csv_table(
     with out_path.open("w", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(
             fh,
-            fieldnames=["model_label", "display_name", "cer_pct", "wer_pct", "der_pct", "n"],
+            fieldnames=[
+                "model_label",
+                "display_name",
+                "cer_pct",
+                "wer_pct",
+                "der_pct",
+                "n",
+            ],
         )
         writer.writeheader()
         for key in present:
@@ -238,6 +246,7 @@ def write_csv_table(
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments."""
@@ -296,8 +305,8 @@ def main() -> None:
 
     # --- Tables 2–4: Ablation Studies ---
     ablation_titles = {
-        "data_size":    "Table 2 — Ablation: Training Data Size (test split)",
-        "dictionary":   "Table 3 — Ablation: Character Dictionary (test split)",
+        "data_size": "Table 2 — Ablation: Training Data Size (test split)",
+        "dictionary": "Table 3 — Ablation: Character Dictionary (test split)",
         "augmentation": "Table 4 — Ablation: Data Augmentation (test split)",
     }
     for abl_id, model_order in ABLATION_GROUPS.items():

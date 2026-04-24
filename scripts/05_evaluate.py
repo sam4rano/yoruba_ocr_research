@@ -29,24 +29,24 @@ from __future__ import annotations
 
 import argparse
 import logging
-import unicodedata
 from pathlib import Path
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
 import sys
+
 sys.path.insert(0, str(Path(__file__).parent))
-from evaluate_utils import (  # noqa: E402
-    load_test_pairs,
+from evaluate_utils import (
     aggregate_metrics,
+    load_test_pairs,  # noqa: E402
     save_results,
 )
-
 
 # ---------------------------------------------------------------------------
 # Checkpoint integrity
 # ---------------------------------------------------------------------------
+
 
 def _classify_param(key: str) -> str:
     """Bucket a parameter name into 'head', 'backbone', or 'other'.
@@ -98,7 +98,11 @@ def inspect_checkpoint_restoration(ckpt_prefix: Path, model) -> dict:
         src = ckpt[key]
         if list(src.shape) != list(val.shape):
             shape_mismatch.append(
-                {"key": key, "model_shape": list(val.shape), "ckpt_shape": list(src.shape)}
+                {
+                    "key": key,
+                    "model_shape": list(val.shape),
+                    "ckpt_shape": list(src.shape),
+                }
             )
             continue
         restored.append(key)
@@ -120,7 +124,9 @@ def inspect_checkpoint_restoration(ckpt_prefix: Path, model) -> dict:
         "n_shape_mismatch": len(shape_mismatch),
         "n_extra_in_ckpt": len(extra),
         "missing_by_component": _by_component(missing),
-        "shape_mismatch_by_component": _by_component([m["key"] for m in shape_mismatch]),
+        "shape_mismatch_by_component": _by_component(
+            [m["key"] for m in shape_mismatch]
+        ),
         "missing_sample": missing[:10],
         "shape_mismatch_sample": shape_mismatch[:10],
     }
@@ -184,6 +190,7 @@ def enforce_checkpoint_integrity(
 # Inference
 # ---------------------------------------------------------------------------
 
+
 def run_inference(
     pairs: list[tuple[Path, str]],
     model_dir: Path,
@@ -218,8 +225,8 @@ def run_inference(
     if str(paddle_dir) not in _sys.path:
         _sys.path.insert(0, str(paddle_dir))
 
-    import yaml  # type: ignore
     import paddle  # type: ignore
+    import yaml  # type: ignore
     from ppocr.data import create_operators, transform  # type: ignore
     from ppocr.modeling.architectures import build_model  # type: ignore
     from ppocr.postprocess import build_post_process  # type: ignore
@@ -289,9 +296,7 @@ def run_inference(
         integrity_report["n_missing"],
         integrity_report["n_shape_mismatch"],
     )
-    enforce_checkpoint_integrity(
-        integrity_report, allow_head_reinit=allow_head_reinit
-    )
+    enforce_checkpoint_integrity(integrity_report, allow_head_reinit=allow_head_reinit)
 
     load_model(config, model)
     model.eval()
@@ -317,8 +322,10 @@ def run_inference(
             preds = model(images)
             post_result = post_process_class(preds)
             # Typical format: [[text, score]]
-            if isinstance(post_result, list) and post_result and isinstance(
-                post_result[0], (list, tuple)
+            if (
+                isinstance(post_result, list)
+                and post_result
+                and isinstance(post_result[0], (list, tuple))
             ):
                 pred_text = str(post_result[0][0])
             else:
@@ -332,6 +339,7 @@ def run_inference(
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command-line arguments for evaluation."""

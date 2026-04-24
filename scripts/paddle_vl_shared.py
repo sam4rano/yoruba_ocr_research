@@ -9,7 +9,6 @@ from __future__ import annotations
 import re
 import unicodedata
 
-
 # Matches HF model card task prompt key "ocr" but specialised for Yorùbá verbatim transcription.
 OCR_TASK_TAG = "ocr"
 USER_TEXT_OCR_YORUBA = (

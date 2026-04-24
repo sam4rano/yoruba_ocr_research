@@ -1,0 +1,8 @@
+{
+  "stage": "train",
+  "command": "/opt/homebrew/opt/python@3.14/bin/python3.14 /Users/mac/Desktop/yoruba_ocr_research/PaddleOCR/tools/train.py -c /Users/mac/Desktop/yoruba_ocr_research/configs/paddleocr_yoruba_rec.yml -o Global.use_gpu=false",
+  "returncode": 1,
+  "elapsed_seconds": 0.2,
+  "success": false,
+  "timestamp": "2026-04-20T20:17:08.726530+00:00"
+}

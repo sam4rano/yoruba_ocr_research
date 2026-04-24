@@ -1,0 +1,8 @@
+{
+  "stage": "train",
+  "command": "/usr/bin/python3 /content/drive/MyDrive/yor_ocr_research/PaddleOCR/tools/train.py -c /content/drive/MyDrive/yor_ocr_research/experiments/ablation/dictionary/yoruba_dict/config.yml -o Global.epoch_num=40",
+  "returncode": 1,
+  "elapsed_seconds": 6.8,
+  "success": false,
+  "timestamp": "2026-04-23T21:05:04.973328+00:00"
+}

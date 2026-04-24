@@ -30,8 +30,8 @@ log = logging.getLogger(__name__)
 
 # Yorùbá-specific combining diacritics present in the character dictionary
 COMBINING_NAMES = {
-    "\u0300": "combining_grave",      # ̀  (low tone)
-    "\u0301": "combining_acute",      # ́  (high tone)
+    "\u0300": "combining_grave",  # ̀  (low tone)
+    "\u0301": "combining_acute",  # ́  (high tone)
     "\u0323": "combining_dot_below",  # ̣  (subdot for ẹ/ọ/ṣ)
 }
 

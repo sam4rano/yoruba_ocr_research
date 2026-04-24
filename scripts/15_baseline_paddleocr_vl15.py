@@ -126,8 +126,8 @@ def transcribe_one(
     """
     Run a single line image through PaddleOCR-VL-1.5 and return cleaned text.
     """
-    from PIL import Image
     import torch
+    from PIL import Image
 
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import clean_vl_transcript  # noqa: E402
@@ -175,7 +175,9 @@ def transcribe_one(
         inputs = {k: v.to(device) for k, v in inputs.items()}
 
     with torch.no_grad():
-        output_ids = model.generate(**inputs, max_new_tokens=max_new_tokens, do_sample=False)
+        output_ids = model.generate(
+            **inputs, max_new_tokens=max_new_tokens, do_sample=False
+        )
 
     inp = inputs["input_ids"]
     new_tokens = output_ids[0][inp.shape[-1] :]
@@ -209,7 +211,9 @@ def load_model_and_processor(
         kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
         kwargs["device_map"] = "auto"
     else:
-        kwargs["torch_dtype"] = torch.bfloat16 if torch.cuda.is_available() else torch.float32
+        kwargs["torch_dtype"] = (
+            torch.bfloat16 if torch.cuda.is_available() else torch.float32
+        )
         kwargs["device_map"] = "auto"
 
     model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
@@ -221,7 +225,9 @@ def load_model_and_processor(
         try:
             from peft import PeftModel  # type: ignore
         except ImportError as exc:
-            raise ImportError("Install peft for adapter eval: pip install peft") from exc
+            raise ImportError(
+                "Install peft for adapter eval: pip install peft"
+            ) from exc
         log.info("Loading PEFT adapter from %s", adapter_path)
         model = PeftModel.from_pretrained(model, str(adapter_path))
 
@@ -233,10 +239,13 @@ def main() -> None:
     """Run evaluation and append metrics."""
     args = parse_args()
     sys.path.insert(0, str(Path(__file__).parent))
-    from evaluate_utils import aggregate_metrics, load_test_pairs, save_results  # noqa: E402
-    from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
-
     import torch
+    from evaluate_utils import (
+        aggregate_metrics,  # noqa: E402
+        load_test_pairs,
+        save_results,
+    )
+    from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
 
     model_label = MODEL_FINETUNED if args.adapter_path else MODEL_ZERO_SHOT
     if args.per_sample_log is None:
@@ -292,7 +301,8 @@ def main() -> None:
         "n_images": len(pairs),
         "device": device,
         "torch_dtype": (
-            "bfloat16" if (not args.quantize_4bit and torch.cuda.is_available())
+            "bfloat16"
+            if (not args.quantize_4bit and torch.cuda.is_available())
             else ("4bit" if args.quantize_4bit else "float32")
         ),
     }

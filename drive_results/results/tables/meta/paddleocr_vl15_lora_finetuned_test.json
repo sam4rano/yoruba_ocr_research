@@ -1,0 +1,47 @@
+{
+  "model": "paddleocr_vl15_lora_finetuned",
+  "split": "test",
+  "timestamp": "2026-04-23T17:32:28.943138+00:00",
+  "phantom": "n/a",
+  "metrics": {
+    "n": 326,
+    "cer": 0.9654,
+    "wer": 1.2264,
+    "der": 0.6644,
+    "der_n": 319,
+    "der_insertion_rate": 0.1111
+  },
+  "git_sha": "9c25da4",
+  "env": {
+    "cwd": "/content/drive/MyDrive/yor_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/paddleocr_vl15_lora_finetuned_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": null,
+    "checkpoint_sha256": null,
+    "dict_path": null,
+    "dict_sha256": null,
+    "dict_size": null,
+    "rec_config": null,
+    "rec_config_sha256": null
+  },
+  "provenance": {
+    "model_kind": "paddleocr_vl",
+    "base_model_id": "PaddlePaddle/PaddleOCR-VL-1.5",
+    "adapter_path": "experiments/paddleocr_vl15_lora/adapter",
+    "adapter_sha256": {
+      "adapter_config.json": "f9c721c2544c14b2797b38484e8362c49a7cb1eb64274ad14a7721868e433318",
+      "adapter_model.safetensors": "e990c6659cbd39f0b4af6881ba6890f119a4522ade17d5e6ab2bf0be2044fdc1"
+    },
+    "quantize_4bit": true,
+    "max_new_tokens": 512,
+    "do_sample": false,
+    "prompt": "OCR: Transcribe the single line of text in this image exactly as printed. The language is Yorùbá. Preserve every tone mark and subdot (ẹ, ọ, ṣ, à, á, etc.). Output only the line text with no explanation or markdown.",
+    "prompt_sha256": "b14ec8da71ac9486985dc6d61168eeedf78d60bb85bd37e4429dd98f5d19f111",
+    "data_dir": "data/processed",
+    "n_images": 326,
+    "device": "cuda:0",
+    "torch_dtype": "4bit"
+  }
+}

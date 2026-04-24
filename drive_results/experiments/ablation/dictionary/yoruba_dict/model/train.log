@@ -1,0 +1,100 @@
+[2026/04/23 21:05:03] ppocr INFO: Architecture : 
+[2026/04/23 21:05:03] ppocr INFO:     Backbone : 
+[2026/04/23 21:05:03] ppocr INFO:         last_conv_stride : [1, 2]
+[2026/04/23 21:05:03] ppocr INFO:         last_pool_kernel_size : [2, 4]
+[2026/04/23 21:05:03] ppocr INFO:         last_pool_type : avg
+[2026/04/23 21:05:03] ppocr INFO:         name : MobileNetV1Enhance
+[2026/04/23 21:05:03] ppocr INFO:         scale : 0.5
+[2026/04/23 21:05:03] ppocr INFO:     Head : 
+[2026/04/23 21:05:03] ppocr INFO:         fc_decay : 1e-05
+[2026/04/23 21:05:03] ppocr INFO:         name : CTCHead
+[2026/04/23 21:05:03] ppocr INFO:     Neck : 
+[2026/04/23 21:05:03] ppocr INFO:         depth : 2
+[2026/04/23 21:05:03] ppocr INFO:         dims : 64
+[2026/04/23 21:05:03] ppocr INFO:         encoder_type : svtr
+[2026/04/23 21:05:03] ppocr INFO:         hidden_dims : 120
+[2026/04/23 21:05:03] ppocr INFO:         name : SequenceEncoder
+[2026/04/23 21:05:03] ppocr INFO:         use_guide : True
+[2026/04/23 21:05:03] ppocr INFO:     Transform : None
+[2026/04/23 21:05:03] ppocr INFO:     algorithm : SVTR_LCNet
+[2026/04/23 21:05:03] ppocr INFO:     model_type : rec
+[2026/04/23 21:05:03] ppocr INFO: Eval : 
+[2026/04/23 21:05:03] ppocr INFO:     dataset : 
+[2026/04/23 21:05:03] ppocr INFO:         data_dir : /content/drive/MyDrive/yor_ocr_research/data/processed
+[2026/04/23 21:05:03] ppocr INFO:         label_file_list : ['/content/drive/MyDrive/yor_ocr_research/data/processed/labels/val.txt']
+[2026/04/23 21:05:03] ppocr INFO:         name : SimpleDataSet
+[2026/04/23 21:05:03] ppocr INFO:         transforms : 
+[2026/04/23 21:05:03] ppocr INFO:             DecodeImage : 
+[2026/04/23 21:05:03] ppocr INFO:                 channel_first : False
+[2026/04/23 21:05:03] ppocr INFO:                 img_mode : BGR
+[2026/04/23 21:05:03] ppocr INFO:             CTCLabelEncode : None
+[2026/04/23 21:05:03] ppocr INFO:             RecResizeImg : 
+[2026/04/23 21:05:03] ppocr INFO:                 image_shape : [3, 48, 960]
+[2026/04/23 21:05:03] ppocr INFO:             KeepKeys : 
+[2026/04/23 21:05:03] ppocr INFO:                 keep_keys : ['image', 'label', 'length']
+[2026/04/23 21:05:03] ppocr INFO:     loader : 
+[2026/04/23 21:05:03] ppocr INFO:         batch_size_per_card : 128
+[2026/04/23 21:05:03] ppocr INFO:         drop_last : False
+[2026/04/23 21:05:03] ppocr INFO:         num_workers : 4
+[2026/04/23 21:05:03] ppocr INFO:         shuffle : False
+[2026/04/23 21:05:03] ppocr INFO: Global : 
+[2026/04/23 21:05:03] ppocr INFO:     cal_metric_during_train : True
+[2026/04/23 21:05:03] ppocr INFO:     character_dict_path : data/processed/dictionary/yoruba_char_dict.txt
+[2026/04/23 21:05:03] ppocr INFO:     checkpoints : None
+[2026/04/23 21:05:03] ppocr INFO:     distributed : False
+[2026/04/23 21:05:03] ppocr INFO:     epoch_num : 40
+[2026/04/23 21:05:03] ppocr INFO:     eval_batch_step : [0, 72]
+[2026/04/23 21:05:03] ppocr INFO:     infer_mode : False
+[2026/04/23 21:05:03] ppocr INFO:     log_smooth_window : 20
+[2026/04/23 21:05:03] ppocr INFO:     max_text_length : 100
+[2026/04/23 21:05:03] ppocr INFO:     pretrained_model : /content/drive/MyDrive/yor_ocr_research/experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy
+[2026/04/23 21:05:03] ppocr INFO:     print_batch_step : 10
+[2026/04/23 21:05:03] ppocr INFO:     save_epoch_step : 10
+[2026/04/23 21:05:03] ppocr INFO:     save_inference_dir : None
+[2026/04/23 21:05:03] ppocr INFO:     save_model_dir : /content/drive/MyDrive/yor_ocr_research/experiments/ablation/dictionary/yoruba_dict/model
+[2026/04/23 21:05:03] ppocr INFO:     save_res_path : /content/drive/MyDrive/yor_ocr_research/results/tables/rec_eval_output.txt
+[2026/04/23 21:05:03] ppocr INFO:     use_gpu : True
+[2026/04/23 21:05:03] ppocr INFO:     use_space_char : True
+[2026/04/23 21:05:03] ppocr INFO:     use_visualdl : False
+[2026/04/23 21:05:03] ppocr INFO: Loss : 
+[2026/04/23 21:05:03] ppocr INFO:     name : CTCLoss
+[2026/04/23 21:05:03] ppocr INFO: Metric : 
+[2026/04/23 21:05:03] ppocr INFO:     ignore_space : False
+[2026/04/23 21:05:03] ppocr INFO:     main_indicator : acc
+[2026/04/23 21:05:03] ppocr INFO:     name : RecMetric
+[2026/04/23 21:05:03] ppocr INFO: Optimizer : 
+[2026/04/23 21:05:03] ppocr INFO:     beta1 : 0.9
+[2026/04/23 21:05:03] ppocr INFO:     beta2 : 0.999
+[2026/04/23 21:05:03] ppocr INFO:     lr : 
+[2026/04/23 21:05:03] ppocr INFO:         learning_rate : 0.001
+[2026/04/23 21:05:03] ppocr INFO:         name : Cosine
+[2026/04/23 21:05:03] ppocr INFO:         warmup_epoch : 2
+[2026/04/23 21:05:03] ppocr INFO:     name : Adam
+[2026/04/23 21:05:03] ppocr INFO:     regularizer : 
+[2026/04/23 21:05:03] ppocr INFO:         factor : 3e-05
+[2026/04/23 21:05:03] ppocr INFO:         name : L2
+[2026/04/23 21:05:03] ppocr INFO: PostProcess : 
+[2026/04/23 21:05:03] ppocr INFO:     name : CTCLabelDecode
+[2026/04/23 21:05:03] ppocr INFO: Train : 
+[2026/04/23 21:05:03] ppocr INFO:     dataset : 
+[2026/04/23 21:05:03] ppocr INFO:         data_dir : /content/drive/MyDrive/yor_ocr_research/data/processed
+[2026/04/23 21:05:03] ppocr INFO:         label_file_list : ['/content/drive/MyDrive/yor_ocr_research/data/processed/labels/train.txt']
+[2026/04/23 21:05:03] ppocr INFO:         name : SimpleDataSet
+[2026/04/23 21:05:03] ppocr INFO:         transforms : 
+[2026/04/23 21:05:03] ppocr INFO:             DecodeImage : 
+[2026/04/23 21:05:03] ppocr INFO:                 channel_first : False
+[2026/04/23 21:05:03] ppocr INFO:                 img_mode : BGR
+[2026/04/23 21:05:03] ppocr INFO:             RecAug : None
+[2026/04/23 21:05:03] ppocr INFO:             CTCLabelEncode : None
+[2026/04/23 21:05:03] ppocr INFO:             RecResizeImg : 
+[2026/04/23 21:05:03] ppocr INFO:                 image_shape : [3, 48, 960]
+[2026/04/23 21:05:03] ppocr INFO:             KeepKeys : 
+[2026/04/23 21:05:03] ppocr INFO:                 keep_keys : ['image', 'label', 'length']
+[2026/04/23 21:05:03] ppocr INFO:     loader : 
+[2026/04/23 21:05:03] ppocr INFO:         batch_size_per_card : 64
+[2026/04/23 21:05:03] ppocr INFO:         drop_last : True
+[2026/04/23 21:05:03] ppocr INFO:         num_workers : 4
+[2026/04/23 21:05:03] ppocr INFO:         shuffle : True
+[2026/04/23 21:05:03] ppocr INFO: profiler_options : None
+[2026/04/23 21:05:03] ppocr INFO: train with paddle 2.6.2 and device Place(gpu:0)
+[2026/04/23 21:05:03] ppocr INFO: Initialize indexes of datasets:['/content/drive/MyDrive/yor_ocr_research/data/processed/labels/train.txt']

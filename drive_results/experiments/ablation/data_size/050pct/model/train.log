@@ -1,0 +1,380 @@
+[2026/04/23 18:05:08] ppocr INFO: Architecture : 
+[2026/04/23 18:05:08] ppocr INFO:     Backbone : 
+[2026/04/23 18:05:08] ppocr INFO:         last_conv_stride : [1, 2]
+[2026/04/23 18:05:08] ppocr INFO:         last_pool_kernel_size : [2, 4]
+[2026/04/23 18:05:08] ppocr INFO:         last_pool_type : avg
+[2026/04/23 18:05:08] ppocr INFO:         name : MobileNetV1Enhance
+[2026/04/23 18:05:08] ppocr INFO:         scale : 0.5
+[2026/04/23 18:05:08] ppocr INFO:     Head : 
+[2026/04/23 18:05:08] ppocr INFO:         fc_decay : 1e-05
+[2026/04/23 18:05:08] ppocr INFO:         name : CTCHead
+[2026/04/23 18:05:08] ppocr INFO:     Neck : 
+[2026/04/23 18:05:08] ppocr INFO:         depth : 2
+[2026/04/23 18:05:08] ppocr INFO:         dims : 64
+[2026/04/23 18:05:08] ppocr INFO:         encoder_type : svtr
+[2026/04/23 18:05:08] ppocr INFO:         hidden_dims : 120
+[2026/04/23 18:05:08] ppocr INFO:         name : SequenceEncoder
+[2026/04/23 18:05:08] ppocr INFO:         use_guide : True
+[2026/04/23 18:05:08] ppocr INFO:     Transform : None
+[2026/04/23 18:05:08] ppocr INFO:     algorithm : SVTR_LCNet
+[2026/04/23 18:05:08] ppocr INFO:     model_type : rec
+[2026/04/23 18:05:08] ppocr INFO: Eval : 
+[2026/04/23 18:05:08] ppocr INFO:     dataset : 
+[2026/04/23 18:05:08] ppocr INFO:         data_dir : /content/drive/MyDrive/yor_ocr_research/data/processed
+[2026/04/23 18:05:08] ppocr INFO:         label_file_list : ['/content/drive/MyDrive/yor_ocr_research/data/processed/labels/val.txt']
+[2026/04/23 18:05:08] ppocr INFO:         name : SimpleDataSet
+[2026/04/23 18:05:08] ppocr INFO:         transforms : 
+[2026/04/23 18:05:08] ppocr INFO:             DecodeImage : 
+[2026/04/23 18:05:08] ppocr INFO:                 channel_first : False
+[2026/04/23 18:05:08] ppocr INFO:                 img_mode : BGR
+[2026/04/23 18:05:08] ppocr INFO:             CTCLabelEncode : None
+[2026/04/23 18:05:08] ppocr INFO:             RecResizeImg : 
+[2026/04/23 18:05:08] ppocr INFO:                 image_shape : [3, 48, 960]
+[2026/04/23 18:05:08] ppocr INFO:             KeepKeys : 
+[2026/04/23 18:05:08] ppocr INFO:                 keep_keys : ['image', 'label', 'length']
+[2026/04/23 18:05:08] ppocr INFO:     loader : 
+[2026/04/23 18:05:08] ppocr INFO:         batch_size_per_card : 128
+[2026/04/23 18:05:08] ppocr INFO:         drop_last : False
+[2026/04/23 18:05:08] ppocr INFO:         num_workers : 4
+[2026/04/23 18:05:08] ppocr INFO:         shuffle : False
+[2026/04/23 18:05:08] ppocr INFO: Global : 
+[2026/04/23 18:05:08] ppocr INFO:     cal_metric_during_train : True
+[2026/04/23 18:05:08] ppocr INFO:     character_dict_path : /content/drive/MyDrive/yor_ocr_research/data/processed/dictionary/yoruba_char_dict.txt
+[2026/04/23 18:05:08] ppocr INFO:     checkpoints : None
+[2026/04/23 18:05:08] ppocr INFO:     distributed : False
+[2026/04/23 18:05:08] ppocr INFO:     epoch_num : 40
+[2026/04/23 18:05:08] ppocr INFO:     eval_batch_step : [0, 72]
+[2026/04/23 18:05:08] ppocr INFO:     infer_mode : False
+[2026/04/23 18:05:08] ppocr INFO:     log_smooth_window : 20
+[2026/04/23 18:05:08] ppocr INFO:     max_text_length : 100
+[2026/04/23 18:05:08] ppocr INFO:     pretrained_model : /content/drive/MyDrive/yor_ocr_research/experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy
+[2026/04/23 18:05:08] ppocr INFO:     print_batch_step : 10
+[2026/04/23 18:05:08] ppocr INFO:     save_epoch_step : 10
+[2026/04/23 18:05:08] ppocr INFO:     save_inference_dir : None
+[2026/04/23 18:05:08] ppocr INFO:     save_model_dir : /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model
+[2026/04/23 18:05:08] ppocr INFO:     save_res_path : /content/drive/MyDrive/yor_ocr_research/results/tables/rec_eval_output.txt
+[2026/04/23 18:05:08] ppocr INFO:     use_gpu : True
+[2026/04/23 18:05:08] ppocr INFO:     use_space_char : True
+[2026/04/23 18:05:08] ppocr INFO:     use_visualdl : False
+[2026/04/23 18:05:08] ppocr INFO: Loss : 
+[2026/04/23 18:05:08] ppocr INFO:     name : CTCLoss
+[2026/04/23 18:05:08] ppocr INFO: Metric : 
+[2026/04/23 18:05:08] ppocr INFO:     ignore_space : False
+[2026/04/23 18:05:08] ppocr INFO:     main_indicator : acc
+[2026/04/23 18:05:08] ppocr INFO:     name : RecMetric
+[2026/04/23 18:05:08] ppocr INFO: Optimizer : 
+[2026/04/23 18:05:08] ppocr INFO:     beta1 : 0.9
+[2026/04/23 18:05:08] ppocr INFO:     beta2 : 0.999
+[2026/04/23 18:05:08] ppocr INFO:     lr : 
+[2026/04/23 18:05:08] ppocr INFO:         learning_rate : 0.001
+[2026/04/23 18:05:08] ppocr INFO:         name : Cosine
+[2026/04/23 18:05:08] ppocr INFO:         warmup_epoch : 2
+[2026/04/23 18:05:08] ppocr INFO:     name : Adam
+[2026/04/23 18:05:08] ppocr INFO:     regularizer : 
+[2026/04/23 18:05:08] ppocr INFO:         factor : 3e-05
+[2026/04/23 18:05:08] ppocr INFO:         name : L2
+[2026/04/23 18:05:08] ppocr INFO: PostProcess : 
+[2026/04/23 18:05:08] ppocr INFO:     name : CTCLabelDecode
+[2026/04/23 18:05:08] ppocr INFO: Train : 
+[2026/04/23 18:05:08] ppocr INFO:     dataset : 
+[2026/04/23 18:05:08] ppocr INFO:         data_dir : /content/drive/MyDrive/yor_ocr_research/data/processed
+[2026/04/23 18:05:08] ppocr INFO:         label_file_list : ['/content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/train.txt']
+[2026/04/23 18:05:08] ppocr INFO:         name : SimpleDataSet
+[2026/04/23 18:05:08] ppocr INFO:         transforms : 
+[2026/04/23 18:05:08] ppocr INFO:             DecodeImage : 
+[2026/04/23 18:05:08] ppocr INFO:                 channel_first : False
+[2026/04/23 18:05:08] ppocr INFO:                 img_mode : BGR
+[2026/04/23 18:05:08] ppocr INFO:             RecAug : None
+[2026/04/23 18:05:08] ppocr INFO:             CTCLabelEncode : None
+[2026/04/23 18:05:08] ppocr INFO:             RecResizeImg : 
+[2026/04/23 18:05:08] ppocr INFO:                 image_shape : [3, 48, 960]
+[2026/04/23 18:05:08] ppocr INFO:             KeepKeys : 
+[2026/04/23 18:05:08] ppocr INFO:                 keep_keys : ['image', 'label', 'length']
+[2026/04/23 18:05:08] ppocr INFO:     loader : 
+[2026/04/23 18:05:08] ppocr INFO:         batch_size_per_card : 64
+[2026/04/23 18:05:08] ppocr INFO:         drop_last : True
+[2026/04/23 18:05:08] ppocr INFO:         num_workers : 4
+[2026/04/23 18:05:08] ppocr INFO:         shuffle : True
+[2026/04/23 18:05:08] ppocr INFO: profiler_options : None
+[2026/04/23 18:05:08] ppocr INFO: train with paddle 2.6.2 and device Place(gpu:0)
+[2026/04/23 18:05:08] ppocr INFO: Initialize indexes of datasets:['/content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/train.txt']
+[2026/04/23 18:05:08] ppocr INFO: Initialize indexes of datasets:['/content/drive/MyDrive/yor_ocr_research/data/processed/labels/val.txt']
+[2026/04/23 18:05:09] ppocr INFO: train dataloader has 18 iters
+[2026/04/23 18:05:09] ppocr INFO: valid dataloader has 2 iters
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1.conv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1.norm.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1.norm.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1.norm._mean not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1.norm._variance not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv2.conv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv2.norm.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv2.norm.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv2.norm._mean not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv2.norm._variance not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.norm1.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.norm1.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mixer.qkv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mixer.qkv.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mixer.proj.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mixer.proj.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.norm2.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.norm2.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mlp.fc1.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mlp.fc1.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mlp.fc2.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.0.mlp.fc2.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.norm1.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.norm1.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mixer.qkv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mixer.qkv.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mixer.proj.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mixer.proj.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.norm2.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.norm2.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mlp.fc1.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mlp.fc1.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mlp.fc2.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.svtr_block.1.mlp.fc2.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.norm.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.norm.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv3.conv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv3.norm.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv3.norm.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv3.norm._mean not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv3.norm._variance not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv4.conv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv4.norm.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv4.norm.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv4.norm._mean not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv4.norm._variance not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1x1.conv.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1x1.norm.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1x1.norm.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1x1.norm._mean not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_encoder.encoder.conv1x1.norm._variance not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_head.fc.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.ctc_head.fc.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.weight_ih_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.weight_hh_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.bias_ih_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.bias_hh_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.weight_ih_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.weight_hh_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.bias_ih_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.bias_hh_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.0.cell.weight_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.0.cell.weight_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.0.cell.bias_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.0.cell.bias_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.1.cell.weight_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.1.cell.weight_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.1.cell.bias_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.rnn_encoder.1.cell.bias_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.linear.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.encoder.linear.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.conv1x1_1.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.conv1x1_1.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.conv3x3_1.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.conv3x3_1.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.conv1x1_2.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.conv1x1_2.bias not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.weight_ih_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.weight_hh_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.bias_ih_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.bias_hh_l0 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.weight_ih_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.weight_hh_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.bias_ih_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.bias_hh_l1 not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.0.cell.weight_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.0.cell.weight_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.0.cell.bias_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.0.cell.bias_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.1.cell.weight_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.1.cell.weight_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.1.cell.bias_ih not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.rnn_decoder.1.cell.bias_hh not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.embedding.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.prediction.weight not in model
+[2026/04/23 18:05:09] ppocr WARNING: The pretrained params head.sar_head.decoder.prediction.bias not in model
+[2026/04/23 18:05:09] ppocr INFO: load pretrain successful from /content/drive/MyDrive/yor_ocr_research/experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy
+[2026/04/23 18:05:09] ppocr INFO: During the training process, after the 0th iteration, an evaluation is run every 72 iterations
+[2026/04/23 18:05:50] ppocr INFO: epoch: [1/40], global_step: 10, lr: 0.000125, acc: 0.000000, norm_edit_dis: 0.043314, loss: 207.372772, avg_reader_cost: 3.51131 s, avg_batch_cost: 4.09358 s, avg_samples: 64.0, ips: 15.63422 samples/s, eta: 0:48:26, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:06:01] ppocr INFO: epoch: [1/40], global_step: 18, lr: 0.000236, acc: 0.000000, norm_edit_dis: 0.056448, loss: 202.221138, avg_reader_cost: 0.86936 s, avg_batch_cost: 1.13076 s, avg_samples: 51.2, ips: 45.27943 samples/s, eta: 0:33:57, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:06:02] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:06:15] ppocr INFO: epoch: [2/40], global_step: 20, lr: 0.000264, acc: 0.000000, norm_edit_dis: 0.055874, loss: 198.678337, avg_reader_cost: 1.25330 s, avg_batch_cost: 1.38458 s, avg_samples: 12.8, ips: 9.24470 samples/s, eta: 0:38:33, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:06:39] ppocr INFO: epoch: [2/40], global_step: 30, lr: 0.000542, acc: 0.000000, norm_edit_dis: 0.062934, loss: 187.451729, avg_reader_cost: 1.91306 s, avg_batch_cost: 2.33291 s, avg_samples: 64.0, ips: 27.43359 samples/s, eta: 0:34:16, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:06:53] ppocr INFO: epoch: [2/40], global_step: 36, lr: 0.000708, acc: 0.000000, norm_edit_dis: 0.073837, loss: 175.820488, avg_reader_cost: 1.27449 s, avg_batch_cost: 1.48285 s, avg_samples: 38.4, ips: 25.89612 samples/s, eta: 0:33:00, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:06:54] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:07:08] ppocr INFO: epoch: [3/40], global_step: 40, lr: 0.000819, acc: 0.000000, norm_edit_dis: 0.079407, loss: 166.752625, avg_reader_cost: 1.29594 s, avg_batch_cost: 1.46286 s, avg_samples: 25.6, ips: 17.50002 samples/s, eta: 0:33:40, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:07:39] ppocr INFO: epoch: [3/40], global_step: 50, lr: 0.001000, acc: 0.000000, norm_edit_dis: 0.086849, loss: 147.563911, avg_reader_cost: 2.64724 s, avg_batch_cost: 3.06706 s, avg_samples: 64.0, ips: 20.86686 samples/s, eta: 0:33:23, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:07:44] ppocr INFO: epoch: [3/40], global_step: 54, lr: 0.001000, acc: 0.000000, norm_edit_dis: 0.090212, loss: 142.999344, avg_reader_cost: 0.38204 s, avg_batch_cost: 0.49941 s, avg_samples: 25.6, ips: 51.26044 samples/s, eta: 0:31:45, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:07:44] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:08:06] ppocr INFO: epoch: [4/40], global_step: 60, lr: 0.000999, acc: 0.000000, norm_edit_dis: 0.094165, loss: 137.237297, avg_reader_cost: 1.98859 s, avg_batch_cost: 2.23724 s, avg_samples: 38.4, ips: 17.16404 samples/s, eta: 0:32:26, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:08:31] ppocr INFO: epoch: [4/40], global_step: 70, lr: 0.000997, acc: 0.000000, norm_edit_dis: 0.102868, loss: 121.321110, avg_reader_cost: 2.09403 s, avg_batch_cost: 2.49682 s, avg_samples: 64.0, ips: 25.63262 samples/s, eta: 0:31:14, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:08:37] ppocr INFO: epoch: [4/40], global_step: 72, lr: 0.000997, acc: 0.000000, norm_edit_dis: 0.103277, loss: 118.073807, avg_reader_cost: 0.53684 s, avg_batch_cost: 0.59579 s, avg_samples: 12.8, ips: 21.48403 samples/s, eta: 0:31:10, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:08:40] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.10468184973986538, fps: 229.63324105693053
+[2026/04/23 18:08:40] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:08:40] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.10468184973986538, fps: 229.63324105693053, best_epoch: 4
+[2026/04/23 18:08:41] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:09:11] ppocr INFO: epoch: [5/40], global_step: 80, lr: 0.000995, acc: 0.000000, norm_edit_dis: 0.102775, loss: 110.408379, avg_reader_cost: 2.77257 s, avg_batch_cost: 3.11565 s, avg_samples: 51.2, ips: 16.43315 samples/s, eta: 0:31:51, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:09:32] ppocr INFO: epoch: [5/40], global_step: 90, lr: 0.000991, acc: 0.000000, norm_edit_dis: 0.105350, loss: 103.510719, avg_reader_cost: 1.64926 s, avg_batch_cost: 2.01481 s, avg_samples: 64.0, ips: 31.76482 samples/s, eta: 0:30:14, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:09:32] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:10:10] ppocr INFO: epoch: [6/40], global_step: 100, lr: 0.000986, acc: 0.000000, norm_edit_dis: 0.115349, loss: 100.249016, avg_reader_cost: 3.46789 s, avg_batch_cost: 3.86894 s, avg_samples: 64.0, ips: 16.54201 samples/s, eta: 0:30:46, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:10:27] ppocr INFO: epoch: [6/40], global_step: 108, lr: 0.000982, acc: 0.000000, norm_edit_dis: 0.114920, loss: 99.719322, avg_reader_cost: 1.37528 s, avg_batch_cost: 1.67572 s, avg_samples: 51.2, ips: 30.55394 samples/s, eta: 0:29:42, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:10:27] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:10:40] ppocr INFO: epoch: [7/40], global_step: 110, lr: 0.000981, acc: 0.000000, norm_edit_dis: 0.114920, loss: 98.709408, avg_reader_cost: 1.20162 s, avg_batch_cost: 1.28943 s, avg_samples: 12.8, ips: 9.92687 samples/s, eta: 0:30:16, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:11:04] ppocr INFO: epoch: [7/40], global_step: 120, lr: 0.000975, acc: 0.000000, norm_edit_dis: 0.112221, loss: 98.227917, avg_reader_cost: 1.92801 s, avg_batch_cost: 2.38042 s, avg_samples: 64.0, ips: 26.88602 samples/s, eta: 0:29:16, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:11:19] ppocr INFO: epoch: [7/40], global_step: 126, lr: 0.000970, acc: 0.000000, norm_edit_dis: 0.111567, loss: 96.970951, avg_reader_cost: 1.30122 s, avg_batch_cost: 1.48803 s, avg_samples: 38.4, ips: 25.80586 samples/s, eta: 0:28:46, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:11:19] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:11:33] ppocr INFO: epoch: [8/40], global_step: 130, lr: 0.000967, acc: 0.000000, norm_edit_dis: 0.110772, loss: 96.607468, avg_reader_cost: 1.28873 s, avg_batch_cost: 1.45210 s, avg_samples: 25.6, ips: 17.62958 samples/s, eta: 0:28:47, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:12:07] ppocr INFO: epoch: [8/40], global_step: 140, lr: 0.000959, acc: 0.000000, norm_edit_dis: 0.108738, loss: 97.349548, avg_reader_cost: 2.90384 s, avg_batch_cost: 3.33287 s, avg_samples: 64.0, ips: 19.20269 samples/s, eta: 0:28:35, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:12:13] ppocr INFO: epoch: [8/40], global_step: 144, lr: 0.000955, acc: 0.000000, norm_edit_dis: 0.108738, loss: 96.155613, avg_reader_cost: 0.54045 s, avg_batch_cost: 0.67699 s, avg_samples: 25.6, ips: 37.81463 samples/s, eta: 0:28:03, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:12:16] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.09857762545708726, fps: 268.63822242464664
+[2026/04/23 18:12:16] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:12:16] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.09857762545708726, fps: 268.63822242464664, best_epoch: 8
+[2026/04/23 18:12:17] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:12:38] ppocr INFO: epoch: [9/40], global_step: 150, lr: 0.000950, acc: 0.000000, norm_edit_dis: 0.105806, loss: 93.422554, avg_reader_cost: 1.93377 s, avg_batch_cost: 2.18682 s, avg_samples: 38.4, ips: 17.55977 samples/s, eta: 0:28:02, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:13:06] ppocr INFO: epoch: [9/40], global_step: 160, lr: 0.000940, acc: 0.000000, norm_edit_dis: 0.108582, loss: 91.171314, avg_reader_cost: 2.31024 s, avg_batch_cost: 2.74666 s, avg_samples: 64.0, ips: 23.30106 samples/s, eta: 0:27:25, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:13:07] ppocr INFO: epoch: [9/40], global_step: 162, lr: 0.000938, acc: 0.000000, norm_edit_dis: 0.108669, loss: 91.856594, avg_reader_cost: 0.09378 s, avg_batch_cost: 0.14778 s, avg_samples: 12.8, ips: 86.61314 samples/s, eta: 0:27:04, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:13:07] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:13:34] ppocr INFO: epoch: [10/40], global_step: 170, lr: 0.000929, acc: 0.000000, norm_edit_dis: 0.110231, loss: 88.568726, avg_reader_cost: 2.40560 s, avg_batch_cost: 2.70706 s, avg_samples: 51.2, ips: 18.91353 samples/s, eta: 0:26:53, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:14:01] ppocr INFO: epoch: [10/40], global_step: 180, lr: 0.000918, acc: 0.000000, norm_edit_dis: 0.107287, loss: 92.932346, avg_reader_cost: 2.21846 s, avg_batch_cost: 2.61510 s, avg_samples: 64.0, ips: 24.47326 samples/s, eta: 0:26:14, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:14:01] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:14:01] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/iter_epoch_10
+[2026/04/23 18:14:36] ppocr INFO: epoch: [11/40], global_step: 190, lr: 0.000905, acc: 0.000000, norm_edit_dis: 0.106626, loss: 93.890736, avg_reader_cost: 3.09512 s, avg_batch_cost: 3.59061 s, avg_samples: 64.0, ips: 17.82427 samples/s, eta: 0:26:04, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:14:54] ppocr INFO: epoch: [11/40], global_step: 198, lr: 0.000895, acc: 0.000000, norm_edit_dis: 0.114601, loss: 93.890736, avg_reader_cost: 1.42350 s, avg_batch_cost: 1.70124 s, avg_samples: 51.2, ips: 30.09570 samples/s, eta: 0:25:23, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:14:54] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:15:07] ppocr INFO: epoch: [12/40], global_step: 200, lr: 0.000892, acc: 0.000000, norm_edit_dis: 0.117646, loss: 93.704338, avg_reader_cost: 1.22592 s, avg_batch_cost: 1.30354 s, avg_samples: 12.8, ips: 9.81942 samples/s, eta: 0:25:36, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:15:31] ppocr INFO: epoch: [12/40], global_step: 210, lr: 0.000878, acc: 0.000000, norm_edit_dis: 0.123948, loss: 87.647408, avg_reader_cost: 1.95439 s, avg_batch_cost: 2.42832 s, avg_samples: 64.0, ips: 26.35567 samples/s, eta: 0:24:53, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:15:44] ppocr INFO: epoch: [12/40], global_step: 216, lr: 0.000869, acc: 0.000000, norm_edit_dis: 0.121834, loss: 87.962524, avg_reader_cost: 1.13185 s, avg_batch_cost: 1.33036 s, avg_samples: 38.4, ips: 28.86432 samples/s, eta: 0:24:26, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:15:48] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.10832961492126092, fps: 255.19746426150093
+[2026/04/23 18:15:48] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:15:48] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.10832961492126092, fps: 255.19746426150093, best_epoch: 12
+[2026/04/23 18:15:48] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:16:04] ppocr INFO: epoch: [13/40], global_step: 220, lr: 0.000863, acc: 0.000000, norm_edit_dis: 0.114886, loss: 87.655788, avg_reader_cost: 1.41054 s, avg_batch_cost: 1.58736 s, avg_samples: 25.6, ips: 16.12739 samples/s, eta: 0:24:24, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:16:37] ppocr INFO: epoch: [13/40], global_step: 230, lr: 0.000848, acc: 0.000000, norm_edit_dis: 0.115508, loss: 87.857841, avg_reader_cost: 2.84335 s, avg_batch_cost: 3.25370 s, avg_samples: 64.0, ips: 19.66991 samples/s, eta: 0:24:01, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:16:41] ppocr INFO: epoch: [13/40], global_step: 234, lr: 0.000842, acc: 0.000000, norm_edit_dis: 0.116071, loss: 87.858864, avg_reader_cost: 0.30401 s, avg_batch_cost: 0.43025 s, avg_samples: 25.6, ips: 59.50023 samples/s, eta: 0:23:34, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:16:41] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:17:06] ppocr INFO: epoch: [14/40], global_step: 240, lr: 0.000832, acc: 0.000000, norm_edit_dis: 0.116961, loss: 88.366570, avg_reader_cost: 2.22632 s, avg_batch_cost: 2.47765 s, avg_samples: 38.4, ips: 15.49854 samples/s, eta: 0:23:31, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:17:28] ppocr INFO: epoch: [14/40], global_step: 250, lr: 0.000816, acc: 0.000000, norm_edit_dis: 0.113171, loss: 88.525883, avg_reader_cost: 1.75656 s, avg_batch_cost: 2.17343 s, avg_samples: 64.0, ips: 29.44650 samples/s, eta: 0:22:47, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:17:32] ppocr INFO: epoch: [14/40], global_step: 252, lr: 0.000812, acc: 0.000000, norm_edit_dis: 0.111263, loss: 88.525883, avg_reader_cost: 0.33788 s, avg_batch_cost: 0.39656 s, avg_samples: 12.8, ips: 32.27746 samples/s, eta: 0:22:38, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:17:32] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:17:59] ppocr INFO: epoch: [15/40], global_step: 260, lr: 0.000798, acc: 0.000000, norm_edit_dis: 0.109640, loss: 88.543957, avg_reader_cost: 2.41775 s, avg_batch_cost: 2.73943 s, avg_samples: 51.2, ips: 18.69002 samples/s, eta: 0:22:22, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:18:26] ppocr INFO: epoch: [15/40], global_step: 270, lr: 0.000780, acc: 0.000000, norm_edit_dis: 0.107780, loss: 87.480827, avg_reader_cost: 2.31350 s, avg_batch_cost: 2.69263 s, avg_samples: 64.0, ips: 23.76861 samples/s, eta: 0:21:49, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:18:26] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:19:03] ppocr INFO: epoch: [16/40], global_step: 280, lr: 0.000762, acc: 0.000000, norm_edit_dis: 0.103400, loss: 87.387199, avg_reader_cost: 3.28351 s, avg_batch_cost: 3.71637 s, avg_samples: 64.0, ips: 17.22112 samples/s, eta: 0:21:33, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:19:17] ppocr INFO: epoch: [16/40], global_step: 288, lr: 0.000747, acc: 0.000000, norm_edit_dis: 0.101809, loss: 88.707367, avg_reader_cost: 1.11056 s, avg_batch_cost: 1.39462 s, avg_samples: 51.2, ips: 36.71250 samples/s, eta: 0:20:55, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:19:20] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.0983687695860046, fps: 250.4232360740946
+[2026/04/23 18:19:21] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:19:21] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.0983687695860046, fps: 250.4232360740946, best_epoch: 16
+[2026/04/23 18:19:21] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:19:34] ppocr INFO: epoch: [17/40], global_step: 290, lr: 0.000743, acc: 0.000000, norm_edit_dis: 0.104679, loss: 87.970757, avg_reader_cost: 1.23031 s, avg_batch_cost: 1.33197 s, avg_samples: 12.8, ips: 9.60985 samples/s, eta: 0:21:00, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:19:59] ppocr INFO: epoch: [17/40], global_step: 300, lr: 0.000724, acc: 0.000000, norm_edit_dis: 0.112082, loss: 84.376202, avg_reader_cost: 2.05315 s, avg_batch_cost: 2.46468 s, avg_samples: 64.0, ips: 25.96686 samples/s, eta: 0:20:24, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:20:13] ppocr INFO: epoch: [17/40], global_step: 306, lr: 0.000712, acc: 0.000000, norm_edit_dis: 0.112751, loss: 85.245567, avg_reader_cost: 1.23684 s, avg_batch_cost: 1.47830 s, avg_samples: 38.4, ips: 25.97570 samples/s, eta: 0:20:03, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:20:14] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:20:29] ppocr INFO: epoch: [18/40], global_step: 310, lr: 0.000704, acc: 0.000000, norm_edit_dis: 0.110673, loss: 87.057514, avg_reader_cost: 1.41523 s, avg_batch_cost: 1.58998 s, avg_samples: 25.6, ips: 16.10088 samples/s, eta: 0:19:57, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:21:02] ppocr INFO: epoch: [18/40], global_step: 320, lr: 0.000684, acc: 0.000000, norm_edit_dis: 0.100558, loss: 88.781879, avg_reader_cost: 2.77255 s, avg_batch_cost: 3.28584 s, avg_samples: 64.0, ips: 19.47749 samples/s, eta: 0:19:33, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:21:06] ppocr INFO: epoch: [18/40], global_step: 324, lr: 0.000676, acc: 0.000000, norm_edit_dis: 0.098437, loss: 85.548260, avg_reader_cost: 0.22394 s, avg_batch_cost: 0.34343 s, avg_samples: 25.6, ips: 74.54173 samples/s, eta: 0:19:11, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:21:06] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:21:31] ppocr INFO: epoch: [19/40], global_step: 330, lr: 0.000664, acc: 0.000000, norm_edit_dis: 0.098437, loss: 85.346046, avg_reader_cost: 2.26715 s, avg_batch_cost: 2.53658 s, avg_samples: 38.4, ips: 15.13848 samples/s, eta: 0:19:03, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:21:51] ppocr INFO: epoch: [19/40], global_step: 340, lr: 0.000643, acc: 0.000000, norm_edit_dis: 0.097026, loss: 85.388126, avg_reader_cost: 1.62494 s, avg_batch_cost: 2.03678 s, avg_samples: 64.0, ips: 31.42211 samples/s, eta: 0:18:23, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:21:56] ppocr INFO: epoch: [19/40], global_step: 342, lr: 0.000639, acc: 0.000000, norm_edit_dis: 0.097026, loss: 85.388126, avg_reader_cost: 0.40758 s, avg_batch_cost: 0.46929 s, avg_samples: 12.8, ips: 27.27533 samples/s, eta: 0:18:16, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:21:56] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:22:24] ppocr INFO: epoch: [20/40], global_step: 350, lr: 0.000622, acc: 0.000000, norm_edit_dis: 0.096054, loss: 85.230728, avg_reader_cost: 2.41223 s, avg_batch_cost: 2.80629 s, avg_samples: 51.2, ips: 18.24470 samples/s, eta: 0:17:58, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:22:50] ppocr INFO: epoch: [20/40], global_step: 360, lr: 0.000601, acc: 0.000000, norm_edit_dis: 0.102241, loss: 82.768013, avg_reader_cost: 2.23641 s, avg_batch_cost: 2.58757 s, avg_samples: 64.0, ips: 24.73362 samples/s, eta: 0:17:26, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:22:53] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.09881040613432035, fps: 267.20222020374285
+[2026/04/23 18:22:53] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:22:53] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.09881040613432035, fps: 267.20222020374285, best_epoch: 20
+[2026/04/23 18:22:53] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:22:54] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/iter_epoch_20
+[2026/04/23 18:23:29] ppocr INFO: epoch: [21/40], global_step: 370, lr: 0.000579, acc: 0.000000, norm_edit_dis: 0.106425, loss: 82.768013, avg_reader_cost: 3.12833 s, avg_batch_cost: 3.56406 s, avg_samples: 64.0, ips: 17.95703 samples/s, eta: 0:17:03, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:23:46] ppocr INFO: epoch: [21/40], global_step: 378, lr: 0.000562, acc: 0.000000, norm_edit_dis: 0.105525, loss: 83.242901, avg_reader_cost: 1.47987 s, avg_batch_cost: 1.76848 s, avg_samples: 51.2, ips: 28.95138 samples/s, eta: 0:16:34, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:23:47] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:24:01] ppocr INFO: epoch: [22/40], global_step: 380, lr: 0.000558, acc: 0.000000, norm_edit_dis: 0.104885, loss: 83.927734, avg_reader_cost: 1.34769 s, avg_batch_cost: 1.46689 s, avg_samples: 12.8, ips: 8.72594 samples/s, eta: 0:16:36, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:24:25] ppocr INFO: epoch: [22/40], global_step: 390, lr: 0.000536, acc: 0.000000, norm_edit_dis: 0.104396, loss: 82.810780, avg_reader_cost: 1.94986 s, avg_batch_cost: 2.37547 s, avg_samples: 64.0, ips: 26.94203 samples/s, eta: 0:16:02, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:24:39] ppocr INFO: epoch: [22/40], global_step: 396, lr: 0.000523, acc: 0.000000, norm_edit_dis: 0.107087, loss: 82.797993, avg_reader_cost: 1.16574 s, avg_batch_cost: 1.39015 s, avg_samples: 38.4, ips: 27.62284 samples/s, eta: 0:15:42, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:24:39] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:24:54] ppocr INFO: epoch: [23/40], global_step: 400, lr: 0.000514, acc: 0.000000, norm_edit_dis: 0.107087, loss: 82.797993, avg_reader_cost: 1.37216 s, avg_batch_cost: 1.54100 s, avg_samples: 25.6, ips: 16.61259 samples/s, eta: 0:15:33, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:25:25] ppocr INFO: epoch: [23/40], global_step: 410, lr: 0.000492, acc: 0.000000, norm_edit_dis: 0.107246, loss: 84.350685, avg_reader_cost: 2.65207 s, avg_batch_cost: 3.09149 s, avg_samples: 64.0, ips: 20.70201 samples/s, eta: 0:15:06, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:25:28] ppocr INFO: epoch: [23/40], global_step: 414, lr: 0.000484, acc: 0.000000, norm_edit_dis: 0.105173, loss: 83.891670, avg_reader_cost: 0.21941 s, avg_batch_cost: 0.33200 s, avg_samples: 25.6, ips: 77.10931 samples/s, eta: 0:14:48, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:25:29] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:25:55] ppocr INFO: epoch: [24/40], global_step: 420, lr: 0.000471, acc: 0.000000, norm_edit_dis: 0.108080, loss: 83.974571, avg_reader_cost: 2.42236 s, avg_batch_cost: 2.67432 s, avg_samples: 38.4, ips: 14.35878 samples/s, eta: 0:14:37, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:26:23] ppocr INFO: epoch: [24/40], global_step: 430, lr: 0.000449, acc: 0.000000, norm_edit_dis: 0.108435, loss: 83.088284, avg_reader_cost: 2.35642 s, avg_batch_cost: 2.75016 s, avg_samples: 64.0, ips: 23.27136 samples/s, eta: 0:14:06, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:26:26] ppocr INFO: epoch: [24/40], global_step: 432, lr: 0.000444, acc: 0.000000, norm_edit_dis: 0.109813, loss: 83.753792, avg_reader_cost: 0.22317 s, avg_batch_cost: 0.28123 s, avg_samples: 12.8, ips: 45.51443 samples/s, eta: 0:13:59, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:26:28] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.09388927983391837, fps: 265.8225970857122
+[2026/04/23 18:26:29] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:26:29] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.09388927983391837, fps: 265.8225970857122, best_epoch: 24
+[2026/04/23 18:26:29] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:26:56] ppocr INFO: epoch: [25/40], global_step: 440, lr: 0.000427, acc: 0.000000, norm_edit_dis: 0.102844, loss: 82.575600, avg_reader_cost: 2.38332 s, avg_batch_cost: 2.71887 s, avg_samples: 51.2, ips: 18.83135 samples/s, eta: 0:13:38, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:27:23] ppocr INFO: epoch: [25/40], global_step: 450, lr: 0.000406, acc: 0.000000, norm_edit_dis: 0.101011, loss: 84.929996, avg_reader_cost: 2.28752 s, avg_batch_cost: 2.67725 s, avg_samples: 64.0, ips: 23.90514 samples/s, eta: 0:13:07, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:27:23] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:27:59] ppocr INFO: epoch: [26/40], global_step: 460, lr: 0.000384, acc: 0.000000, norm_edit_dis: 0.101301, loss: 83.821884, avg_reader_cost: 3.16317 s, avg_batch_cost: 3.60918 s, avg_samples: 64.0, ips: 17.73257 samples/s, eta: 0:12:42, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:28:16] ppocr INFO: epoch: [26/40], global_step: 468, lr: 0.000367, acc: 0.000000, norm_edit_dis: 0.102057, loss: 83.367043, avg_reader_cost: 1.42078 s, avg_batch_cost: 1.70894 s, avg_samples: 51.2, ips: 29.96002 samples/s, eta: 0:12:15, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:28:16] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:28:33] ppocr INFO: epoch: [27/40], global_step: 470, lr: 0.000363, acc: 0.000000, norm_edit_dis: 0.102057, loss: 83.367043, avg_reader_cost: 1.58068 s, avg_batch_cost: 1.67916 s, avg_samples: 12.8, ips: 7.62286 samples/s, eta: 0:12:15, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:28:58] ppocr INFO: epoch: [27/40], global_step: 480, lr: 0.000342, acc: 0.000000, norm_edit_dis: 0.100902, loss: 82.797546, avg_reader_cost: 2.10113 s, avg_batch_cost: 2.53151 s, avg_samples: 64.0, ips: 25.28140 samples/s, eta: 0:11:43, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:29:11] ppocr INFO: epoch: [27/40], global_step: 486, lr: 0.000330, acc: 0.000000, norm_edit_dis: 0.100627, loss: 82.115242, avg_reader_cost: 1.07643 s, avg_batch_cost: 1.27034 s, avg_samples: 38.4, ips: 30.22813 samples/s, eta: 0:11:23, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:29:11] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:29:27] ppocr INFO: epoch: [28/40], global_step: 490, lr: 0.000322, acc: 0.000000, norm_edit_dis: 0.101218, loss: 83.257095, avg_reader_cost: 1.39675 s, avg_batch_cost: 1.58970 s, avg_samples: 25.6, ips: 16.10365 samples/s, eta: 0:11:14, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:30:01] ppocr INFO: epoch: [28/40], global_step: 500, lr: 0.000302, acc: 0.000000, norm_edit_dis: 0.101132, loss: 83.641201, avg_reader_cost: 3.00902 s, avg_batch_cost: 3.42251 s, avg_samples: 64.0, ips: 18.69971 samples/s, eta: 0:10:47, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:30:05] ppocr INFO: epoch: [28/40], global_step: 504, lr: 0.000294, acc: 0.000000, norm_edit_dis: 0.101417, loss: 83.381237, avg_reader_cost: 0.30607 s, avg_batch_cost: 0.42134 s, avg_samples: 25.6, ips: 60.75843 samples/s, eta: 0:10:32, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:30:08] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.08936459622755089, fps: 258.016314891018
+[2026/04/23 18:30:08] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:30:08] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.08936459622755089, fps: 258.016314891018, best_epoch: 28
+[2026/04/23 18:30:09] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:30:36] ppocr INFO: epoch: [29/40], global_step: 510, lr: 0.000282, acc: 0.000000, norm_edit_dis: 0.098261, loss: 82.230103, avg_reader_cost: 2.47106 s, avg_batch_cost: 2.76711 s, avg_samples: 38.4, ips: 13.87727 samples/s, eta: 0:10:18, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:30:57] ppocr INFO: epoch: [29/40], global_step: 520, lr: 0.000262, acc: 0.000000, norm_edit_dis: 0.102027, loss: 81.142448, avg_reader_cost: 1.67298 s, avg_batch_cost: 2.07431 s, avg_samples: 64.0, ips: 30.85366 samples/s, eta: 0:09:45, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:31:01] ppocr INFO: epoch: [29/40], global_step: 522, lr: 0.000259, acc: 0.000000, norm_edit_dis: 0.102027, loss: 82.106430, avg_reader_cost: 0.33270 s, avg_batch_cost: 0.38897 s, avg_samples: 12.8, ips: 32.90731 samples/s, eta: 0:09:39, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:31:01] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:31:30] ppocr INFO: epoch: [30/40], global_step: 530, lr: 0.000243, acc: 0.000000, norm_edit_dis: 0.101284, loss: 82.781151, avg_reader_cost: 2.60018 s, avg_batch_cost: 2.95213 s, avg_samples: 51.2, ips: 17.34338 samples/s, eta: 0:09:18, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:31:57] ppocr INFO: epoch: [30/40], global_step: 540, lr: 0.000225, acc: 0.000000, norm_edit_dis: 0.099226, loss: 82.948677, avg_reader_cost: 2.26275 s, avg_batch_cost: 2.64905 s, avg_samples: 64.0, ips: 24.15965 samples/s, eta: 0:08:47, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:31:57] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:31:57] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/iter_epoch_30
+[2026/04/23 18:32:34] ppocr INFO: epoch: [31/40], global_step: 550, lr: 0.000207, acc: 0.000000, norm_edit_dis: 0.099136, loss: 81.667671, avg_reader_cost: 3.27069 s, avg_batch_cost: 3.71425 s, avg_samples: 64.0, ips: 17.23094 samples/s, eta: 0:08:20, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:32:50] ppocr INFO: epoch: [31/40], global_step: 558, lr: 0.000193, acc: 0.000000, norm_edit_dis: 0.098792, loss: 81.442902, avg_reader_cost: 1.35172 s, avg_batch_cost: 1.65118 s, avg_samples: 51.2, ips: 31.00805 samples/s, eta: 0:07:55, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:32:51] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:33:06] ppocr INFO: epoch: [32/40], global_step: 560, lr: 0.000190, acc: 0.000000, norm_edit_dis: 0.099122, loss: 81.442902, avg_reader_cost: 1.42912 s, avg_batch_cost: 1.53172 s, avg_samples: 12.8, ips: 8.35660 samples/s, eta: 0:07:52, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:33:29] ppocr INFO: epoch: [32/40], global_step: 570, lr: 0.000173, acc: 0.000000, norm_edit_dis: 0.093032, loss: 84.958607, avg_reader_cost: 1.85589 s, avg_batch_cost: 2.30292 s, avg_samples: 64.0, ips: 27.79083 samples/s, eta: 0:07:20, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:33:41] ppocr INFO: epoch: [32/40], global_step: 576, lr: 0.000163, acc: 0.000000, norm_edit_dis: 0.098033, loss: 82.016151, avg_reader_cost: 0.99540 s, avg_batch_cost: 1.18451 s, avg_samples: 38.4, ips: 32.41856 samples/s, eta: 0:07:01, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:33:44] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.09699902275606687, fps: 251.64272203214136
+[2026/04/23 18:33:44] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:33:44] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.09699902275606687, fps: 251.64272203214136, best_epoch: 32
+[2026/04/23 18:33:45] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:33:59] ppocr INFO: epoch: [33/40], global_step: 580, lr: 0.000157, acc: 0.000000, norm_edit_dis: 0.098544, loss: 82.016151, avg_reader_cost: 1.22627 s, avg_batch_cost: 1.43887 s, avg_samples: 25.6, ips: 17.79169 samples/s, eta: 0:06:50, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:34:32] ppocr INFO: epoch: [33/40], global_step: 590, lr: 0.000141, acc: 0.000000, norm_edit_dis: 0.095024, loss: 80.076778, avg_reader_cost: 2.95034 s, avg_batch_cost: 3.36741 s, avg_samples: 64.0, ips: 19.00568 samples/s, eta: 0:06:22, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:34:37] ppocr INFO: epoch: [33/40], global_step: 594, lr: 0.000135, acc: 0.000000, norm_edit_dis: 0.096806, loss: 80.446934, avg_reader_cost: 0.36526 s, avg_batch_cost: 0.49039 s, avg_samples: 25.6, ips: 52.20315 samples/s, eta: 0:06:09, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:34:38] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:35:06] ppocr INFO: epoch: [34/40], global_step: 600, lr: 0.000126, acc: 0.000000, norm_edit_dis: 0.095024, loss: 81.803764, avg_reader_cost: 2.56909 s, avg_batch_cost: 2.84425 s, avg_samples: 38.4, ips: 13.50093 samples/s, eta: 0:05:53, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:35:26] ppocr INFO: epoch: [34/40], global_step: 610, lr: 0.000112, acc: 0.000000, norm_edit_dis: 0.097575, loss: 82.746616, avg_reader_cost: 1.61798 s, avg_batch_cost: 2.05464 s, avg_samples: 64.0, ips: 31.14900 samples/s, eta: 0:05:22, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:35:31] ppocr INFO: epoch: [34/40], global_step: 612, lr: 0.000109, acc: 0.000000, norm_edit_dis: 0.097829, loss: 81.937958, avg_reader_cost: 0.41180 s, avg_batch_cost: 0.47236 s, avg_samples: 12.8, ips: 27.09771 samples/s, eta: 0:05:16, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:35:31] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:35:58] ppocr INFO: epoch: [35/40], global_step: 620, lr: 0.000099, acc: 0.000000, norm_edit_dis: 0.097244, loss: 81.964714, avg_reader_cost: 2.28849 s, avg_batch_cost: 2.64809 s, avg_samples: 51.2, ips: 19.33466 samples/s, eta: 0:04:53, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:36:25] ppocr INFO: epoch: [35/40], global_step: 630, lr: 0.000086, acc: 0.000000, norm_edit_dis: 0.092001, loss: 82.384056, avg_reader_cost: 2.32894 s, avg_batch_cost: 2.70970 s, avg_samples: 64.0, ips: 23.61885 samples/s, eta: 0:04:23, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:36:25] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:36:59] ppocr INFO: epoch: [36/40], global_step: 640, lr: 0.000074, acc: 0.000000, norm_edit_dis: 0.093341, loss: 83.060883, avg_reader_cost: 3.00851 s, avg_batch_cost: 3.45305 s, avg_samples: 64.0, ips: 18.53433 samples/s, eta: 0:03:55, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:37:16] ppocr INFO: epoch: [36/40], global_step: 648, lr: 0.000065, acc: 0.000000, norm_edit_dis: 0.094321, loss: 83.120285, avg_reader_cost: 1.43010 s, avg_batch_cost: 1.70830 s, avg_samples: 51.2, ips: 29.97139 samples/s, eta: 0:03:30, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:37:20] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.0888949631361925, fps: 230.41541955867322
+[2026/04/23 18:37:21] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:37:21] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.0888949631361925, fps: 230.41541955867322, best_epoch: 36
+[2026/04/23 18:37:21] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:37:31] ppocr INFO: epoch: [37/40], global_step: 650, lr: 0.000063, acc: 0.000000, norm_edit_dis: 0.093641, loss: 83.423191, avg_reader_cost: 0.98285 s, avg_batch_cost: 1.07907 s, avg_samples: 12.8, ips: 11.86202 samples/s, eta: 0:03:25, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:37:57] ppocr INFO: epoch: [37/40], global_step: 660, lr: 0.000053, acc: 0.000000, norm_edit_dis: 0.097442, loss: 82.374878, avg_reader_cost: 2.12057 s, avg_batch_cost: 2.56923 s, avg_samples: 64.0, ips: 24.91020 samples/s, eta: 0:02:55, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:38:11] ppocr INFO: epoch: [37/40], global_step: 666, lr: 0.000047, acc: 0.000000, norm_edit_dis: 0.097442, loss: 81.528080, avg_reader_cost: 1.21371 s, avg_batch_cost: 1.41935 s, avg_samples: 38.4, ips: 27.05454 samples/s, eta: 0:02:38, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:38:12] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:38:28] ppocr INFO: epoch: [38/40], global_step: 670, lr: 0.000044, acc: 0.000000, norm_edit_dis: 0.098311, loss: 81.528080, avg_reader_cost: 1.47732 s, avg_batch_cost: 1.63737 s, avg_samples: 25.6, ips: 15.63479 samples/s, eta: 0:02:26, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:39:02] ppocr INFO: epoch: [38/40], global_step: 680, lr: 0.000035, acc: 0.000000, norm_edit_dis: 0.097381, loss: 85.069172, avg_reader_cost: 2.98269 s, avg_batch_cost: 3.41828 s, avg_samples: 64.0, ips: 18.72288 samples/s, eta: 0:01:57, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:39:07] ppocr INFO: epoch: [38/40], global_step: 684, lr: 0.000032, acc: 0.000000, norm_edit_dis: 0.097381, loss: 83.210003, avg_reader_cost: 0.39831 s, avg_batch_cost: 0.52283 s, avg_samples: 25.6, ips: 48.96401 samples/s, eta: 0:01:45, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:39:07] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:39:30] ppocr INFO: epoch: [39/40], global_step: 690, lr: 0.000028, acc: 0.000000, norm_edit_dis: 0.095943, loss: 84.724216, avg_reader_cost: 1.98937 s, avg_batch_cost: 2.27221 s, avg_samples: 38.4, ips: 16.89985 samples/s, eta: 0:01:28, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:39:54] ppocr INFO: epoch: [39/40], global_step: 700, lr: 0.000021, acc: 0.000000, norm_edit_dis: 0.092814, loss: 81.625397, avg_reader_cost: 1.95716 s, avg_batch_cost: 2.38897 s, avg_samples: 64.0, ips: 26.78973 samples/s, eta: 0:00:58, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:39:59] ppocr INFO: epoch: [39/40], global_step: 702, lr: 0.000020, acc: 0.000000, norm_edit_dis: 0.092814, loss: 82.384071, avg_reader_cost: 0.45716 s, avg_batch_cost: 0.51429 s, avg_samples: 12.8, ips: 24.88853 samples/s, eta: 0:00:52, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:39:59] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:40:28] ppocr INFO: epoch: [40/40], global_step: 710, lr: 0.000015, acc: 0.000000, norm_edit_dis: 0.090934, loss: 79.312714, avg_reader_cost: 2.49694 s, avg_batch_cost: 2.87198 s, avg_samples: 51.2, ips: 17.82742 samples/s, eta: 0:00:29, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:40:50] ppocr INFO: epoch: [40/40], global_step: 720, lr: 0.000010, acc: 0.000000, norm_edit_dis: 0.096134, loss: 82.803391, avg_reader_cost: 1.89825 s, avg_batch_cost: 2.27854 s, avg_samples: 64.0, ips: 28.08812 samples/s, eta: 0:00:00, max_mem_reserved: 12579 MB, max_mem_allocated: 12403 MB
+[2026/04/23 18:40:54] ppocr INFO: cur metric, acc: 0.0, norm_edit_dis: 0.08735639807827422, fps: 259.21916942121806
+[2026/04/23 18:40:54] ppocr INFO: save best model is to /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/best_accuracy
+[2026/04/23 18:40:54] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.08735639807827422, fps: 259.21916942121806, best_epoch: 40
+[2026/04/23 18:40:55] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/latest
+[2026/04/23 18:40:55] ppocr INFO: save model in /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/050pct/model/iter_epoch_40
+[2026/04/23 18:40:55] ppocr INFO: best metric, acc: 0.0, is_float16: False, norm_edit_dis: 0.08735639807827422, fps: 259.21916942121806, best_epoch: 40

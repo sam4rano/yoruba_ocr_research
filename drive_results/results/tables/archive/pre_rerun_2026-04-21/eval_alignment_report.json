@@ -1,0 +1,135 @@
+{
+  "generated_at": "2026-04-20T20:19:08.930273+00:00",
+  "data_dir": "/Users/mac/Desktop/yoruba_ocr_research/data/processed",
+  "metrics_csv": "/Users/mac/Desktop/yoruba_ocr_research/results/tables/metrics.csv",
+  "splits": {
+    "test": {
+      "expected_pairs": 431
+    },
+    "val": {
+      "expected_pairs": 317
+    }
+  },
+  "mismatches": [
+    {
+      "model": "paddle_finetuned",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "baseline_english_pretrained",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "tesseract_eng",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "tesseract_yor",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "tesseract_eng+yor",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "finetuned_paddleocr_v1",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_data_size_025pct_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_data_size_025pct_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_data_size_050pct_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_data_size_050pct_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_data_size_075pct_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_data_size_075pct_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_data_size_100pct_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_data_size_100pct_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_dict_english_dict_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_dict_english_dict_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_aug_with_aug_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_aug_with_aug_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    },
+    {
+      "model": "ablation_aug_no_aug_val",
+      "split": "val",
+      "reported_n": 350,
+      "expected_pairs": 317
+    },
+    {
+      "model": "ablation_aug_no_aug_test",
+      "split": "test",
+      "reported_n": 493,
+      "expected_pairs": 431
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+model,split,n,cer,wer,der,phantom,meta_path,timestamp
+tesseract_eng,test,302,1.2273,1.476,0.9604,n/a,tables/meta/tesseract_eng_test.json,2026-04-21T08:17:53.479354+00:00
+tesseract_yor,test,302,1.2567,1.5174,0.903,n/a,tables/meta/tesseract_yor_test.json,2026-04-21T08:18:17.762187+00:00
+tesseract_eng+yor,test,302,1.2228,1.4918,0.931,n/a,tables/meta/tesseract_eng+yor_test.json,2026-04-21T08:19:07.176015+00:00

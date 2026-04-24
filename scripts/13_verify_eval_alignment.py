@@ -100,7 +100,10 @@ def main() -> None:
 
     for row in rows:
         split = row.get("split", "test")
-        if split not in report["splits"] or report["splits"][split].get("expected_pairs") is None:
+        if (
+            split not in report["splits"]
+            or report["splits"][split].get("expected_pairs") is None
+        ):
             continue
         exp = report["splits"][split]["expected_pairs"]
         try:

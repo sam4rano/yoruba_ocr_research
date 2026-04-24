@@ -112,7 +112,9 @@ def export_split(
             rel_path, text = parts
             img_path = data_dir / rel_path
             if not img_path.is_file():
-                skipped.append({"line": line_no, "reason": "missing_image", "path": rel_path})
+                skipped.append(
+                    {"line": line_no, "reason": "missing_image", "path": rel_path}
+                )
                 continue
             gt = unicodedata.normalize("NFC", text)
             sample_id = img_path.stem
@@ -141,9 +143,7 @@ def export_split(
         "jsonl": portable_path(repo_root, out_jsonl),
         "exported": exported,
         "skipped": skipped,
-        "ids_sha256": hashlib.sha256(
-            "\n".join(ids_order).encode("utf-8")
-        ).hexdigest(),
+        "ids_sha256": hashlib.sha256("\n".join(ids_order).encode("utf-8")).hexdigest(),
     }
 
 
@@ -166,9 +166,9 @@ def main() -> None:
         "data_dir": portable_path(repo_root, args.data_dir.resolve()),
         "out_dir": portable_path(repo_root, args.out_dir.resolve()),
         "splits": {},
-        "dictionary_path": portable_path(repo_root, dict_path.resolve())
-        if dict_path
-        else None,
+        "dictionary_path": (
+            portable_path(repo_root, dict_path.resolve()) if dict_path else None
+        ),
     }
 
     for sp in args.splits:
@@ -183,7 +183,9 @@ def main() -> None:
         )
 
     man_path = args.out_dir / "manifest.json"
-    man_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
+    man_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     log.info("Manifest: %s", man_path)
 
 

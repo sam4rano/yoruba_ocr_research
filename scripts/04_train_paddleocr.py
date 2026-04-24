@@ -57,8 +57,7 @@ def verify_prerequisites(paddle_dir: Path, config: Path) -> None:
         sys.exit(1)
     if not config.exists():
         log.error(
-            "Config not found: %s\n"
-            "Run scripts/03_generate_config.py first.",
+            "Config not found: %s\n" "Run scripts/03_generate_config.py first.",
             config,
         )
         sys.exit(1)
@@ -83,7 +82,8 @@ def build_train_command(
     if n_gpus > 1:
         cmd = [
             sys.executable,
-            "-m", "paddle.distributed.launch",
+            "-m",
+            "paddle.distributed.launch",
             f"--gpus={gpus}",
             train_script,
         ]
@@ -224,7 +224,9 @@ def main() -> None:
         try:
             with args.config.open(encoding="utf-8") as f:
                 cfg = yaml.safe_load(f)
-            save_dir = Path(cfg.get("Global", {}).get("save_model_dir", "experiments/finetuned"))
+            save_dir = Path(
+                cfg.get("Global", {}).get("save_model_dir", "experiments/finetuned")
+            )
             # PaddleOCR saves latest as 'latest.pdparams', we provide the prefix 'latest'
             latest_check = save_dir / "latest.pdparams"
             if latest_check.exists():
@@ -232,7 +234,9 @@ def main() -> None:
                 log.info("Found checkpoint at %s. Resuming...", latest_check)
                 overrides.append(f"Global.checkpoints={checkpoint_prefix}")
             else:
-                log.warning("No checkpoint found at %s. Starting from scratch.", latest_check)
+                log.warning(
+                    "No checkpoint found at %s. Starting from scratch.", latest_check
+                )
         except Exception as e:
             log.warning("Could not check for checkpoints (needs PyYAML): %s", e)
 

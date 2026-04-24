@@ -34,8 +34,7 @@ log = logging.getLogger(__name__)
 
 # PP-OCRv3 English recognition pretrained weights
 PRETRAINED_URL = (
-    "https://paddleocr.bj.bcebos.com/PP-OCRv3/english/"
-    "en_PP-OCRv3_rec_train.tar"
+    "https://paddleocr.bj.bcebos.com/PP-OCRv3/english/" "en_PP-OCRv3_rec_train.tar"
 )
 PRETRAINED_DIR_NAME = "en_PP-OCRv3_rec_train"
 
@@ -437,7 +436,9 @@ def main() -> None:
 
     args.output_config.parent.mkdir(parents=True, exist_ok=True)
     with args.output_config.open("w", encoding="utf-8") as fh:
-        yaml.dump(config, fh, allow_unicode=True, default_flow_style=False, sort_keys=False)
+        yaml.dump(
+            config, fh, allow_unicode=True, default_flow_style=False, sort_keys=False
+        )
     log.info("Config written to %s", args.output_config)
 
     # Persist run metadata
@@ -462,9 +463,7 @@ def main() -> None:
 
     print("\n" + "=" * 60)
     print("Next step — run fine-tuning from the PaddleOCR repo root:")
-    print(
-        f"  python tools/train.py -c {args.output_config.resolve()}"
-    )
+    print(f"  python tools/train.py -c {args.output_config.resolve()}")
     print("Or use scripts/04_train_paddleocr.py for automated logging.")
     print("=" * 60 + "\n")
 

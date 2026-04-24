@@ -45,7 +45,11 @@ def run_eval_assertions() -> None:
     assert (c, w, d) == (0.0, 0.0, 0.0), f"identity triple got {(c, w, d)}"
 
     # Empty gt: defined as 0 error if pred also empty
-    assert (compute_cer("", ""), compute_wer("", ""), compute_der("", "")) == (0.0, 0.0, 0.0)
+    assert (compute_cer("", ""), compute_wer("", ""), compute_der("", "")) == (
+        0.0,
+        0.0,
+        0.0,
+    )
 
     # Empty pred vs non-empty gt
     assert compute_cer("", "ab") == 1.0
@@ -81,10 +85,14 @@ def run_identity(data_dir: Path, split: str, max_pairs: int | None) -> None:
         raise SystemExit("identity: no pairs loaded — check data-dir and split.")
     tol = 1e-9
     if abs(m["cer"] or 0) > tol or abs(m["wer"] or 0) > tol or abs(m["der"] or 0) > tol:
-        bad = [r for r in m["rows"] if r["cer"] > tol or r["wer"] > tol or r["der"] > tol]
+        bad = [
+            r for r in m["rows"] if r["cer"] > tol or r["wer"] > tol or r["der"] > tol
+        ]
         log.error("identity failed on %d rows (gt != pred after NFC?)", len(bad))
         for r in bad[:5]:
-            log.error("  cer=%s wer=%s der=%s gt=%r", r["cer"], r["wer"], r["der"], r["gt"])
+            log.error(
+                "  cer=%s wer=%s der=%s gt=%r", r["cer"], r["wer"], r["der"], r["gt"]
+            )
         raise SystemExit(1)
     log.info("identity: PASS — labels + metrics pipeline is self-consistent.")
 
@@ -148,7 +156,9 @@ def run_data_inventory(
         "missing_image_skipped_by_loader": missing_img,
         "char_len_min": min(char_lens) if char_lens else None,
         "char_len_max": max(char_lens) if char_lens else None,
-        "char_len_mean": round(sum(char_lens) / len(char_lens), 4) if char_lens else None,
+        "char_len_mean": (
+            round(sum(char_lens) / len(char_lens), 4) if char_lens else None
+        ),
         "sample_size": n_sample,
         "sample_seed": seed,
     }
@@ -160,7 +170,9 @@ def run_data_inventory(
     with sample_jsonl.open("w", encoding="utf-8") as fh:
         for row in sample_rows:
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
-    log.info("data: wrote %s (%d rows for manual review)", sample_jsonl, len(sample_rows))
+    log.info(
+        "data: wrote %s (%d rows for manual review)", sample_jsonl, len(sample_rows)
+    )
     log.info(
         "data: Open images listed in the JSONL and confirm gt matches visible text."
     )
@@ -183,7 +195,11 @@ def run_replay(jsonl_path: Path, tolerance: float) -> None:
                 continue
             row = json.loads(line)
             pred, gt = row["pred"], row["gt"]
-            c, w, d = compute_cer(pred, gt), compute_wer(pred, gt), compute_der(pred, gt)
+            c, w, d = (
+                compute_cer(pred, gt),
+                compute_wer(pred, gt),
+                compute_der(pred, gt),
+            )
             n += 1
             if abs(c - row["cer"]) > tolerance:
                 log.warning("replay CER mismatch line %d: %s vs %s", n, c, row["cer"])
@@ -275,9 +291,10 @@ def run_checkpoints_audit(
                         integrity = (
                             meta.get("provenance", {}).get("checkpoint_integrity") or {}
                         )
-                        bad_head = (
-                            integrity.get("missing_by_component", {}).get("head", 0)
-                            + integrity.get("shape_mismatch_by_component", {}).get("head", 0)
+                        bad_head = integrity.get("missing_by_component", {}).get(
+                            "head", 0
+                        ) + integrity.get("shape_mismatch_by_component", {}).get(
+                            "head", 0
                         )
                         notes.append(f"head weights not restored: {bad_head}")
 
@@ -328,7 +345,9 @@ def run_checkpoints_audit(
     if write_report is not None:
         write_report.parent.mkdir(parents=True, exist_ok=True)
         write_report.write_text(
-            json.dumps({"counts": counts, "rows": summary}, indent=2, ensure_ascii=False)
+            json.dumps(
+                {"counts": counts, "rows": summary}, indent=2, ensure_ascii=False
+            )
             + "\n",
             encoding="utf-8",
         )

@@ -1,0 +1,44 @@
+{
+  "model": "paddleocr_vl15_zero_shot",
+  "split": "test",
+  "timestamp": "2026-04-23T11:22:44.915956+00:00",
+  "phantom": "n/a",
+  "metrics": {
+    "n": 326,
+    "cer": 5.433,
+    "wer": 8.4086,
+    "der": 2.0091,
+    "der_n": 319,
+    "der_insertion_rate": 0.0079
+  },
+  "git_sha": "9c25da4",
+  "env": {
+    "cwd": "/content/drive/MyDrive/yor_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/paddleocr_vl15_zero_shot_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": null,
+    "checkpoint_sha256": null,
+    "dict_path": null,
+    "dict_sha256": null,
+    "dict_size": null,
+    "rec_config": null,
+    "rec_config_sha256": null
+  },
+  "provenance": {
+    "model_kind": "paddleocr_vl",
+    "base_model_id": "PaddlePaddle/PaddleOCR-VL-1.5",
+    "adapter_path": null,
+    "adapter_sha256": {},
+    "quantize_4bit": true,
+    "max_new_tokens": 512,
+    "do_sample": false,
+    "prompt": "OCR: Transcribe the single line of text in this image exactly as printed. The language is Yorùbá. Preserve every tone mark and subdot (ẹ, ọ, ṣ, à, á, etc.). Output only the line text with no explanation or markdown.",
+    "prompt_sha256": "b14ec8da71ac9486985dc6d61168eeedf78d60bb85bd37e4429dd98f5d19f111",
+    "data_dir": "data/processed",
+    "n_images": 326,
+    "device": "cuda:0",
+    "torch_dtype": "4bit"
+  }
+}

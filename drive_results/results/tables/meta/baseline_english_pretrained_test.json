@@ -1,0 +1,69 @@
+{
+  "model": "baseline_english_pretrained",
+  "split": "test",
+  "timestamp": "2026-04-23T07:37:51.258876+00:00",
+  "phantom": "true",
+  "metrics": {
+    "n": 326,
+    "cer": 1.7448,
+    "wer": 1.0,
+    "der": 0.8397,
+    "der_n": 319,
+    "der_insertion_rate": 0.4841
+  },
+  "git_sha": "9c25da4",
+  "env": {
+    "cwd": "/content/drive/MyDrive/yor_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/baseline_english_pretrained_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy.pdparams",
+    "checkpoint_sha256": "ea1aa951d492533d33dd9536265e29a779f1a2b2798e68ebb82d2079e7554e7e",
+    "dict_path": "data/processed/dictionary/yoruba_char_dict.txt",
+    "dict_sha256": "0e052868728f7e83530c7c409d24a350dc135c7dd8ef773a8272184595c7dec7",
+    "dict_size": 99,
+    "rec_config": "configs/paddleocr_yoruba_rec.yml",
+    "rec_config_sha256": "2c1658f70723f50efa64a4dddcce52fd119c3b69f71ca4d41848b826b64b47f1"
+  },
+  "provenance": {
+    "script": "scripts/05_evaluate.py",
+    "model_dir": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train",
+    "dict_path": "data/processed/dictionary/yoruba_char_dict.txt",
+    "rec_config": "configs/paddleocr_yoruba_rec.yml",
+    "split": "test",
+    "allow_head_reinit": true,
+    "checkpoint_integrity": {
+      "ckpt_prefix": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy",
+      "n_model_params": 196,
+      "n_ckpt_params": 239,
+      "n_restored": 143,
+      "n_missing": 53,
+      "n_shape_mismatch": 0,
+      "n_extra_in_ckpt": 96,
+      "missing_by_component": {
+        "head": 2,
+        "backbone": 51,
+        "other": 0
+      },
+      "shape_mismatch_by_component": {
+        "head": 0,
+        "backbone": 0,
+        "other": 0
+      },
+      "missing_sample": [
+        "neck.encoder.conv1.conv.weight",
+        "neck.encoder.conv1.norm.weight",
+        "neck.encoder.conv1.norm.bias",
+        "neck.encoder.conv1.norm._mean",
+        "neck.encoder.conv1.norm._variance",
+        "neck.encoder.conv2.conv.weight",
+        "neck.encoder.conv2.norm.weight",
+        "neck.encoder.conv2.norm.bias",
+        "neck.encoder.conv2.norm._mean",
+        "neck.encoder.conv2.norm._variance"
+      ],
+      "shape_mismatch_sample": []
+    }
+  }
+}

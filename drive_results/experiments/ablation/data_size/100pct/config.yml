@@ -1,0 +1,114 @@
+Architecture:
+  Backbone:
+    last_conv_stride:
+    - 1
+    - 2
+    last_pool_kernel_size:
+    - 2
+    - 4
+    last_pool_type: avg
+    name: MobileNetV1Enhance
+    scale: 0.5
+  Head:
+    fc_decay: 1.0e-05
+    name: CTCHead
+  Neck:
+    depth: 2
+    dims: 64
+    encoder_type: svtr
+    hidden_dims: 120
+    name: SequenceEncoder
+    use_guide: true
+  Transform: null
+  algorithm: SVTR_LCNet
+  model_type: rec
+Eval:
+  dataset:
+    data_dir: /content/drive/MyDrive/yor_ocr_research/data/processed
+    label_file_list:
+    - /content/drive/MyDrive/yor_ocr_research/data/processed/labels/val.txt
+    name: SimpleDataSet
+    transforms:
+    - DecodeImage:
+        channel_first: false
+        img_mode: BGR
+    - CTCLabelEncode: null
+    - RecResizeImg:
+        image_shape: &id001
+        - 3
+        - 48
+        - 960
+    - KeepKeys:
+        keep_keys:
+        - image
+        - label
+        - length
+  loader:
+    batch_size_per_card: 128
+    drop_last: false
+    num_workers: 4
+    shuffle: false
+Global:
+  cal_metric_during_train: true
+  character_dict_path: /content/drive/MyDrive/yor_ocr_research/data/processed/dictionary/yoruba_char_dict.txt
+  checkpoints: null
+  distributed: false
+  epoch_num: 40
+  eval_batch_step:
+  - 0
+  - 72
+  infer_mode: false
+  log_smooth_window: 20
+  max_text_length: 100
+  pretrained_model: /content/drive/MyDrive/yor_ocr_research/experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy
+  print_batch_step: 10
+  save_epoch_step: 10
+  save_inference_dir: null
+  save_model_dir: /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/100pct/model
+  save_res_path: /content/drive/MyDrive/yor_ocr_research/results/tables/rec_eval_output.txt
+  use_gpu: true
+  use_space_char: true
+  use_visualdl: false
+Loss:
+  name: CTCLoss
+Metric:
+  ignore_space: false
+  main_indicator: acc
+  name: RecMetric
+Optimizer:
+  beta1: 0.9
+  beta2: 0.999
+  lr:
+    learning_rate: 0.001
+    name: Cosine
+    warmup_epoch: 2
+  name: Adam
+  regularizer:
+    factor: 3.0e-05
+    name: L2
+PostProcess:
+  name: CTCLabelDecode
+Train:
+  dataset:
+    data_dir: /content/drive/MyDrive/yor_ocr_research/data/processed
+    label_file_list:
+    - /content/drive/MyDrive/yor_ocr_research/experiments/ablation/data_size/100pct/train.txt
+    name: SimpleDataSet
+    transforms:
+    - DecodeImage:
+        channel_first: false
+        img_mode: BGR
+    - RecAug: null
+    - CTCLabelEncode: null
+    - RecResizeImg:
+        image_shape: *id001
+    - KeepKeys:
+        keep_keys:
+        - image
+        - label
+        - length
+  loader:
+    batch_size_per_card: 64
+    drop_last: true
+    num_workers: 4
+    shuffle: true

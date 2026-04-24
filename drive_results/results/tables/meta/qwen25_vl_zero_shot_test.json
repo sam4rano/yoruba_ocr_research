@@ -1,0 +1,40 @@
+{
+  "model": "qwen25_vl_zero_shot",
+  "split": "test",
+  "timestamp": "2026-04-23T07:25:20.923296+00:00",
+  "phantom": "n/a",
+  "metrics": {
+    "n": 326,
+    "cer": 2.5351,
+    "wer": 3.2945,
+    "der": 1.1958,
+    "der_n": 319,
+    "der_insertion_rate": 0.0714
+  },
+  "git_sha": "9c42a1d",
+  "env": {
+    "cwd": "/content/drive/MyDrive/yor_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/qwen25_vl_zero_shot_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": null,
+    "checkpoint_sha256": null,
+    "dict_path": null,
+    "dict_sha256": null,
+    "dict_size": null,
+    "rec_config": null,
+    "rec_config_sha256": null
+  },
+  "provenance": {
+    "model_kind": "qwen2_vl",
+    "base_model_id": "Qwen/Qwen2.5-VL-7B-Instruct",
+    "quantize_4bit": true,
+    "max_new_tokens": 128,
+    "do_sample": false,
+    "prompt": "Transcribe the text in this image exactly as it appears. The text is in Yorùbá. Preserve all diacritics (tone marks such as à, á, â and subdots such as ẹ, ọ, ṣ) precisely. Output ONLY the transcribed text — no explanation.",
+    "prompt_sha256": "a806b7c425d94303cbf7caea099b6f488d786871be42561b39be3812874a9691",
+    "data_dir": "data/processed",
+    "n_images": 326
+  }
+}

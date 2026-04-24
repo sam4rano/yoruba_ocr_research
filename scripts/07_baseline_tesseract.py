@@ -184,7 +184,11 @@ def main() -> None:
         sys.exit(1)
 
     sys.path.insert(0, str(Path(__file__).parent))
-    from evaluate_utils import load_test_pairs, aggregate_metrics, save_results  # type: ignore  # noqa: E402
+    from evaluate_utils import (  # type: ignore  # noqa: E402
+        aggregate_metrics,
+        load_test_pairs,
+        save_results,
+    )
 
     pairs = load_test_pairs(args.data_dir, args.split)
     log.info("Loaded %d labelled examples.", len(pairs))
@@ -213,9 +217,7 @@ def main() -> None:
             metrics["der"],
             metrics["n"],
         )
-        per_sample_log = (
-            Path("results/tables") / f"{model_name}_{args.split}.jsonl"
-        )
+        per_sample_log = Path("results/tables") / f"{model_name}_{args.split}.jsonl"
         provenance = {
             "model_kind": "tesseract",
             "tesseract_version": tess_version,

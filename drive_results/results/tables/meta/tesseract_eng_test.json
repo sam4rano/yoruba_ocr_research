@@ -1,0 +1,38 @@
+{
+  "model": "tesseract_eng",
+  "split": "test",
+  "timestamp": "2026-04-23T07:40:17.332754+00:00",
+  "phantom": "n/a",
+  "metrics": {
+    "n": 326,
+    "cer": 1.2035,
+    "wer": 1.5347,
+    "der": 0.9847,
+    "der_n": 319,
+    "der_insertion_rate": 0.0
+  },
+  "git_sha": "9c25da4",
+  "env": {
+    "cwd": "/content/drive/MyDrive/yor_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/tesseract_eng_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": null,
+    "checkpoint_sha256": null,
+    "dict_path": null,
+    "dict_sha256": null,
+    "dict_size": null,
+    "rec_config": null,
+    "rec_config_sha256": null
+  },
+  "provenance": {
+    "model_kind": "tesseract",
+    "tesseract_version": "tesseract 4.1.1",
+    "lang": "eng",
+    "psm": 7,
+    "oem": 3,
+    "data_dir": "data/processed",
+    "n_images": 326
+  }
+}

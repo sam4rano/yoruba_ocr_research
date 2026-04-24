@@ -58,10 +58,10 @@ if str(_SCRIPTS_DIR) not in _sys.path:
     _sys.path.insert(0, str(_SCRIPTS_DIR))
 from yoruba_charset import YORUBA_WHITELIST_CODEPOINTS  # noqa: E402
 
-
 # ---------------------------------------------------------------------------
 # Unicode-block classification (for histograms)
 # ---------------------------------------------------------------------------
+
 
 def _block_name(cp: int) -> str:
     """Return a coarse block label for a codepoint (for reporting only)."""
@@ -97,6 +97,7 @@ def _block_name(cp: int) -> str:
 # ---------------------------------------------------------------------------
 # Loaders
 # ---------------------------------------------------------------------------
+
 
 def load_label_entries(data_dir: Path, split: str) -> list[tuple[Path, str]]:
     """Return ``(image_path, label_text_NFC)`` pairs for ``split``."""
@@ -145,6 +146,7 @@ def load_image_dimensions(paths: list[Path]) -> list[tuple[int, int]]:
 # ---------------------------------------------------------------------------
 # Profiling
 # ---------------------------------------------------------------------------
+
 
 def _quantiles(values: list[float], *, n: int = 10) -> dict[str, float]:
     """Return min / n-tiles / max for ``values`` (empty-safe)."""
@@ -265,6 +267,7 @@ def profile_split(
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
+
 
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""

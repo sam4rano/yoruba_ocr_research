@@ -1,2 +1,9 @@
-# Background
+# Yorùbá Orthography and Problem Formulation
 
+Standard Yorùbá orthography employs a Latin-based script augmented with three classes of diacritical marks. Tone is marked on vowels (a, e, ẹ, i, o, ọ, u) and the syllabic nasal (n) using acute accent (´) for high tone, grave accent (\`) for low tone, and no marking for mid tone. Sub-dot diacritics distinguish two additional vowel pairs: ẹ/e and ọ/o, where the dotted variants represent open vowels phonemically distinct from their undotted counterparts. The consonant ṣ is similarly distinguished from s. These markings interact multiplicatively: a single vowel may carry both a sub-dot and a tone accent (e.g., *ọ̀*, *ẹ́*), yielding a character inventory substantially larger than the base Latin alphabet.
+
+We formalize the recognition task as follows. Let Σ denote the Standard Yorùbá character set, with |Σ| = 99 after NFC normalization (including digits, punctuation, and combining diacritics observed in the corpus). Each dataset label is a string y ∈ Σ* aligned to a single printed text-line image x. The task is sequence transcription: predict ŷ minimizing alignment-based edit distance to y.
+
+Let U ⊂ Σ denote the subset of codepoints that participate in tonal or sub-dot contrasts. In our dataset, the combining diacritics comprise 28,956 combining marks (11,248 combining acute, 9,328 combining grave, 8,380 combining dot below) and 24,308 precomposed diacritic characters across the training split. Errors on U drive DER (§ Diacritic Error Rate); CER and WER remain standard checks for overall transcription quality.
+
+The semantic stakes of diacritic errors are not uniform across languages. In French or German, a missing accent typically produces a misspelling that a reader can recover from context. In Yorùbá, the same base string *ogun* without tonal marking is genuinely ambiguous among at least four unrelated lemmas. An OCR system that strips diacritics does not degrade readability—it destroys the lexical identity of the token.

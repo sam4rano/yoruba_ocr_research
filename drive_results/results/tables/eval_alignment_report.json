@@ -1,0 +1,11 @@
+{
+  "generated_at": "2026-04-23T17:32:34.184037+00:00",
+  "data_dir": "/content/drive/MyDrive/yor_ocr_research/data/processed",
+  "metrics_csv": "/content/drive/MyDrive/yor_ocr_research/results/tables/metrics.csv",
+  "splits": {
+    "test": {
+      "expected_pairs": 326
+    }
+  },
+  "mismatches": []
+}

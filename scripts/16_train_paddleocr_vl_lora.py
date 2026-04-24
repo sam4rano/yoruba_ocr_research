@@ -23,10 +23,11 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import sys
 from pathlib import Path
 from typing import Any
-import os
+
 os.environ["PYTORCH_ALLOC_CONF"] = "expandable_segments:True"
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
@@ -222,11 +223,10 @@ def main() -> None:
     model = AutoModelForImageTextToText.from_pretrained(
         args.model_id,
         dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
-
         device_map="auto",
         trust_remote_code=False,
     )
-    
+
     # Enable gradient checkpointing to save memory
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
@@ -235,7 +235,15 @@ def main() -> None:
     # Only adapt the LANGUAGE MODEL layers, not the vision encoder.
     # The vision encoder (SigLIP) is already well-trained on image features;
     # adapting it on only 2.3k samples causes overfitting to scan artefacts.
-    wanted = ("q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")
+    wanted = (
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+    )
     lm_targets: list[str] = []
     for n, _ in model.named_modules():
         # Skip anything in the vision encoder ("visual", "vision_model", etc.)
@@ -246,7 +254,10 @@ def main() -> None:
                 lm_targets.append(n)
                 break
     # Deduplicate to just the short names for PEFT
-    target_modules = sorted({n.split('.')[-1] for n in lm_targets}) or ["q_proj", "v_proj"]
+    target_modules = sorted({n.split(".")[-1] for n in lm_targets}) or [
+        "q_proj",
+        "v_proj",
+    ]
     log.info("LoRA target modules (LM only): %s", target_modules)
 
     lora_config = LoraConfig(
@@ -259,21 +270,32 @@ def main() -> None:
     model.print_trainable_parameters()
 
     opt = torch.optim.AdamW(
-        [p for p in model.parameters() if p.requires_grad], lr=args.lr, weight_decay=0.01
+        [p for p in model.parameters() if p.requires_grad],
+        lr=args.lr,
+        weight_decay=0.01,
     )
 
     # Learning rate scheduler: linear warmup + cosine decay
-    total_steps = (len(samples) * args.epochs) // max(1, int(args.gradient_accumulation_steps))
+    total_steps = (len(samples) * args.epochs) // max(
+        1, int(args.gradient_accumulation_steps)
+    )
     warmup_steps = max(1, total_steps // 10)  # 10% warmup
-    from torch.optim.lr_scheduler import LambdaLR
     import math
+
+    from torch.optim.lr_scheduler import LambdaLR
+
     def lr_lambda(step: int) -> float:
         if step < warmup_steps:
             return step / warmup_steps
         progress = (step - warmup_steps) / max(1, total_steps - warmup_steps)
         return 0.5 * (1.0 + math.cos(math.pi * progress))
+
     scheduler = LambdaLR(opt, lr_lambda)
-    log.info("LR schedule: %d warmup → cosine decay over %d total steps", warmup_steps, total_steps)
+    log.info(
+        "LR schedule: %d warmup → cosine decay over %d total steps",
+        warmup_steps,
+        total_steps,
+    )
 
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
@@ -307,7 +329,7 @@ def main() -> None:
             if not image_path:
                 continue
             image = Image.open(image_path).convert("RGB")
-            
+
             # Manually cap image resolution to prevent OOM. Some processors ignore images_kwargs!
             # 800x800 is ~640k pixels, which fits safely in 15GB VRAM with gradient checkpointing.
             try:
@@ -315,11 +337,9 @@ def main() -> None:
             except AttributeError:
                 resample_filter = Image.LANCZOS
             image.thumbnail((800, 800), resample_filter)
-            
+
             raw_asst = msgs[1]["content"]
-            assistant_text = (
-                raw_asst if isinstance(raw_asst, str) else str(raw_asst)
-            )
+            assistant_text = raw_asst if isinstance(raw_asst, str) else str(raw_asst)
             user_messages = [
                 {
                     "role": "user",
@@ -328,7 +348,10 @@ def main() -> None:
                         {"type": "text", "text": USER_TEXT_OCR_YORUBA},
                     ],
                 },
-                {"role": "assistant", "content": [{"type": "text", "text": assistant_text}]},
+                {
+                    "role": "assistant",
+                    "content": [{"type": "text", "text": assistant_text}],
+                },
             ]
             inputs = processor.apply_chat_template(
                 user_messages,

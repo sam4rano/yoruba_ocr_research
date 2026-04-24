@@ -20,7 +20,6 @@ from pathlib import Path
 
 import editdistance
 
-
 # ---------------------------------------------------------------------------
 # Provenance helpers
 # ---------------------------------------------------------------------------
@@ -109,16 +108,16 @@ def _phantom_flag_from_provenance(provenance: dict | None) -> str:
     integrity = provenance.get("checkpoint_integrity")
     if not integrity:
         return "unknown"
-    head_bad = (
-        integrity.get("missing_by_component", {}).get("head", 0)
-        + integrity.get("shape_mismatch_by_component", {}).get("head", 0)
-    )
+    head_bad = integrity.get("missing_by_component", {}).get("head", 0) + integrity.get(
+        "shape_mismatch_by_component", {}
+    ).get("head", 0)
     return "true" if head_bad > 0 else "false"
 
 
 # ---------------------------------------------------------------------------
 # Metric functions
 # ---------------------------------------------------------------------------
+
 
 def nfc(text: str) -> str:
     """Return NFC-normalised form for consistent character comparison."""
@@ -177,7 +176,9 @@ def compute_der(pred: str, gt: str) -> float:
        samples whose GT contains at least one diacritic, and reports the
        insertion rate on the zero-diacritic subset separately.
     """
-    pred_diacs = [c for c in unicodedata.normalize("NFD", pred) if unicodedata.combining(c)]
+    pred_diacs = [
+        c for c in unicodedata.normalize("NFD", pred) if unicodedata.combining(c)
+    ]
     gt_diacs = [c for c in unicodedata.normalize("NFD", gt) if unicodedata.combining(c)]
 
     if not gt_diacs:
@@ -189,9 +190,8 @@ def compute_der(pred: str, gt: str) -> float:
 # Data loading
 # ---------------------------------------------------------------------------
 
-def load_test_pairs(
-    data_dir: Path, split: str
-) -> list[tuple[Path, str]]:
+
+def load_test_pairs(data_dir: Path, split: str) -> list[tuple[Path, str]]:
     """
     Load (image_path, ground_truth_text) pairs from a PaddleOCR label file.
 
@@ -222,6 +222,7 @@ def load_test_pairs(
 # ---------------------------------------------------------------------------
 # Metric aggregation
 # ---------------------------------------------------------------------------
+
 
 def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
     """
@@ -295,9 +296,7 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
             "rows": [],
         }
 
-    der = (
-        round(total_der_edits / total_gt_diacs, 4) if total_gt_diacs else None
-    )
+    der = round(total_der_edits / total_gt_diacs, 4) if total_gt_diacs else None
     der_insertion_rate = (
         round(total_insertions / total_gt_chars_nodiac, 4)
         if total_gt_chars_nodiac
@@ -318,6 +317,7 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
 # ---------------------------------------------------------------------------
 # Result persistence
 # ---------------------------------------------------------------------------
+
 
 def save_results(
     metrics: dict,
@@ -378,9 +378,11 @@ def save_results(
             else ""
         ),
         "phantom": phantom_flag,
-        "meta_path": meta_path.relative_to(csv_path.parent.parent).as_posix()
-        if meta_path is not None
-        else "",
+        "meta_path": (
+            meta_path.relative_to(csv_path.parent.parent).as_posix()
+            if meta_path is not None
+            else ""
+        ),
         "timestamp": timestamp,
     }
 
@@ -484,7 +486,9 @@ def _build_meta_payload(
             "dict_sha256": _sha256_file(dict_path) if dict_path else None,
             "dict_size": dict_size,
             "rec_config": str(rec_config_path) if rec_config_path else None,
-            "rec_config_sha256": _sha256_file(rec_config_path) if rec_config_path else None,
+            "rec_config_sha256": (
+                _sha256_file(rec_config_path) if rec_config_path else None
+            ),
         },
         "provenance": provenance,
     }

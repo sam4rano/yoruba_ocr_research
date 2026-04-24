@@ -1,0 +1,326 @@
+{"pred": "& — i. O boni", "gt": "Ẹ̀KỌ́ KẸFÀ", "cer": 1.2, "wer": 2.5, "der": 1.0}
+{"pred": "i Ben UE", "gt": "ABD OLÓRIN (1)", "cer": 0.8571428571428571, "wer": 1.0, "der": 1.0}
+{"pred": "x Ra -A bD -be Ua -VOU0 Le \"Lu | 7", "gt": "Aa -Ajá Bb -Bàtà Dd -Dòdò Ee -Etí Ẹẹ -Ẹyẹ Gg -Gèlè", "cer": 0.74, "wer": 1.0, "der": 1.0}
+{"pred": "Ẹ Ẹẹ -Ẹyẹ Ff -Fìlà ea ek Sima q", "gt": "Gbgb -Gbohùngbohùn Hh -Háwọ́ Ii -Iṣu Jj -Jagunjagun", "cer": 0.8235294117647058, "wer": 1.125, "der": 1.0}
+{"pred": "M Wh -HAUÔ(C li -I. II A Kk TI 4", "gt": "Kk -Kọ́kọ́rọ́", "cer": 2.230769230769231, "wer": 4.5, "der": 1.0}
+{"pred": ": Fi F W- JE IEEWI Po 5q q", "gt": "Iṣẹ́ Ṣíṣe", "cer": 2.6666666666666665, "wer": 4.5, "der": 1.0}
+{"pred": "ù se Ẹ : ' ge 3", "gt": "Fí ilà so àwòrán tó jẹmọ́ alífábẹ́ẹ̀ti kọ̀ọ̀kan papọ̀", "cer": 0.8679245283018868, "wer": 1.0, "der": 0.9047619047619048}
+{"pred": "ii jí ẸKỌKẸTA /4 AJA", "gt": "Ẹ̀KỌ́ KẸTA", "cer": 1.5, "wer": 2.5, "der": 0.6}
+{"pred": "1 ORIN AKOMONIWA 4", "gt": "ORIN AKỌ́MỌNÍWÀ", "cer": 0.6, "wer": 1.5, "der": 1.0}
+{"pred": "Ni aoa sin kg orin ti oluko ké won ni ilé-@ko. Gg", "gt": "Ọmọ rere ni wá", "cer": 3.0714285714285716, "wer": 2.75, "der": 0.6666666666666666}
+{"pred": ". o 4", "gt": "Ọmọ rere ni wá.", "cer": 0.8666666666666667, "wer": 1.0, "der": 1.0}
+{"pred": "| .....\\ Sl re, II", "gt": "Eeeee.", "cer": 2.8333333333333335, "wer": 5.0, "der": 0.0}
+{"pred": "A Ọmọ rere ni Wá. we mr A ia ee a", "gt": "Ọmọ rere ni wá.", "cer": 1.2666666666666666, "wer": 2.0, "der": 0.0}
+{"pred": "k= 4g.", "gt": "Ọmọ rere ni wá.", "cer": 0.8666666666666667, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Eeeee.", "cer": 1.0, "wer": 1.0, "der": 0.0}
+{"pred": "— 22? y == @", "gt": "Ọmọ rere ni wá.", "cer": 0.8666666666666667, "wer": 1.25, "der": 1.0}
+{"pred": "Boom to |", "gt": "Àwa kì í ṣọmọ òṣì,", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "[Se —————— NNI", "gt": "Ọmọkọ́mọ.", "cer": 1.5555555555555556, "wer": 3.0, "der": 1.0}
+{"pred": "ri a", "gt": "Ọmọ rere ni wá.", "cer": 0.8, "wer": 1.0, "der": 1.0}
+{"pred": "meme tomoiyareloja lṣ", "gt": "Ọmọ tó mọ́ ìyá rẹ̀ lójú", "cer": 0.782608695652174, "wer": 1.0, "der": 0.9090909090909091}
+{"pred": "Ma o se... ‘A", "gt": "Ọmọ tó mọ́ ìyá rẹ̀ lójú o;", "cer": 0.8846153846153846, "wer": 1.0, "der": 1.0}
+{"pred": "i solo o. nore as 0; g", "gt": "Òṣì yóò tọmọ náà pa.", "cer": 1.0, "wer": 1.4, "der": 1.0}
+{"pred": "on yoo ino naa pa, LE", "gt": "Ọmọ tó mọ́ ìyá rẹ̀ lójú o;", "cer": 0.8076923076923077, "wer": 1.0, "der": 1.0}
+{"pred": "B iva to jiya po lori re. ji", "gt": "Òṣì yóò tọmọ náà pa.", "cer": 1.2, "wer": 1.6, "der": 1.0}
+{"pred": "NA eon re. 4", "gt": "Ìyá tó jìyà pọ̀ lórí rẹ.", "cer": 0.875, "wer": 1.0, "der": 1.0}
+{"pred": "—— Use\" A", "gt": "Bàbá tó jìyà pọ̀ lórí rẹ.", "cer": 0.92, "wer": 1.0, "der": 1.0}
+{"pred": "Mo o o Ò ,.", "gt": "Ọmọ tó mọ́ ìyá rẹ̀ lójú o;", "cer": 0.8461538461538461, "wer": 1.0, "der": 0.9090909090909091}
+{"pred": ": aft A", "gt": "Òṣì yóò tọmọ náà pa.", "cer": 0.85, "wer": 1.0, "der": 1.0}
+{"pred": "MEET", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Dáhùn àwọn ìbéèrè wọ̀nyí ní ìbámu pẹ̀lú ìtàn yìí.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "*Kiorkoentiaeseoh? «ee OHORLDAAN", "gt": "1. Ta ni ọ̀rẹ́ Ìjàpá nínú ìtàn yìí? (a) Asín (b) Ọ̀kẹ́rẹ́ (d) Eku", "cer": 0.8923076923076924, "wer": 1.0, "der": 1.0}
+{"pred": "Faa ulubeinrik sen ea", "gt": "2. Kí ni Ìjàpá, Asín àti Ọ̀kẹ́rẹ́ ń tà ní ọjà? (a) àwo (b) ẹja (d) ẹ̀pà", "cer": 0.8873239436619719, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "3. Kí ni orúkọ ẹni tó kọ́kọ́ dé ọjà? (a) Eku (b) Ọ̀kẹ́rẹ́ (d) Asín", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "4. Ta ni Ìjàpá ń kó igi bò? (a) Ajá (b) Asín (d) Ọ̀kẹ́rẹ́", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "5. Ta ni ó gé Ìjàpá nímú jẹ? (a) Asín (b) Ológbò (d) Ọ̀kẹ́rẹ́", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "—", "gt": "6. Ẹ̀kọ́ wo ni o rí kọ́ nínú ìtàn yìí?", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "| si os Yánníbo, 4", "gt": "2. ÌJÀPÁ", "cer": 2.125, "wer": 2.5, "der": 0.6666666666666666}
+{"pred": "on Bòbáròsíwá,", "gt": "Ìjàpá, ọkọ Yánníbo,", "cer": 0.8421052631578947, "wer": 1.0, "der": 0.42857142857142855}
+{"pred": "Agberokalelatitenniie. ll AINI", "gt": "Ọlọ́gbọ́n ẹ̀wẹ́.", "cer": 1.6875, "wer": 1.5, "der": 1.0}
+{"pred": "", "gt": "Bó bá rò sí wá,", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "| ae Fe n |", "gt": "Tó tún rò sẹ́yìn,", "cer": 0.8235294117647058, "wer": 1.25, "der": 1.0}
+{"pred": "", "gt": "A gbérọ́ kalẹ̀ láti tan ni jẹ.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "| Akivesi", "gt": "Ẹ̀yin ọmọdé ẹ gbọ́,", "cer": 0.9473684210526315, "wer": 1.0, "der": 1.0}
+{"pred": "caer on arstonaa", "gt": "Ẹ̀yin ọmọdé ẹ gbà.", "cer": 0.9444444444444444, "wer": 1.0, "der": 1.0}
+{"pred": "fúnra wọn. . | ju", "gt": "Ẹ má ṣe bí Ìjàpá,", "cer": 0.9411764705882353, "wer": 1.0, "der": 0.7142857142857143}
+{"pred": "Kí akẹkọ fi e one kun il ea yìí.", "gt": "Irọ́ kò dára.", "cer": 2.0, "wer": 3.0, "der": 0.5}
+{"pred": "", "gt": "Akíyèsí", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "lò ge", "gt": "1. Kí olùkọ́ ka àwọn àròfọ̀ yìí fún àwọn akẹ́kọ̀ọ́.", "cer": 0.9411764705882353, "wer": 1.0, "der": 0.9523809523809523}
+{"pred": "Bais Ak SSS", "gt": "2. Kí olùkọ́ fún àwọn akẹ́kọ̀ọ́ ní ààyè láti ka àwọn àròfọ̀ náà fúnra wọn.", "cer": 0.9459459459459459, "wer": 1.0, "der": 1.0}
+{"pred": "i O AA AA lo 1", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.4444444444444444, "wer": 3.0, "der": 1.0}
+{"pred": "", "gt": "Kí akẹ́kọ̀ọ́ fi kereyọ́ọ̀nù kun àwọn àwòrán yìí.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "lẹ̀ He. oe - > ITHU OH. T", "gt": "Ife: A máa ń fi ife mu omi.", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "k Akanoha- Pe akAnohe ni a masanro emu SI", "gt": "Akèngbè: Inú akèngbè ni a máa ń rọ ẹmu sí.", "cer": 0.5476190476190477, "wer": 0.9, "der": 1.0}
+{"pred": "f ee RT TIT \"'y fi Oo O j", "gt": "Igi ọ̀pẹ: A máa ń rí epo pupa láti ara igi ọ̀pẹ.", "cer": 0.8125, "wer": 1.0, "der": 1.0}
+{"pred": "‘ lai ope: A maa nri epo pupa [ati ara igi ope", "gt": "Iṣẹ́ Ṣíṣe", "cer": 4.888888888888889, "wer": 6.0, "der": 1.0}
+{"pred": "4 WI IE a ere - . :", "gt": "Ṣe àtúnkọ àwọn lẹ́tà yìí lọ́nà tí yóò fi ní ìtumọ̀.", "cer": 0.8627450980392157, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "ISBN: 978-978-975-408-3", "cer": 1.0, "wer": 1.0, "der": 0.0}
+{"pred": "Ma 4", "gt": "215, Old Abeokuta Motor Road, Agege,", "cer": 0.9166666666666666, "wer": 1.0, "der": 0.0}
+{"pred": "215, Old o n Agege,", "gt": "Lagos State, Nigeria.", "cer": 0.8571428571428571, "wer": 1.6666666666666667, "der": 0.0}
+{"pred": "| ee ei +2347064448670", "gt": "+2347030658903, +2347064448670", "cer": 0.5, "wer": 1.5, "der": 0.0}
+{"pred": "WI\"", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "k", "gt": "Kí ni orúkọ tí à ń pe àwọn àwòrán yìí?", "cer": 0.9736842105263158, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "cr crciretsc i one Gt pir nina oka", "gt": "3. Kí ni ohun tí Ìjàpá ní àwọn yóò dì mọ́ ara bí àwọn bá ti fẹ́ bẹ́ sódò?", "cer": 0.821917808219178, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "5. Dárúkọ méjì nínú ohun tí Ìjàpá àti ọkùnrin afọ́jú náà fi owó tí wọ́n rí ṣe.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "\" pe. r WA |", "gt": "6. Dárúkọ ẹ̀kọ́ méjì tí o rí kọ́ nínú ìtàn yìí.", "cer": 0.8936170212765957, "wer": 1.0, "der": 1.0}
+{"pred": "B se atiinko awon iron yìí: ; —Ô", "gt": "Iṣẹ́ Ṣíṣe", "cer": 3.3333333333333335, "wer": 4.0, "der": 0.8333333333333334}
+{"pred": "n 1. Dúpẹ̀ ra adìyẹ.", "gt": "Ṣe àtúnkọ àwọn gbólóhùn yìí:", "cer": 0.8928571428571429, "wer": 1.0, "der": 0.6363636363636364}
+{"pred": "—— |", "gt": "1. Dúpẹ́ ra adìyẹ.", "cer": 0.9444444444444444, "wer": 1.0, "der": 1.0}
+{"pred": "3. Bádé kí ìyá rẹ̀.", "gt": "2. Adé ní ajá.", "cer": 0.7142857142857143, "wer": 1.25, "der": 1.3333333333333333}
+{"pred": "Wi 4. Titi fd soke. |", "gt": "3. Bádé kí ìyá rẹ̀.", "cer": 0.9473684210526315, "wer": 1.2, "der": 1.0}
+{"pred": "al BO :", "gt": "4. Títí fò sókè.", "cer": 0.875, "wer": 1.0, "der": 1.0}
+{"pred": "i | @|\\f, ea l i", "gt": "5. Bàbá wọ aṣọ.", "cer": 0.9333333333333333, "wer": 1.5, "der": 1.0}
+{"pred": "4 Bisi | v x v i", "gt": "Ọsàn Ọ̀gẹ̀dẹ̀ Àgbọn", "cer": 0.8947368421052632, "wer": 2.3333333333333335, "der": 1.0}
+{"pred": "", "gt": "Ẹ̀KỌ́ KARÙNDÍNLỌ́GBỌ̀N", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "re i o Any n ki ee el", "gt": "2. Ta ni èyí? (a) Bàbá Bísí (b) Ìyá Níní", "cer": 0.8, "wer": 1.0, "der": 1.0}
+{"pred": "A", "gt": "3. Ta ni èyí? (a) Ọ̀rẹ́ Bísí (b) Ìyá ẹlẹ́pà", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "4. ft Ta ni éyi? (a) Oré Bisi (b) lya elépa", "gt": "4. Ta ló fún Níní lówó? (a) ìyá (b) olùkọ́", "cer": 0.7619047619047619, "wer": 0.9, "der": 0.7272727272727273}
+{"pred": "6. Elo ni wọn fún Nin? (a) náira mẹta (o) náirà mẹwàá", "gt": "5. Èló ni wọ́n fún Níní? (a) náírà mẹ́fà (b) náírà mẹ́wàá", "cer": 0.24561403508771928, "wer": 0.75, "der": 0.55}
+{"pred": "Reet", "gt": "6. Èló ni Níní ná nínú owó náà? (a) náírà márùn-ún (b) náírà mẹ́rin", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "7. Kí ni Níní fi owó náà rà? (a) gúgúrú (b) ẹ̀pà", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "8. Kí ló fi owó tó kù ṣe? (a) ó tọ́jú rẹ̀ (b) ó sọ ọ́ nù", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "—— 2 i o AO LARI | ri A a ei Age edboersse ru. yi sp", "gt": "Àkíyèsí: Kí olùkọ́ bèèrè ìdáhùn àlọ́ náà lọ́wọ́ àwọn akẹ́kọ̀ọ́.", "cer": 0.8571428571428571, "wer": 1.6, "der": 1.0}
+{"pred": "Ṣe àtúnkọ gbòlòhùn Me) yìí. 1", "gt": "Iṣẹ́ Ṣíṣe", "cer": 3.0, "wer": 3.0, "der": 1.0}
+{"pred": "Baba -N", "gt": "Ṣe àtúnkọ gbólóhùn ìsàlẹ̀ yìí.", "cer": 0.9333333333333333, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Bàbá pa àlọ́.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "eee\" yìí pẹ̀lú Bée ni tabi Bée k6 ni ibamu", "gt": "Dáhùn àwọn gbólóhùn yìí pẹ̀lú Bẹ́ẹ̀ ni tàbí Bẹ́ẹ̀ kọ́ ní ìbámu pẹ̀lú ẹ̀kọ́ yìí.", "cer": 0.6455696202531646, "wer": 0.8, "der": 0.8055555555555556}
+{"pred": "", "gt": "Bí àpẹẹrẹ:", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Gbólóhùn Bẹ́ẹ̀ ni Bẹ́ẹ̀ kọ́", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "aa O 7 —", "gt": "Gbólóhùn Bẹ́ẹ̀ ni Bẹ́ẹ̀ kọ́", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "1. A kò gbọdọ̀ máa tu itọ́ sílẹ̀.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "2. A lè fi ọwọ́ lásán kó ẹyin pẹ́pẹ́yẹ tó ti sàba lé.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "3. A kò gbọdọ̀ máa tẹ ẹni tàbí ibùsùn mọ́lẹ̀.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "| o", "gt": "4. Ó dára láti tẹ ọmọ inú ìbẹ́pẹ mọ́lẹ̀.", "cer": 0.975, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "5. A kò gbọdọ̀ fi ọwọ́ tí a fi bẹ iṣu pa ènìyàn lára.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "es Pecans hick Aco Omo 3", "gt": "Ṣe àtúntò àwọn ọ̀rọ̀ yìí ní ìbámu pẹ̀lú bí ó ṣe yẹ kí wọ́n jẹyọ nínú alífábẹ́ẹ̀tì Yorùbá.", "cer": 0.9101123595505618, "wer": 1.0, "der": 1.0}
+{"pred": "hs we | owe Om 3", "gt": "Bí àpẹẹrẹ:", "cer": 1.5, "wer": 3.0, "der": 1.0}
+{"pred": "| 1. lya Egbon Baba Àbúrò 5", "gt": "Owó Ìwé Aṣọ Ọmọ", "cer": 1.6, "wer": 1.75, "der": 0.7142857142857143}
+{"pred": "ee mọ GE", "gt": "Aṣọ Ìwé Owó Ọmọ", "cer": 0.8666666666666667, "wer": 1.0, "der": 0.8571428571428571}
+{"pred": "eee GE", "gt": "1. Ìyá Ẹ̀gbọ́n Bàbá Àbúrò", "cer": 0.96, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "2. Fèrèsé Ilẹ̀kùn Kọ́kọ́rọ́ Pẹpẹ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "3. Bùbá Sọ́rọ́ Gbárìyẹ̀ Ọ̀yàlà", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "i", "gt": "4. Àga Ibùsùn Kọ́ńbọ́ọ̀dù Fáànù", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "5. Ọwọ́ Ẹsẹ̀ Orúnkún Èjìká", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "i ALTICAA crs . F }", "gt": "Ẹ̀KỌ́ KẸRÌNLÁ", "cer": 1.3846153846153846, "wer": 3.0, "der": 1.0}
+{"pred": "i ee", "gt": "ÌTÀN AKỌNI ILẸ̀ YORÙBÁ (1)", "cer": 0.9615384615384616, "wer": 1.0, "der": 1.0}
+{"pred": "WO (EKO KOKANLELOGUN))", "gt": "Ẹ̀KỌ́ KỌKÀNLÉLÓGÚN", "cer": 0.7777777777777778, "wer": 1.5, "der": 1.0}
+{"pred": "", "gt": "ÈÈWỌ̀ TÓ JẸMỌ́ ÀÌSÀN", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "ji isartawọ Fo eee ae OO mae eee wee we DYES PON CARINE FTE CRANE AEN", "gt": "Èèwọ̀ Ohun tí yóò ṣẹlẹ̀ sí ẹni tó bá dẹ́jàá", "cer": 1.3488372093023255, "wer": 1.6, "der": 0.9473684210526315}
+{"pred": "oil . Ẹẹ̀wẹ | Ohun ti ie ẹni tò", "gt": "1. Ènìyàn kò gbọdọ̀ jẹ irun ológbò. Ẹni tó bá jẹ irun ológbò yóò ní ikọ́ọfe.", "cer": 0.8026315789473685, "wer": 1.0, "der": 0.7272727272727273}
+{"pred": "Ee . ee irun paa A je irun oldgbd yoo ni", "gt": "2. A kò gbọdọ̀ fi ọwọ́ lásán kó ẹyin Ẹni tó bá fi ọwọ́ lásán kó ẹyin pẹ́pẹ́yẹ", "cer": 0.8181818181818182, "wer": 1.0, "der": 1.0}
+{"pred": "NANI LLA AUG", "gt": "pẹ́pẹ́yẹ tó ti sàba lé. yóò di adẹ́tẹ̀.", "cer": 0.9487179487179487, "wer": 1.0, "der": 1.0}
+{"pred": "NIA HU Ye) Ọm |", "gt": "3. A kò gbọdọ̀ máa tu itọ́ sílẹ̀. Ẹni bá tu itọ́ sílẹ̀, tí ẹlòmíràn fi tẹ̀ ẹ́", "cer": 0.922077922077922, "wer": 1.0, "der": 0.9615384615384616}
+{"pred": "g A kò gbọdò máa tẹ ẹní tàbí EERI ki nì sùn sí orí", "gt": "mọ́lẹ̀, ọ̀nà-ọ̀fun yóò máa dùn ún.", "cer": 1.2352941176470589, "wer": 2.1666666666666665, "der": 0.5}
+{"pred": "", "gt": "4. A kò gbọdọ̀ máa tẹ ẹní tàbí Ara á máa ro ẹni tó ń sùn sí orí ẹní", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "| 4 Reiss ọmọ ra sa ẹ̀ mẹọlẹ̀, yòò ya arọ.", "gt": "ibùsùn mọ́lẹ̀. tàbí ibùsùn náà.", "cer": 1.096774193548387, "wer": 2.2, "der": 0.6666666666666666}
+{"pred": "i inu ibepe mole.", "gt": "5. A kò gbọdọ̀ fi ọwọ́ tí a fi bẹ iṣu Ara á máa yún ẹni tí a fi ọwọ́ iṣu pa lára.", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "_— |", "gt": "pa ènìyàn lára.", "cer": 0.9333333333333333, "wer": 1.0, "der": 1.0}
+{"pred": "WO o ‘way -", "gt": "6. Èèyàn kò gbọ́dọ̀ tẹ ọmọ inú ìbẹ́pẹ Ẹni tó bá tẹ̀ ẹ́ mọ́lẹ̀, yóò ya arọ.", "cer": 0.9459459459459459, "wer": 1.0, "der": 1.0}
+{"pred": "Wo Mo TAN", "gt": "mọ́lẹ̀.", "cer": 1.2857142857142858, "wer": 3.0, "der": 1.0}
+{"pred": "4 ; iITOKA AKOONI! t vi NNI", "gt": "ÌTỌ́KA ÀKÓÓNÚ", "cer": 1.6923076923076923, "wer": 3.5, "der": 1.0}
+{"pred": "y a “~~", "gt": "Ẹ̀kọ́ 1: Alífábẹ́ẹ̀tì èdè Yorùbá 1-2", "cer": 0.9444444444444444, "wer": 1.0, "der": 1.0}
+{"pred": "2 WN", "gt": "Ẹ̀kọ́ 2: Kíkà àti kíkọ gbólóhùn kéékèèké 3-5", "cer": 0.9545454545454546, "wer": 1.0, "der": 1.0}
+{"pred": "a 3-5 |", "gt": "Ẹ̀kọ́ 3: Orin Akọ́mọníwà 6-7", "cer": 0.8928571428571429, "wer": 1.0, "der": 1.0}
+{"pred": "67 IA", "gt": "Ẹ̀kọ́ 4: Àkàyé: Labalábá 8-9", "cer": 0.9642857142857143, "wer": 1.0, "der": 1.0}
+{"pred": "HU EKO 4: Akayé: Labalaba Sa", "gt": "Ẹ̀kọ́ 5: Oríṣìí Orúkọ Yorùbá (1) 10-11", "cer": 0.868421052631579, "wer": 1.0, "der": 0.9166666666666666}
+{"pred": "Bey KOS: Orisii Oru o. ỌNA", "gt": "Ẹ̀kọ́ 6: Oríṣìí Orúkọ Yorùbá (2) 12-13", "cer": 0.7368421052631579, "wer": 1.0, "der": 0.9166666666666666}
+{"pred": "Oo doola LA NI 4", "gt": "Ẹ̀kọ́ 7: Òwe Yorùbá 14-15", "cer": 0.84, "wer": 1.0, "der": 1.0}
+{"pred": "Ie osole BA 46-17 ie", "gt": "Ẹ̀kọ́ 8: Rere ló pé 16-17", "cer": 0.8, "wer": 1.0, "der": 1.0}
+{"pred": "Me 259: Alo Apamo 18.20 AA", "gt": "Ẹ̀kọ́ 9: Àlọ́ àpamọ̀ 18-20", "cer": 0.6153846153846154, "wer": 1.2, "der": 1.0}
+{"pred": "IN oko o: Ìtàn Ìjàpá, Asín ati Òkéré 2123.", "gt": "Ẹ̀kọ́ 10: Ìtàn Ìjàpá, Asín àti Ọ̀kẹ́rẹ́ 21-23", "cer": 0.37777777777777777, "wer": 0.75, "der": 0.47058823529411764}
+{"pred": "WE EKO 11: Eéwo Akonilégbon 2426. NIN", "gt": "Ẹ̀kọ́ 11: Èèwọ̀ Akọ́nilọ́gbọ́n 24-26", "cer": 0.6111111111111112, "wer": 1.2, "der": 0.8571428571428571}
+{"pred": "HA EKO 12: Arofo Akonilogbon 2826... NIN", "gt": "Ẹ̀kọ́ 12: Àròfọ̀ Akọ́nilọ́gbọ́n 27-28", "cer": 0.7027027027027027, "wer": 1.2, "der": 1.0}
+{"pred": "ES abate neal o A NNI", "gt": "Ẹ̀kọ́ 13: Oúnjẹ ilẹ̀ Yorùbá 29-30", "cer": 0.8181818181818182, "wer": 1.0, "der": 1.0}
+{"pred": "WA Oo sa gbo\" Se NN", "gt": "Ẹ̀kọ́ 14: Àkàyé: Ẹ̀bùn pa ẹja 31-32", "cer": 0.8285714285714286, "wer": 1.0, "der": 1.0}
+{"pred": "i Eô 46: n Awe nile Yoruba: Aso Obinrin i i 36.37 fa", "gt": "Ẹ̀kọ́ 15: Ònkà 41 – 60 33-35", "cer": 1.5357142857142858, "wer": 1.8571428571428572, "der": 1.0}
+{"pred": "MN =k6 17: ijapa ko Ogbon Ayé tán 33-39", "gt": "Ẹ̀kọ́ 16: Aṣọ Wíwọ̀ nílẹ̀ Yorùbá: Aṣọ Obìnrin 36-37", "cer": 0.7254901960784313, "wer": 1.0, "der": 0.8823529411764706}
+{"pred": "", "gt": "Ẹ̀kọ́ 17: Ìjàpá kó ọgbọ́n ayé tán 38-39", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "fee KO 19: Ona Ibara-eni-soro — 42-43 WU", "gt": "Ẹ̀kọ́ 18: Inúnibíni 40-41", "cer": 1.12, "wer": 2.0, "der": 1.0}
+{"pred": "Rode be Dade ae", "gt": "Ẹ̀kọ́ 19: Ọ̀nà Ìbára-ẹni-sọ̀rọ̀ 42-43", "cer": 0.8918918918918919, "wer": 1.0, "der": 1.0}
+{"pred": "ee Se", "gt": "Ẹ̀kọ́ 20: Àkàyé: Fìlà Bádé 44-45", "cer": 0.96875, "wer": 1.0, "der": 1.0}
+{"pred": "Ee ee O sun ỌNA", "gt": "Ẹ̀kọ́ 21: Ìtọ́jú Ara 46-48", "cer": 0.8461538461538461, "wer": 1.0, "der": 0.875}
+{"pred": "BE 2k6 24: Orukọ Oṣù nínú Ọdún 8355. UNA", "gt": "Ẹ̀kọ́ 22: Sílébù Èdè Yorùbá 49-50", "cer": 1.0, "wer": 1.5, "der": 0.5454545454545454}
+{"pred": "Me kG 25: Aago i 56-59 NN", "gt": "Ẹ̀kọ́ 23: Àkàyé: Ewúrẹ́ Olú 51-52", "cer": 0.7878787878787878, "wer": 1.1666666666666667, "der": 1.0}
+{"pred": "oe Ek6 26: Akayé: Jidé Jagunjagun wig 60-61 NA", "gt": "Ẹ̀kọ́ 24: Orúkọ oṣù nínú ọdún 53-55", "cer": 1.0571428571428572, "wer": 1.2857142857142858, "der": 0.8333333333333334}
+{"pred": "NIA. &K9 27: Igi Ope 06263 JÌ", "gt": "Ẹ̀kọ́ 25: Aago 56-59", "cer": 1.15, "wer": 1.75, "der": 0.75}
+{"pred": "NI KO 28: Akaye: Kola Kunlekunl 64-66 WIN", "gt": "Ẹ̀kọ́ 26: Àkàyé: Jídé Jagunjagun 60-61", "cer": 0.6842105263157895, "wer": 1.3333333333333333, "der": 1.0}
+{"pred": "O A A A AA AW 22Ṣ2—2Ṣ O Ọ2Ọ2", "gt": "Ẹ̀kọ́ 27: Igi Ọ̀pẹ 62-63", "cer": 1.0416666666666667, "wer": 1.8, "der": 0.42857142857142855}
+{"pred": "pe, GAY 2U. Poayal! Vill ull AWOL! AKOGAOOD 10 A", "gt": "Ẹ̀kọ́ 28: Àkàyé: Kọ́lá Kunlékunlé 64-66", "cer": 1.0256410256410255, "wer": 1.6666666666666667, "der": 1.0}
+{"pred": "OE Eee .N", "gt": "Ẹ̀kọ́ 29: Orúkọ Ẹyẹ 67-69", "cer": 0.88, "wer": 1.0, "der": 1.0}
+{"pred": "ESS” Ol nni", "gt": "Ẹ̀kọ́ 30: Àṣàyàn orin fún àwọn akẹ́kọ̀ọ́ 70", "cer": 0.9069767441860465, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ẹkùn mẹ́ran 12", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Lílé: Ẹkùn mẹ́ran", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ègbè: Mẹ́ẹ̀!", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Lílé: Ó torí bọgbó", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "|", "gt": "Ègbè: Mẹ́ẹ̀!", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "Egbò: Ìrù ẹkùn le.\"", "gt": "Lílé: Ó tọrùn bọgbà", "cer": 0.7894736842105263, "wer": 1.0, "der": 0.5714285714285714}
+{"pred": "", "gt": "Ègbè: Mẹ́ẹ̀!", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "TI G WỌN GRẸRỌMV NI RET UYVẸVYUTU RÚUH awọ awOQrar yi", "gt": "Lílé: Ó fẹ́ mu o", "cer": 3.0625, "wer": 2.2, "der": 0.8}
+{"pred": "| Mi EE", "gt": "Ègbè: Mẹ́ẹ̀!", "cer": 0.8333333333333334, "wer": 1.5, "der": 1.0}
+{"pred": "", "gt": "Lílé: Kò mà lè mu o.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ègbè: Mẹ́ẹ̀!", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "k bo a ell", "gt": "Lílé: Ojú ẹkùn pọ́n", "cer": 0.8421052631578947, "wer": 1.0, "der": 1.0}
+{"pred": "i Sees", "gt": "Ègbè: Ìrù ẹkùn le.", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "Wo -", "gt": "Iṣẹ́ Ṣíṣe", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Kí àwọn akẹ́kọ̀ọ́ fi kereyọ́ọ̀nù kun awọn àwòrán yìí", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "ae A a ae iii '", "gt": "Ẹ̀KỌ́ ỌGBỌ̀N", "cer": 1.1666666666666667, "wer": 3.0, "der": 1.0}
+{"pred": "ie me. ce eae aan", "gt": "ÀṢÀYÀN ORIN FÚN ÀWỌN AKẸ́KỌ̀Ọ́", "cer": 0.8666666666666667, "wer": 1.0, "der": 1.0}
+{"pred": "———,", "gt": "1. Bí a bá ń sọdá ní ojú títì,", "cer": 0.9666666666666667, "wer": 1.0, "der": 1.0}
+{"pred": "ae — O nrò ni |", "gt": "Ka wọ̀tún wòsì,", "cer": 0.9333333333333333, "wer": 2.0, "der": 0.8}
+{"pred": "Eniti motd ba pa l6ja tit. |", "gt": "Káa tó sọdá.", "cer": 2.0, "wer": 2.3333333333333335, "der": 1.0}
+{"pred": "929 Tisà mo de.", "gt": "Ó tọ́ ka mọ̀ pékú oró ni,", "cer": 0.84, "wer": 1.0, "der": 0.875}
+{"pred": "ia Talo wá nìkan jẹ.", "gt": "Ẹni tí mọ́tò bá pa lójú títì.", "cer": 0.7586206896551724, "wer": 1.0, "der": 0.8}
+{"pred": "eee,", "gt": "2. Tíṣà mo dé,", "cer": 0.9285714285714286, "wer": 1.0, "der": 1.0}
+{"pred": "Aduke,Alaké,", "gt": "Mo fẹ́ lọ wá nnkan jẹ.", "cer": 0.9090909090909091, "wer": 1.0, "der": 0.8}
+{"pred": "Omo oniresi ti dé.", "gt": "Ọmọ onírẹsì ti dé,", "cer": 0.3333333333333333, "wer": 0.75, "der": 0.8333333333333334}
+{"pred": "3. Awa nig siiléwa, —", "gt": "Ọbẹ̀ ìrẹsì ń ta sánsán,", "cer": 0.9130434782608695, "wer": 1.0, "der": 0.8888888888888888}
+{"pred": "canara", "gt": "Àdùkẹ́, Àlàkẹ́,", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "KOlorun ko so wa.", "gt": "Ọmọ onírẹsì ti dé.", "cer": 0.7777777777777778, "wer": 1.0, "der": 1.0}
+{"pred": "ko MUU A AM US SU WAO, GO Roo sa WOO A n A A NN an", "gt": "3. Àwa ń lọ sí ilé wa,", "cer": 1.9090909090909092, "wer": 2.4285714285714284, "der": 1.0}
+{"pred": "Akiyesi: Ki OlIUKỌ dari awọn aKẹkọọ lati KỌ orin naa.", "gt": "Ká má pàdé àgbákò.", "cer": 2.611111111111111, "wer": 2.5, "der": 1.0}
+{"pred": "", "gt": "Ká délé wa ò láyọ̀.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "KỌ́lọ́run kó ṣọ́ wa.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "BR", "gt": "Àkíyèsí: Kí olùkọ́ darí àwọn akẹ́kọ̀ọ́ láti kọ orin náà.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ẹ̀KỌ́ KỌKÀNDÍNLÓGÚN", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "|", "gt": "Ọ̀NÀ ÌBÁRA-ẸNI-SỌ̀RỌ̀", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "1. Lílo ẹ̀yà ara: Àwọn ẹ̀yà ara tí a lè fi bá ara wa sọ̀rọ̀ ni: ẹnu, ọwọ́, èjìká, ojú, orí, abbl.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "AM", "gt": "Gángan", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Kọ̀mpútà", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Fóònù alágbèéká", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "L ònù alágbòéká Iná adékòdúrò-lôjú-pòpò j", "gt": "Iná adọ́kọ̀dúró-lójú-pópó", "cer": 1.04, "wer": 2.5, "der": 0.7272727272727273}
+{"pred": "——", "gt": "Ẹ̀KỌ́ KEJÌ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "\\ AA", "gt": "KÍKÀ ÀTI KÍKỌ GBÓLÓHÙN KÉÉKÈÈKÉ", "cer": 0.967741935483871, "wer": 1.0, "der": 1.0}
+{"pred": "Baba gun igi | Adé fo ~_", "gt": "1. Bàbá gun igi.", "cer": 1.0625, "wer": 1.75, "der": 0.5}
+{"pred": "— sa", "gt": "2. Adé fọ ẹnu rẹ̀.", "cer": 0.9444444444444444, "wer": 1.0, "der": 1.0}
+{"pred": "Ajidé gba ile mi | |", "gt": "3. Àjídé gbá ilẹ̀.", "cer": 0.7777777777777778, "wer": 1.5, "der": 0.8333333333333334}
+{"pred": "t.. Sô. —", "gt": "4. Jídé ta ọfà.", "cer": 0.8666666666666667, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "5. Àwọn ọmọdé ń gbá bọ́ọ̀lù.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "= ae nea", "gt": "6. Ìyá ru ẹrù.", "cer": 0.8571428571428571, "wer": 1.0, "der": 1.0}
+{"pred": "3 n |", "gt": "ÌTỌ́SỌ́NÀ FÚN OLÙKỌ́", "cer": 0.9, "wer": 1.0, "der": 1.0}
+{"pred": "Dahun awon ibééré we ní padi; - ìtàn yìí.", "gt": "Iṣẹ́ Ṣíṣẹ", "cer": 4.333333333333333, "wer": 4.5, "der": 1.0}
+{"pred": "4. Tani ote kò gbogbo ọgbọn ayé nind itan yil? (a) bin ẹ)Aa JN", "gt": "Dáhùn àwọn ìbéèrè wọ̀nyí ní ìbámu pẹ̀lú ìtàn yìí.", "cer": 1.0, "wer": 1.5555555555555556, "der": 0.7619047619047619}
+{"pred": "iz Niboniiljàpá ko awon ogbon naa si? (a) ind abo (b) ind e A", "gt": "1. Ta ni ó fẹ́ kó gbogbo ọgbọ́n ayé nínú ìtàn yìí? (a) Ìgbín (b) Ajá (d) Ìjàpá", "cer": 0.6923076923076923, "wer": 0.9444444444444444, "der": 0.9}
+{"pred": "3. nit W ja lògbòn tô fi rí igináà gùn? (a) Ìgbín owa ỌN", "gt": "2. Níbo ni Ìjàpá kó àwọn ọgbọ́n náà sí? (a) inú abọ́ (b) inú agbè (d) inú àwo", "cer": 0.7142857142857143, "wer": 1.0, "der": 0.65}
+{"pred": "4. Ìjàpá fé gbé agbé ogbon si? (a) ilé (b) igi oja O", "gt": "3. Ta ni ó kọ́ Ìjàpá lọ́gbọ́n tó fi rí igi náà gùn? (a) Ìgbín (b) Ajá (d) Ọ̀bọ", "cer": 0.6410256410256411, "wer": 0.8421052631578947, "der": 0.6666666666666666}
+{"pred": "L K ( ) ỌDỌ ayéjọ? L", "gt": "4. Orí ibo ni Ìjàpá fẹ́ gbé agbè ọgbọ́n sí? (a) ilé (b) igi (d) àpáta", "cer": 0.8695652173913043, "wer": 1.0, "der": 0.8}
+{"pred": "", "gt": "5. Dárúkọ orígun mẹ́rin àgbáyé tí Ìjàpá ti kó ọgbọ́n ayé jọ?", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "i. s", "gt": "6. Dárúkọ ẹ̀dá ìtàn méjì tó jẹyọ nínú ìtàn yìí.", "cer": 0.9574468085106383, "wer": 1.0, "der": 1.0}
+{"pred": "bi", "gt": "7. Kọ ẹ̀kọ́ méjì tí o rí kọ́ nínú ìtàn náà.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "a", "gt": "Kọ orúkọ àwọn ohun ọ̀sìn yìí", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "ÀTẸ TÓ Ń ṢE ÀFIHÀN ORÚKỌ ỌJỌ́ NÍ ÈDÈ YORÙBÁ ÀTI GẸ̀Ẹ́SÌ PẸ̀LÚ ÒRÌṢÀ TÍ WỌ́N Ń BỌ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "MI ULO UUO a |", "gt": "Ọjọ́ Yorùbá Òrìṣà tí àwọn Yorùbá ń bọ Ọjọ́ Gẹ̀ẹ́sì Òrìṣà tí àwọn Róòmù ń", "cer": 0.9444444444444444, "wer": 1.0, "der": 1.0}
+{"pred": "i — Ciindayv Sona", "gt": "1. Ọjọ́ Àìkú Ọbàtálá/Òrìṣàálá Sunday Oòrùn (Sun)", "cer": 0.8125, "wer": 1.0, "der": 1.0}
+{"pred": "| ——- — — — —", "gt": "2. Ọjọ́ Ajé Òrìṣà-oko Monday Òṣùpá (Moon)", "cer": 0.8780487804878049, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "3. Ọjọ́ Ìṣẹ́gun Ògún Tuesday Tiu", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "A O | e Wednesday} Wodin", "gt": "4. Ọjọ́ Rú Ifá Wednesday Wodin", "cer": 0.4, "wer": 0.8333333333333334, "der": 1.0}
+{"pred": "EP NI UN", "gt": "5. Ọjọ́ Bọ̀ Ṣàngó Thursday Àrá (Thor)", "cer": 0.9459459459459459, "wer": 1.0, "der": 1.0}
+{"pred": ". NL NU", "gt": "6. Ọjọ́ Ẹtì Yemọja Friday Freya", "cer": 0.9032258064516129, "wer": 1.0, "der": 1.0}
+{"pred": "i o Est Saturday A i", "gt": "7. Ọjọ́ Àbámẹ́ta Èṣù Saturday Sátọ́ọ̀nù (Saturn)", "cer": 0.7083333333333334, "wer": 0.8571428571428571, "der": 1.0}
+{"pred": "", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "C pala, jp mellow nínú òsẹ̀ Yorùbá? (a) mẹta", "gt": "1. Ní ìgbà láéláé, ọjọ́ mélòó ló wà nínú ọ̀sẹ̀ Yorùbá? (a) mẹ́ta (b) mẹ́rin (d) méjì (e) mẹ́wàá", "cer": 0.6210526315789474, "wer": 0.8421052631578947, "der": 0.7575757575757576}
+{"pred": "| ic ren’ fì bọ Orisa Titi? (a) ag ii oa", "gt": "4. Ọjọ́ wo ni àwọn Róòmù ń bọ òrìṣà Tíù? (a) Túsìdeè (b) Tọ́sìdeè (d) Mọ́ńdè (e) Sátidé", "cer": 0.7931034482758621, "wer": 0.8888888888888888, "der": 0.9310344827586207}
+{"pred": "oe. fi bọ lẹjọ Tẹsìdeé? (a) Owò (b) Ará (d) Okuta", "gt": "5. Kí ni àwọn Róòmù ń bọ lọ́jọ́ Tọ́sìdeè? (a) Owó (b) Àrá (d) Òkúta (e) Yemọja", "cer": 0.5128205128205128, "wer": 0.7647058823529411, "der": 0.6363636363636364}
+{"pred": "'AE- 7", "gt": "ÀKÍYÈSÍ", "cer": 1.0, "wer": 2.0, "der": 1.0}
+{"pred": "IM OỌṢỌṢṢoúòoou (54", "gt": "Orin ònkà ọjọ́ nínú oṣù", "cer": 0.9130434782608695, "wer": 1.0, "der": 0.5555555555555556}
+{"pred": "_ Reeth mn Ath tA wa Ain? Aer) =", "gt": "Àwọn yòókù lékan lọ́gbọ̀n ọjọ́.", "cer": 0.967741935483871, "wer": 1.8, "der": 1.0}
+{"pred": "BE Ogbon oj6 1 be nin ost: Owewe, ke", "gt": "Àròfọ̀ lórí iye ọjọ́ tó wà nínú oṣù", "cer": 0.9142857142857143, "wer": 1.125, "der": 1.0}
+{"pred": "Seale a ELO >", "gt": "Ọgbọ̀n ọjọ́ ní ń bẹ nínú oṣù Ọ̀wẹwẹ̀,", "cer": 0.918918918918919, "wer": 1.0, "der": 1.0}
+{"pred": "Me AyafiosuErele, a", "gt": "Igbe, Okúdù, àti Bélú.", "cer": 0.9090909090909091, "wer": 1.0, "der": 1.0}
+{"pred": "Ms obodinkan. ee", "gt": "Oṣù yòókù jẹ́ ọgbọ̀n ọjọ́ ó lé kan.", "cer": 0.9142857142857143, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Àyàfi oṣù Èrèlé,", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "SB Se I ee ORA", "gt": "Tí ó jẹ́, ọgbọ̀n ọjọ́ ó dín méjì,", "cer": 0.8787878787878788, "wer": 1.0, "der": 1.0}
+{"pred": "34 In nini a ae nii wi o O i \"AA", "gt": "Tàbí ọgbọ̀n ọjọ́ ó dín kan.", "cer": 1.0, "wer": 1.8333333333333333, "der": 1.0}
+{"pred": "q aoe bs a a ee 4 Oe ee le a 25 26 27 28 29 30 =", "gt": "ṢẸRẸ", "cer": 12.0, "wer": 18.0, "der": 1.0}
+{"pred": "", "gt": "ÈRÈLÉ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "- I'o abanienlls e ro ori ajo o o n NI ? o\"", "gt": "ẸRẸ́NÀ", "cer": 7.0, "wer": 13.0, "der": 1.0}
+{"pred": "to Je : . i P E \"li n \" 2 a 24 ay 2 yin eae =", "gt": "IGBE", "cer": 11.0, "wer": 18.0, "der": 0.0}
+{"pred": "4 = — a oe ae", "gt": "ÈBÌBÍ", "cer": 2.6, "wer": 6.0, "der": 1.0}
+{"pred": "", "gt": "OKÚDÙ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "AGẸMỌ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "F 28 29 30 31 25 26 27 28 29 30 31 ||29 30 'W", "gt": "ÒGÚN", "cer": 11.25, "wer": 15.0, "der": 1.0}
+{"pred": "", "gt": "Ọ̀WẸWẸ̀", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ọ̀WÀRÀ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": ",, ar ab oo ao ot ||ze 25 26 8r IBE fo tojjda 99 BI Ni", "gt": "BÉLÚ", "cer": 13.25, "wer": 16.0, "der": 1.0}
+{"pred": "", "gt": "ỌPẸ́", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ẹ̀KỌ́ KẸJỌ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "— a", "gt": "ORÍKÌ ÌLÚ (1)", "cer": 0.9230769230769231, "wer": 1.0, "der": 1.0}
+{"pred": "— wmaratach is a's /AA", "gt": "Oríkì Ọ̀yọ́", "cer": 1.8181818181818181, "wer": 2.5, "der": 1.0}
+{"pred": ". Bee Yorba féran ea Bs EFE won lòpòlopò. Kò si RIKO A", "gt": "Ọ̀yọ́ ọmọ Aláàfin;", "cer": 2.7777777777777777, "wer": 4.333333333333333, "der": 0.75}
+{"pred": "NI On kò ni oriki fin, won maa A ki eye, igi, ẹranko, iná, omi, ati bee |", "gt": "Òjò pa ṣẹ̀kẹ̀rẹ̀ ma dẹ̀ ọmọ Àtìbà.", "cer": 1.7352941176470589, "wer": 2.5714285714285716, "der": 0.875}
+{"pred": "Mp??? i", "gt": "Ọmọ Ò-kólówó pé kó gbowó;", "cer": 0.92, "wer": 1.0, "der": 1.0}
+{"pred": "—— -— IA  U  AM?YYVTGUIJỌLJUTIUIGGUTHUẸṢÁÀÁUUJU", "gt": "Ò-kọ́wọ̀fà pé kó fọfàá lẹ̀.", "cer": 1.6666666666666667, "wer": 1.0, "der": 0.6153846153846154}
+{"pred": "me OrikiOyo |", "gt": "Àṣé kó lè ba à dìjà,", "cer": 0.9, "wer": 1.0, "der": 1.0}
+{"pred": "WUU O ahomo Atiba.", "gt": "Àṣé kó lè ba à daápọn ni?", "cer": 0.88, "wer": 1.0, "der": 1.0}
+{"pred": "BE OmoO-kolows pé ko ghowo; |", "gt": "Kọ́mọ ọba Ládéyẹrí le rí nǹkan ṣè jẹ.", "cer": 0.8648648648648649, "wer": 1.0, "der": 0.9230769230769231}
+{"pred": "HA O Sòwòfà pékò fofaale.", "gt": "Ọmọ ládé làdè ládé;", "cer": 1.1578947368421053, "wer": 1.25, "der": 0.625}
+{"pred": "ib 5 dadoon ni? |", "gt": "Aláàfin ò ládé.", "cer": 1.0666666666666667, "wer": 1.6666666666666667, "der": 1.0}
+{"pred": "fm Komo oba Ladéyerile ri niikan sé je. |", "gt": "Adé Aládìkún là á dì fÁláàfin.", "cer": 1.1666666666666667, "wer": 1.5, "der": 0.8}
+{"pred": "ee ce face;", "gt": "Ọ̀yọ́ ladé wà, a ò kówó radé.", "cer": 0.896551724137931, "wer": 1.0, "der": 1.0}
+{"pred": "BD AdéAladikin la adi fAlaafin.", "gt": "Ajíṣe bí Ọ̀yọ́ là á rí;", "cer": 1.173913043478261, "wer": 1.0, "der": 0.9}
+{"pred": "NỌ, Oydladé wa, ao kowo rade.", "gt": "Ọ̀yọ́ ò ṣe bí i baba ẹnì kọ̀ọ̀kan.", "cer": 0.7941176470588235, "wer": 1.0, "der": 0.8461538461538461}
+{"pred": "Be  aanan,", "gt": "Pínníṣín lọmọ erin ti í jogún ọlá;", "cer": 0.8823529411764706, "wer": 1.0, "der": 1.0}
+{"pred": "FF Pínníṣín lọmọ erin ti jogún ọlá;", "gt": "Lerín ti ń fapá ọlá yagi.", "cer": 1.16, "wer": 1.1666666666666667, "der": 0.8}
+{"pred": "fe Lerintinfapaola yagi.", "gt": "Ọ̀yọ́ ló ni ká rìn ká ṣánpá;", "cer": 0.9285714285714286, "wer": 1.0, "der": 1.0}
+{"pred": "Bs iis ans aavan,", "gt": "Ọ̀yọ́ ló ni ká rìn kó yẹ̀ẹ̀yàn.", "cer": 0.8064516129032258, "wer": 1.0, "der": 1.0}
+{"pred": "Mm Moyikadotin,", "gt": "Mo yíkàá ọ̀tún;", "cer": 0.7333333333333333, "wer": 1.0, "der": 1.0}
+{"pred": "NII fédòs;", "gt": "Mo yíkàá òsì;", "cer": 0.7692307692307693, "wer": 1.0, "der": 0.6}
+{"pred": "BE Moforibala fAlaatin.", "gt": "Mo yíkàá ìṣẹ̀m̀báyé;", "cer": 1.05, "wer": 1.0, "der": 1.0}
+{"pred": "Mm Arbafiniobadpa;", "gt": "Mo foríbalẹ̀ fÁláàfin;", "cer": 0.7272727272727273, "wer": 1.0, "der": 1.0}
+{"pred": "NAN Un lUnku Bàba-yòye,", "gt": "Arọ́ba fín lọba á pa;", "cer": 0.8571428571428571, "wer": 1.0, "der": 1.0}
+{"pred": "4 ee eee ye ee ele TE ly PNG,", "gt": "Mo foríbalẹ̀ fúnkú Bàbá-yèyé;", "cer": 0.9310344827586207, "wer": 2.25, "der": 1.0}
+{"pred": "A (Lawanson, O. (2010:43-44). Àwọn oriki mẹta Òlòòtò. Lagos: Afbay Communications.)", "gt": "Òjò-pa-ṣẹ̀kẹ̀rẹ̀-ma-dẹ̀ ọmọ Àtìbà.", "cer": 2.176470588235294, "wer": 3.6666666666666665, "der": 0.5625}
+{"pred": "", "gt": "Lílé: Kàkà n fẹ́ná, ma fójò.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": ": Ojò pa iná kú palapata. Eyi ma ki arewa naa ja mọ Òjò lọwọ i", "gt": "Ègbè: Teerenà teeranà teere.", "cer": 1.9642857142857142, "wer": 4.0, "der": 1.25}
+{"pred": "' JAK Om RE EREE e ON n NNA SI n A MAR /", "gt": "Lílé: Òjò lọkọ àgbàdo.", "cer": 1.6818181818181819, "wer": 3.5, "der": 1.0}
+{"pred": "IBEYTEW); i", "gt": "Ègbè: Teerenà teeranà teere.", "cer": 0.9285714285714286, "wer": 1.0, "der": 1.0}
+{"pred": "rt yìí sá lọ? (a) Òjò vi Ni i", "gt": "Iṣẹ́ Ṣíṣe", "cer": 3.111111111111111, "wer": 4.5, "der": 0.6666666666666666}
+{"pred": "sawo vr irin Bayii? loner |", "gt": "1. Ta ni ó ń bá Iná du obìnrin láti fẹ́? (a) Òjò (b) Oòrùn", "cer": 0.8103448275862069, "wer": 1.0, "der": 1.0}
+{"pred": "|", "gt": "2. Irú ènìyàn wo ni arẹwà obìnrin yìí fẹ́ràn láti fẹ́? (a) alágbára (b) ọ̀lẹ", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "| |", "gt": "3. Ta ni ó kọ́kọ́ ń gbé arẹwà yìí sá lọ? (a) Òjò (b) Iná", "cer": 0.9821428571428571, "wer": 1.0, "der": 1.0}
+{"pred": "f", "gt": "4. Kí ni orúkọ ẹni tó fẹ́ arẹwà náà ní ìkẹyìn? (a) Iná (b) Òjò", "cer": 0.9838709677419355, "wer": 1.0, "der": 1.0}
+{"pred": "AA o", "gt": "5. Ta ni ó kọ orin nínú ìtàn yìí? (a) obìnrin arẹwà (b) Iná", "cer": 0.9661016949152542, "wer": 1.0, "der": 1.0}
+{"pred": "OBRO omu poten |", "gt": "Ta ló wà nínú ọgbà náà?", "cer": 0.8695652173913043, "wer": 1.0, "der": 1.0}
+{"pred": "Po Wn ee ‘ i |", "gt": "Olórí: Ta ló wà nínú ọgbà náà?", "cer": 0.8333333333333334, "wer": 1.0, "der": 1.0}
+{"pred": "4 Olòrí: AW o sẹyìn ọgbà, ọmọ bànfì tí n |", "gt": "Ègbè: Ọmọ kékeré kan ni.", "cer": 1.4583333333333333, "wer": 2.2, "der": 1.0}
+{"pred": "", "gt": "Olórí: Ṣé n wá wò ó?", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "= AA kori", "gt": "Ègbè: Má wà á wò ó.", "cer": 0.8947368421052632, "wer": 1.0, "der": 1.0}
+{"pred": "Fo |", "gt": "Olórí: Ìwọ lo pa á, ìwọ lo gbẹ̀yìn sẹ́yìn ọgbà, ọmọ bàntì tí ń jẹ ṣíbí, tẹ̀lé mi kálọ.", "cer": 0.9767441860465116, "wer": 1.0, "der": 1.0}
+{"pred": "3 IME a O ab, Is. ARE IW i; AS: Cie’ tho. OBA. A O Mu |", "gt": "Iṣẹ́ Ṣíṣe", "cer": 5.777777777777778, "wer": 8.5, "der": 1.0}
+{"pred": "| : mn NI i Wi |", "gt": "1. Kí ni a máa ń ṣe nígbà tí ọwọ́ bá dilẹ̀? (a) ìjà (b) eré ìdárayá (d) èébú", "cer": 0.881578947368421, "wer": 1.0, "der": 1.0}
+{"pred": "i (DO) Me Wad (GO) ties", "gt": "2. Oríṣìí ọ̀nà mélòó ni a pín eré ìdárayá sí? (a) méjì (b) mẹ́wàá (d) mẹ́jọ", "cer": 0.88, "wer": 1.0, "der": 1.0}
+{"pred": "dC", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "4. Orin ọdún ibilẹ̀ ni a máa ri kọ ní ibi ati fise...", "gt": "6. Dárúkọ ọ̀nà méjì tí a pín orin sí.", "cer": 1.027027027027027, "wer": 1.3333333333333333, "der": 0.5454545454545454}
+{"pred": "'6. Dánúkọ ọnà môji tí man orin si. NN", "gt": "7. Kọ orin kan tí Yorùbá máa ń kọ níbi ayẹyẹ ìgbéyàwó.", "cer": 0.8148148148148148, "wer": 0.9166666666666666, "der": 0.5714285714285714}
+{"pred": "", "gt": "8. Kọ orin kan tí Yorùbá máa ń kọ níbi ọdún ìbílẹ̀.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "wá (Corn) Mòngòrò (Mango)", "gt": "Mọ́ńgòrò (Mango)", "cer": 0.8125, "wer": 1.5, "der": 0.4}
+{"pred": "", "gt": "Ọ̀pẹ-òyìnbó (Pineapple)", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "ol A Òrombô Àgbọn (Coconut", "gt": "Ọsàn wẹ́wẹ́/Òrom̀bó (Lime)", "cer": 0.9615384615384616, "wer": 1.6666666666666667, "der": 0.7777777777777778}
+{"pred": "J Onirduru po ji ono = n = Gg", "gt": "Ẹ̀KỌ́ KỌKÀNDÍNLỌ́GBỌ̀N", "cer": 1.2727272727272727, "wer": 4.5, "der": 1.0}
+{"pred": "— q", "gt": "ORÚKỌ ẸYẸ", "cer": 0.8888888888888888, "wer": 1.0, "der": 1.0}
+{"pred": "Wo e  N", "gt": "Onírúurú ẹyẹ ni ó wà nílé-ayé. Díẹ̀ lára wọn ni:", "cer": 0.9375, "wer": 1.0, "der": 1.0}
+{"pred": ", Ẹyẹlé (Pigeon) Àgbébò (Hen) 4", "gt": "Ẹyẹlé (Pigeon)", "cer": 1.2142857142857142, "wer": 2.0, "der": 1.0}
+{"pred": "NM | 2 | dd", "gt": "Àgbébọ̀ (Hen)", "cer": 0.9230769230769231, "wer": 2.5, "der": 1.0}
+{"pred": "i EEE", "gt": "Akọ̀ (Heron)", "cer": 0.9166666666666666, "wer": 1.0, "der": 1.0}
+{"pred": "ee n", "gt": "Aṣọ Gbànjo, gbànjo!", "cer": 0.8947368421052632, "wer": 1.0, "der": 1.0}
+{"pred": "I Y ri i PM ne ae Ebo ow KOBI SS KOÔ |", "gt": "Kó lọ ń lẹ̀ kó dowó o.", "cer": 1.3636363636363635, "wer": 1.8571428571428572, "der": 1.0}
+{"pred": "N | an [Se snonin i ate |", "gt": "Pọ́ọ́kú lowó ẹ̀.", "cer": 1.375, "wer": 2.6666666666666665, "der": 1.0}
+{"pred": "' Eja odo aes |", "gt": "Ẹ bò ó wìtìwìtì.", "cer": 0.875, "wer": 1.25, "der": 1.0}
+{"pred": "i | 3 |", "gt": "Awùsá (Àsálà) Awùsá mi gbó keke bí obì.", "cer": 0.8974358974358975, "wer": 1.0, "der": 1.0}
+{"pred": "L cn FI EN EU ELEEE a", "gt": "Ó ń dá gbọ́n-ún bí orógbó.", "cer": 0.8461538461538461, "wer": 1.1666666666666667, "der": 1.0}
+{"pred": "i aa WA", "gt": "Ó ń dùn yìn bí i ṣúgà.", "cer": 0.9090909090909091, "wer": 1.0, "der": 1.0}
+{"pred": ". ‘i ar !:!", "gt": "Ó ń koro bí ewúro.", "cer": 0.8333333333333334, "wer": 1.0, "der": 1.0}
+{"pred": "Zt =~ ~=C|", "gt": "Ẹja odò Ọkọ mi ló ń pa á.", "cer": 0.92, "wer": 1.0, "der": 1.0}
+{"pred": "i I", "gt": "Èmi ni mò ń tà á.", "cer": 0.8823529411764706, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Kì í dùn lódò.", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "a NN", "gt": "Bó bá délé a doyin.", "cer": 0.8947368421052632, "wer": 0.8, "der": 1.0}
+{"pred": "man nsu ran pu run a", "gt": "Mú orúkọ iṣẹ́ tó tọ̀nà ní ìbámu pẹ̀lú àwọn àlàyé yìí.", "cer": 0.8490566037735849, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Iṣẹ́ Ṣíṣe", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": ": Ki nice ovncense àwòrán ìsàlẹ̀ yìí?", "gt": "Dáhùn àwọn ìbéèrè wọ̀nyí ní ìbámu pẹ̀lú ẹ̀kọ́ yìí.", "cer": 0.74, "wer": 1.0, "der": 0.6086956521739131}
+{"pred": "ia £", "gt": "1. Irú ènìyàn wo ni à ń pè ní afínjú? (a) ènìyàn dúdú (b) ènìyàn tó dọ̀tí (d) ènìyàn tó mọ́", "cer": 0.967032967032967, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "2. Ta ni afínjú ọmọ nínú ẹ̀kọ́ yìí? (a) Kúnlé (b) Bólú (d) Àjídé", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "3. Kí ni ìtumọ̀ abọ́ tó rírí? (a) abọ́ tó mọ́ (b) abọ́ tó dọ̀tí (d) abọ́ tó pọ́n", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Kí ni Àjídé àti Adé ń ṣe nínú àwòrán ìsàlẹ̀ yìí?", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "", "gt": "Ṣe àtúnkọ ọ̀rọ̀ yìí:", "cer": 1.0, "wer": 1.0, "der": 1.0}
+{"pred": "ae", "gt": "Ọmọ Ọmọ Ọmọ", "cer": 1.0, "wer": 1.0, "der": 1.0}

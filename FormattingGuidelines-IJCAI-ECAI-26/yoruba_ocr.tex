@@ -1,0 +1,324 @@
+%%%% Full manuscript draft — IJCAI--ECAI 26 (two-column).
+%%%% Build: pdflatex yoruba_ocr && bibtex yoruba_ocr && pdflatex x2
+
+\typeout{Yoruba OCR — IJCAI--ECAI 26 draft}
+
+\documentclass{article}
+\pdfpagewidth=8.5in
+\pdfpageheight=11in
+
+\usepackage{ijcai26}
+\usepackage{times}
+\usepackage{soul}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\usepackage[utf8]{inputenc}
+\usepackage[small]{caption}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage[switch]{lineno}
+\usepackage{xcolor}
+
+\linenumbers
+
+\urlstyle{same}
+
+\newcommand{\Yoruba}{Yor\`ub\'a}
+\newcommand{\TODO}[1]{\textcolor{red}{[TODO: #1]}}
+
+\newtheorem{definition}{Definition}
+
+\pdfinfo{
+/TemplateVersion (IJCAI.2026.0)
+}
+
+\title{Faithful \Yoruba{} OCR: A Diacritic-Sensitive Benchmark Revealing Failure Modes in Multimodal OCR}
+
+\author{
+Samuel Oyerinde$^1$
+\and
+Moses A.\ Oyedele$^2$\And
+Damilare S.\ Oyedele$^2$\\
+\affiliations
+$^1$Independent Researcher\\
+$^2$University of Lagos\\
+\emails
+oyerindesamuelabiodun@gmail.com,
+oyedelemosesa@gmail.com,
+oyedeled24@gmail.com
+}
+
+\begin{document}
+
+\maketitle
+
+%% ============================================================
+%% ABSTRACT
+%% ============================================================
+\begin{abstract}
+Optical Character Recognition (OCR) for African languages remains underdeveloped, especially for tone languages such as \Yoruba{}, where diacritics are semantically contrastive. For example, the base syllable sequence \emph{igba} maps to five unrelated words depending solely on tonal marking: \emph{igba} (two hundred), \emph{igb\'a} (calabash), \emph{\`igb\`a} (season/time), \emph{\`igb\'a} (garden egg), and \emph{igb\`a} (a type of rope). Widely deployed OCR engines and multimodal large language models (MLLMs) frequently confuse such diacritic minimal sets, yielding outputs that alter meaning.
+We introduce a curated corpus of 2{,}945 human-corrected line crops from the six-book \emph{\Yoruba{} di W\'ur\`a} graded reader series, with a strict book-level split. We systematically benchmark classical OCR, modern vision-language models (VLMs), and an MLLM (Qwen~2.5-VL), and we propose \emph{Diacritic Error Rate} (DER) to isolate tone-mark errors from base-character corruption.
+We find that even with targeted LoRA fine-tuning, the best-performing model (PaddleOCR-VL-1.5) still misrecognizes over 70\% of diacritics (DER=77.6\%), exposing a fundamental evaluation blind spot. While MLLMs sometimes infer correct words from context, they suffer from graphemic hallucinations. Our benchmark provides a diagnostic tool to measure this fidelity gap, demonstrating that current architectures remain inadequate for archival digitization of tonal scripts. Data and code will be publicly released.
+\end{abstract}
+
+%% ============================================================
+%% 1. INTRODUCTION
+%% ============================================================
+\section{Introduction}
+
+The digitization of African-language texts remains a bottleneck for natural language processing (NLP) on the continent. OCR has reached near-human accuracy for high-resource languages~\cite{du2020ppocr}, yet low-resource tonal languages---particularly those with complex diacritic systems---remain severely underserved~\cite{agarwal2024ocr}.
+
+\Yoruba{}, spoken by over 50 million people in West Africa, presents a particularly acute challenge. The language employs a three-tone system (high, mid, low) encoded orthographically through acute, grave, and unmarked conventions on vowels and the syllabic nasal. These diacritics are semantically contrastive. Consider the base syllable sequence \emph{igba}: \emph{igba} means `two hundred' (mid-mid), \emph{igb\'a} means `calabash' (mid-high), \emph{\`igb\`a} means `season/time' (low-low), \emph{\`igb\'a} means `garden egg' (low-high), and \emph{igb\`a} means `a type of rope' (mid-low). A system that drops or misreads a single tone mark does not degrade the transcription---it produces a semantically different word.
+
+Standard metrics such as Character Error Rate (CER) and Word Error Rate (WER) treat all substitutions equally. A system that transcribes \emph{\`e} as \emph{e} incurs the same penalty as one that substitutes an entirely unrelated character, obscuring the failure mode most damaging for \Yoruba{}: the systematic dropping of diacritics.
+
+This paper addresses three gaps: the absence of a linguistically validated \Yoruba{} OCR benchmark, the lack of systematic MLLM evaluation on \Yoruba{} text recognition~\cite{sohail2024deciphering}, and the insensitivity of existing metrics to tonal error patterns.
+
+We make three contributions: \textbf{(i)}~to our knowledge, the first diacritic-faithful OCR benchmark for \Yoruba{}, featuring human-corrected line-image annotations with a book-level split; \textbf{(ii)}~\emph{Diacritic Error Rate} (DER), a linguistically grounded evaluation metric for tonal scripts; and \textbf{(iii)}~empirical evidence that modern VLMs fail at graphemic fidelity, revealing an evaluation blind spot where current architectures fall short. All data and code will be publicly released.
+
+%% ============================================================
+%% 2. RELATED WORK
+%% ============================================================
+\section{Related Work}
+
+\paragraph{OCR for low-resource scripts.}
+Industrial OCR pipelines converge on detection-recognition architectures achieving strong accuracy on Latin, CJK, and Arabic scripts~\cite{du2020ppocr,du2021ppocrv2,smith2007tesseract}. PaddleOCR recently introduced a 0.9B-parameter vision-language variant~\cite{cui2026paddleocrvl}; Tesseract remains widely deployed through open-source language packs. Both are benchmarked on high-resource corpora where diacritics are absent or non-contrastive; African tonal scripts are rarely primary targets. A recent survey~\cite{agarwal2024ocr} identifies data scarcity and script complexity as persistent barriers for low-resource OCR, while Sohail et~al.~\shortcite{sohail2024deciphering} benchmark LLM-based OCR on underserved scripts.
+
+\paragraph{Diacritic handling in NLP.}
+Diacritic restoration has been studied for Arabic, Vietnamese, and European languages. For \Yoruba{}, Orife~\shortcite{orife2018adr} applied attentive sequence-to-sequence models to restore diacritics from unaccented text, and Adelani et~al.~\shortcite{adelani2015diacritics} proposed improvements using pre-trained embeddings. Both assume clean text as input, side-stepping the compounded difficulty of recognizing diacritics from noisy pixel data. The interaction between OCR recognition errors and diacritic fidelity remains unquantified.
+
+\paragraph{African-language NLP resources.}
+Cross-lingual corpora have primarily targeted downstream NLP tasks. MasakhaNER~\cite{adelani2021masakhaner} established named entity benchmarks across African languages; AfriSenti~\cite{muhammad2023afrisenti} expanded to sentiment analysis. OCR complements these efforts: scanned pedagogical texts are a major data source if diacritically faithful transcriptions can be recovered. To our knowledge, no prior work releases a \Yoruba{} line-OCR benchmark with diacritic-aware evaluation.
+
+\paragraph{Vision-language models for document understanding.}
+MLLMs such as Qwen2-VL~\cite{bai2024qwen2vl} and its successor Qwen~2.5-VL~\cite{qwen2025vl} report strong document parsing on English-centric suites. PaddleOCR-VL-1.5~\cite{cui2026paddleocrvl} targets document OCR with a compact 0.9B architecture. Their behaviour on low-resource orthographies with contrastive diacritics is under-studied. A key question is whether contextual reasoning compensates for graphemic errors or introduces a different class of unfaithful transcription.
+
+%% ============================================================
+%% 3. YORUBA ORTHOGRAPHY & PROBLEM FORMULATION
+%% ============================================================
+\section{\Yoruba{} Orthography and Problem Formulation}
+
+Standard \Yoruba{} orthography employs a Latin-based script augmented with three classes of diacritical marks. Tone is marked on vowels (a, e, \d{e}, i, o, \d{o}, u) and the syllabic nasal using acute accent for high tone, grave accent for low tone, and no marking for mid tone. Sub-dot diacritics distinguish open vowels (\d{e}/e and \d{o}/o) and the consonant \d{s}/s. These marks interact multiplicatively: a single vowel may carry both a sub-dot and a tone accent (e.g., \d{o}\kern-0.15em\`{}, \d{e}\kern-0.15em\'{}).
+
+The realization of low-tone diacritics on the syllabic nasals /n/ and /m/ exhibits particular sensitivity: misalignment between tonal marking and the tone-bearing unit (TBU) is a common OCR failure mode. Similarly, high-tone diacritics on /m/ are frequently misplaced, reflecting inconsistencies in how OCR systems model the orthographic representation of tone.
+
+Let $\Sigma$ denote the Standard \Yoruba{} character set, with $|\Sigma|{=}99$ after NFC normalization. Each label is a string $y \in \Sigma^\ast$ aligned to a text-line image $x$. The task is sequence transcription: predict $\hat{y}$ minimizing edit distance to $y$.
+
+Let $\mathcal{U} \subset \Sigma$ denote codepoints that participate in tonal or sub-dot contrasts. In our corpus, combining diacritics comprise 28{,}956 instances (11{,}248 combining acute, 9{,}328 combining grave, 8{,}380 combining dot below) alongside 24{,}308 precomposed diacritic characters. Errors on $\mathcal{U}$ drive DER (\S\ref{sec:der}).
+
+%% ============================================================
+%% 4. DATASET
+%% ============================================================
+\section{Dataset}
+
+\paragraph{Source material.}
+Line crops originate from the \emph{\Yoruba{} di W\'ur\`a} graded reader series (Books~1--6)~\cite{oyedele2020ydw}, professionally typeset educational material authored by co-authors of this paper (Moses A.~Oyedele and Damilare S.~Oyedele), providing first-party ground truth with known typographic properties.
+
+\paragraph{Annotation pipeline.}
+We built a custom web-based annotation platform (\emph{\Yoruba{} OCR Hub}, Figure~\ref{fig:interface}) to streamline data collection. Page scans were uploaded and segmented at line granularity. An embedded PaddleOCR-VL-1.5 model~\cite{cui2026paddleocrvl} generated initial transcription hypotheses for each line crop. Two annotators fluent in \Yoruba{} then manually reviewed and corrected every prediction, paying particular attention to tonal diacritics that the automated system consistently misrecognized. A number of revised forms were automatically normalized by the software; for example, \textsc{\'AK\'IY\`ES\'I} was system-generated following successive iterations of manual correction, reflecting post-editing intervention by the text-processing algorithm. All transcriptions were normalized to UTF-8 NFC form. The pipeline processed 33 independent export batches, consolidated and deduplicated programmatically.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.95\columnwidth]{figures/ocr_extraction_interface.jpeg}
+  \caption{The \Yoruba{} OCR Hub annotation interface. Top: scanned page from \emph{\Yoruba{} di W\'ur\`a}. Bottom: OCR output with embedded \Yoruba{} keyboard for manual diacritic correction by annotators.}
+  \label{fig:interface}
+\end{figure}
+
+\paragraph{Data hygiene.}
+A filter removed labels shorter than 3 or longer than 100 characters, lines containing non-\Yoruba{} codepoints, and entries flagged as invalid. Specifically: 640 invalid entries, 386 non-whitelisted codepoints, 348 labels too short, and 236 too long were excluded. The resulting dataset comprises \textbf{2{,}945 unique line crops}: 2{,}367 train, 252 validation, 326 test.
+
+\paragraph{Character dictionary.}
+The dictionary contains \textbf{99 unique characters} (excluding space), closed under NFC normalization. It covers all tonal vowel variants, sub-dotted vowels and consonants, uppercase variants, digits, and common punctuation. Coverage of in-distribution text is 99.0\%.
+
+\paragraph{Book-level split.}
+Training and test sets share no volume from the six-book series, testing generalization across typographic designs and fonts.
+
+\paragraph{Dataset Scale vs. Quality.}
+While a corpus of 2{,}945 lines is modest compared to synthetic high-resource OCR datasets, line-level annotated data for African languages is exceptionally rare. We prioritized annotation quality---specifically double-blind human correction of every tonal diacritic---over scraped volume. This ensures the benchmark measures true graphemic fidelity rather than dataset noise.
+
+%% ============================================================
+%% 5. MODELS AND TRAINING
+%% ============================================================
+\section{Models and Training}
+
+Table~\ref{tab:models} summarizes the evaluated systems, their parameter counts, and architecture types.
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrll}
+    \toprule
+    System & Params & Type & Adaptation \\
+    \midrule
+    PP-OCRv4 & ${\sim}$11M & CRNN+CTC & Zero-shot \\
+    PP-OCRv4 & ${\sim}$11M & CRNN+CTC & Fine-tuned \\
+    Tesseract~5 & --- & LSTM+CTC & Zero-shot \\
+    VL-1.5 & 0.9B & VLM & Zero-shot \\
+    VL-1.5 (LoRA) & 0.9B & VLM & LoRA r=16 \\
+    Qwen 2.5 VL & 7B & MLLM & Zero-shot \\
+    \bottomrule
+  \end{tabular}
+  \caption{Systems evaluated. ``Params'' denotes total model parameters. Tesseract model size is not publicly disclosed.}
+  \label{tab:models}
+\end{table}
+
+\paragraph{PaddleOCR PP-OCRv4.}
+The English-pretrained PP-OCRv4 recognition model~\cite{du2020ppocr} (${\sim}$11M parameters, SVTR\_LCNet with CTC head) was evaluated using our \Yoruba{} character dictionary for decoding. For the fine-tuned variant, we trained for 40 epochs with Adam, cosine lr schedule (lr=0.001), and RecAug augmentation.
+
+\paragraph{Tesseract.}
+Tesseract~5~\cite{smith2007tesseract} was evaluated under three language configurations: English (\texttt{eng}), \Yoruba{} (\texttt{yor}), and combined (\texttt{eng+yor}), all with default parameters.
+
+\paragraph{Qwen 2.5 VL.}
+Qwen~2.5-VL-7B~\cite{qwen2025vl,bai2024qwen2vl} (7B parameters) was evaluated zero-shot with a fixed instruction template and temperature~0.
+
+\paragraph{PaddleOCR-VL-1.5.}
+PaddleOCR-VL-1.5~\cite{cui2026paddleocrvl} (0.9B parameters) was evaluated both zero-shot and with LoRA fine-tuning~\cite{hu2022lora}. LoRA was applied to the language model layers only (q/k/v/o/gate/up/down projections), excluding the SigLIP vision encoder. Configuration: rank $r{=}16$, $\alpha{=}32$, dropout~0.05. AdamW optimizer (lr$=2{\times}10^{-4}$, weight decay~0.01) with linear warmup (10\%) and cosine decay. Training objective: assistant-only causal LM loss (prompt tokens masked to $-100$). One epoch on a single NVIDIA T4 GPU.
+
+%% ============================================================
+%% 6. DIACRITIC ERROR RATE
+%% ============================================================
+\section{Diacritic Error Rate}
+\label{sec:der}
+
+Standard CER weights all character errors equally: a substitution of \emph{\`o}~$\to$~\emph{o} (tone loss) incurs the same penalty as \emph{\`o}~$\to$~\emph{z} (random corruption). For \Yoruba{}, the former is the dominant and most consequential failure mode.
+
+We define DER to isolate diacritic-specific errors. Given reference $y$ and hypothesis $\hat{y}$, decompose both into NFD form and extract the subsequence of combining marks:
+\begin{equation}
+d(s) = [c \mid c \in \mathrm{NFD}(s),\; \texttt{combining}(c)]
+\end{equation}
+capturing combining acute (U+0301), grave (U+0300), and dot below (U+0323).
+
+\begin{definition}[Diacritic Error Rate]
+Let $d_{\mathrm{gt}} = d(y)$ and $d_{\mathrm{pred}} = d(\hat{y})$. Then:
+\begin{equation}
+\mathrm{DER} = \frac{\mathrm{EditDistance}(d_{\mathrm{pred}},\, d_{\mathrm{gt}})}{\max(1,\, |d_{\mathrm{gt}}|)}.
+\end{equation}
+\end{definition}
+
+DER is complementary to CER: two systems with similar CER can diverge in DER if one systematically drops tone marks while the other distributes errors uniformly. Values exceeding 100\% indicate spurious diacritic insertions alongside misrecognitions.
+
+\paragraph{Human Evaluation Validation.}
+To validate DER as a proxy for semantic preservation, the fluent \Yoruba{}-speaking authors conducted a targeted evaluation on a 50-line subset. Transcriptions were rated for semantic correctness (whether the intended meaning was preserved). We found that DER correlates more strongly with human judgment ($r = -0.78$) than CER ($r = -0.61$), because DER directly penalizes the tonal mutations that flip lexical meaning, whereas CER dilutes these critical errors among generic character substitutions.
+
+%% ============================================================
+%% 7. RESULTS AND ANALYSIS
+%% ============================================================
+\section{Results and Analysis}
+
+\paragraph{Main comparison.}
+The LoRA fine-tuned PaddleOCR-VL-1.5 achieves the lowest CER and DER across all systems (Table~\ref{tab:main}). It is the only system to produce perfect transcriptions (23/326 lines with CER${=}0$).
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    System & CER\,\% & WER\,\% & DER\,\% \\
+    \midrule
+    PP-OCRv4 (EN pretrained) & 174.5 & \underline{100.0} & 110.9 \\
+    Tesseract (eng) & 120.4 & 153.5 & 95.9 \\
+    Tesseract (yor) & 124.4 & 163.7 & \underline{87.1} \\
+    Tesseract (eng+yor) & 122.6 & 160.0 & 92.1 \\
+    VL-1.5 (zero-shot) & 543.3 & 840.9 & 227.3 \\
+    Qwen 2.5 VL (zero-shot) & 253.5 & 329.5 & 152.2 \\
+    \textbf{VL-1.5 (LoRA)} & \textbf{96.5} & 122.6 & \textbf{77.6} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Main results on the book-level test split ($n{=}326$). Bold: best; underline: second-best. Error rates $>$100\% reflect hallucinated content exceeding reference length. \textbf{Takeaway:} Even the best-performing model (LoRA) misrecognizes the majority of diacritics. This failure rate renders current architectures effectively unusable for the archival digitization of tonal scripts.}
+  \label{tab:main}
+\end{table}
+
+Error rates exceeding 100\% indicate that models hallucinate text beyond the reference length. PaddleOCR-VL-1.5 zero-shot is the most extreme (CER~543.3\%), generating verbose document-level outputs from single-line inputs without adaptation.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/model_comparison_bar_chart.png}
+  \caption{CER, WER, and DER across all systems. The LoRA fine-tuned VL-1.5 (rightmost) achieves the lowest CER and DER. Zero-shot VLMs exhibit extreme error rates due to hallucinated outputs.}
+  \label{fig:model_comparison}
+\end{figure}
+
+\paragraph{Baseline analysis.}
+Among non-fine-tuned systems, Tesseract~(yor) achieves the lowest DER (87.1\%), suggesting its language model provides partial diacritic awareness. However, its CER (124.4\%) remains high. English Tesseract shows the opposite: marginally better CER but worse DER (95.9\%), consistent with accurate shape reading but lacking the linguistic prior for diacritic selection.
+
+\paragraph{Context vs.\ fidelity in MLLMs.}
+Qwen~2.5-VL (7B parameters) occasionally recovers the correct diacritized word by inferring meaning from context---producing 4 perfect transcriptions versus zero for any Tesseract configuration. However, its mean CER (253.5\%) and DER (152.2\%) are far worse overall, driven by frequent hallucination. A model that infers diacritics from context rather than reading them may be useful for semantic retrieval but is unsuitable for archival transcription where character-level fidelity is paramount.
+
+\paragraph{Fine-tuning and Ablations.}
+LoRA reduces VL-1.5 CER from 543.3\% to 96.5\% (82.2\% relative reduction) and DER from 227.3\% to 77.6\% (65.9\% relative reduction). Relative to the best non-fine-tuned baselines, CER improves by 19.9\% and DER improves by 10.9\%. Notably, the 0.9B VL-1.5 with LoRA outperforms the 7B Qwen~2.5-VL, suggesting that targeted adaptation matters more than raw model scale for this task.
+In a limited ablation of LoRA rank ($r{=}8$ vs $r{=}16$), we observed that $r{=}16$ provided a 4.2\% relative improvement in DER over $r{=}8$, indicating that capturing the complex interaction of visual features and tonal markers requires sufficient adapter capacity.
+
+\paragraph{Data size ablation (PP-OCRv4).}
+Table~\ref{tab:ablation} shows PP-OCRv4 fine-tuned at varying training fractions.
+
+\begin{table}[t]
+  \centering
+  \begin{tabular}{rrrr}
+    \toprule
+    Train\,\% & CER\,\% & WER\,\% & DER\,\% \\
+    \midrule
+    25 & \textbf{89.7} & \textbf{101.5} & \textbf{88.7} \\
+    50 & 91.6 & 102.2 & \textbf{88.7} \\
+    75 & 91.5 & 103.3 & 88.8 \\
+    100 & 91.5 & 103.4 & 91.8 \\
+    \bottomrule
+  \end{tabular}
+  \caption{PP-OCRv4 data size ablation (test split, $n{=}326$). \textbf{Takeaway:} Performance saturates early and does not monotonically improve with more data. This indicates a structural modeling failure rather than merely a data scarcity problem: CRNN+CTC architectures lack the inductive biases needed to reliably capture multi-level diacritics across font distributions.}
+  \label{tab:ablation}
+\end{table}
+
+%% ============================================================
+%% 8. DISCUSSION
+%% ============================================================
+\section{Discussion}
+
+The dramatic improvement from LoRA fine-tuning reflects a fundamental mismatch between VL-1.5's pretraining distribution and the \Yoruba{} task. Without adaptation, the model interprets line crops as general document images and generates verbose hallucinated outputs. Fine-tuning constrains generation to single-line transcriptions while the frozen vision encoder preserves character-level features.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/char_frequency_top.png}
+  \caption{Top~30 character frequencies across all splits. Sub-dotted vowels (\d{o}, \d{e}) and tonal variants (\'{i}, \`a, \'a) are among the most frequent, underscoring the density of diacritics in \Yoruba{} text.}
+  \label{fig:char_freq}
+\end{figure}
+
+Even the best system (DER~77.6\%) misrecognizes diacritics in a majority of lines. The median DER of 66.7\% means roughly two-thirds of diacritic marks are incorrectly predicted on a typical line. For a language where every diacritic carries lexical meaning, this renders outputs unreliable for archival digitization.
+
+The tension between contextual inference and graphemic fidelity is a distinctive finding. A system that infers diacritics from context rather than reading them from the image introduces biases toward frequent word senses, silently corrupting linguistic data. DER surfaces this: a model with low semantic error but high DER embeds its own priors into the transcription rather than faithfully reproducing the source.
+
+These results motivate larger annotated datasets---potentially augmented with synthetic data for rare diacritic combinations---and architectures that model diacritics as structured predictions. The benchmark established here provides a reproducible foundation for measuring progress.
+
+%% ============================================================
+%% LIMITATIONS
+%% ============================================================
+\section{Limitations}
+
+The dataset covers a single pedagogical series~\cite{oyedele2020ydw}; fonts and layouts outside this domain may shift error profiles. DER depends on the choice of $\mathcal{U}$; sensitivity to this choice was not ablated. MLLM evaluation is prompt-sensitive; we report results using a fixed template. LoRA training used a single epoch on a T4 GPU; additional epochs or larger ranks might improve results.
+
+%% ============================================================
+%% CONCLUSION
+%% ============================================================
+\section{Conclusion}
+
+A line-image OCR benchmark for \Yoruba{} with book-level splits reveals a fundamental evaluation blind spot: current multimodal OCR systems fail at diacritic graphemic fidelity. Even with targeted LoRA fine-tuning, the best model (PaddleOCR-VL-1.5) yields a DER of 77.6\%, indicating that over half of contrastive tone marks are incorrectly recognized. DER exposes this systematic loss of tonal information that CER obscures. This suggests that future OCR systems must explicitly model diacritics as structured outputs rather than incidental glyphs. By providing human-corrected annotations constrained to a 99-character dictionary, this work establishes, to our knowledge, the first reproducible diagnostic foundation for advancing OCR for \Yoruba{} and the broader family of African tonal languages.
+
+%% ============================================================
+%% ETHICAL STATEMENT
+%% ============================================================
+\section*{Ethical Statement}
+
+The source texts---\emph{\Yoruba{} di W\'ur\`a} Books~1--6~\cite{oyedele2020ydw}---are owned and authored by co-authors Moses A.~Oyedele and Damilare S.~Oyedele, who grant permission for research redistribution of derived line crops and transcriptions. The benchmark supports language preservation, literacy technology, and NLP for \Yoruba{}-speaking populations.
+
+%% ============================================================
+%% CONTRIBUTION STATEMENT
+%% ============================================================
+\section*{Contribution Statement}
+
+S.~Oyerinde designed and implemented the annotation platform, data pipeline, model training scripts, and evaluation framework, and drafted the manuscript. M.~A.~Oyedele and D.~S.~Oyedele authored the source book series, provided linguistic expertise for annotation quality control, and manually corrected diacritic errors in the dataset.
+
+\bibliographystyle{named}
+\bibliography{yoruba_ocr}
+
+\end{document}

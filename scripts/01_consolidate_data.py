@@ -87,27 +87,27 @@ def read_label_file(label_path: Path) -> list[tuple[str, str]]:
 def is_valid_yoruba(text: str) -> bool:
     """Check if the text is clean, valid Yoruba and not English code-mixed or UI artifacts."""
     # 1. No English-only consonants (c, q, v, x, z)
-    if re.search(r'[cqvxz]', text, re.IGNORECASE):
+    if re.search(r"[cqvxz]", text, re.IGNORECASE):
         return False
-    
+
     # 2. No fill-in-the-blank dots or underscores
-    if re.search(r'\.{3,}', text) or re.search(r'_{3,}', text):
+    if re.search(r"\.{3,}", text) or re.search(r"_{3,}", text):
         return False
-        
+
     # 3. No hanging equals signs often used for translation matching '... = ...'
     if "=" in text:
         return False
-        
+
     # 4. No English months or Roman numerals used in list numbering
-    months_roman = r'\b(january|february|march|april|may|june|july|august|september|october|november|december|iv|vi|vii|viii|ix)\b'
+    months_roman = r"\b(january|february|march|april|may|june|july|august|september|october|november|december|iv|vi|vii|viii|ix)\b"
     if re.search(months_roman, text, re.IGNORECASE):
         return False
-        
+
     # 5. Generic bad English tokens found in the data or common stopwords
-    bad_words = r'\b(chest|child|breeze|chair|cup|bicycle|village|zebra|fox|camel|the|and|of|to|in|is|was|for|on|are|with)\b'
+    bad_words = r"\b(chest|child|breeze|chair|cup|bicycle|village|zebra|fox|camel|the|and|of|to|in|is|was|for|on|are|with)\b"
     if re.search(bad_words, text, re.IGNORECASE):
         return False
-        
+
     return True
 
 
@@ -209,14 +209,16 @@ def collect_registry(
                     }
 
     if drops["missing_image"]:
-        log.warning("Skipped %d entries with missing image files.", drops["missing_image"])
+        log.warning(
+            "Skipped %d entries with missing image files.", drops["missing_image"]
+        )
     return registry, drops
 
 
 def collect_char_dicts_from_registry(registry: dict[str, dict]) -> list[str]:
     """
     Build the character dictionary dynamically from all text in the consolidated dataset.
-    
+
     This ensures that *every* character present in the labels (including any missing
     diacritics or special characters like 'ố' and 'Ở') is included in the dictionary.
     We explicitly remove the space character (' ') because PaddleOCR's CTCLabelEncode
@@ -227,11 +229,11 @@ def collect_char_dicts_from_registry(registry: dict[str, dict]) -> list[str]:
         text = entry["text"]
         for ch in text:
             chars.add(ch)
-            
+
     # Explicitly remove space to avoid index shifting with use_space_char=True
     if " " in chars:
         chars.remove(" ")
-        
+
     return sorted(chars, key=lambda c: (ord(c[0]), c))
 
 
@@ -251,9 +253,7 @@ def copy_images_and_write_labels(
 
     for split in SPLITS:
         (output_dir / "images" / split).mkdir(parents=True, exist_ok=True)
-        label_handles[split] = (label_dir / f"{split}.txt").open(
-            "w", encoding="utf-8"
-        )
+        label_handles[split] = (label_dir / f"{split}.txt").open("w", encoding="utf-8")
 
     try:
         for stem, entry in sorted(registry.items()):

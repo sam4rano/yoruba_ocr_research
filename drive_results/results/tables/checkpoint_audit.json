@@ -1,0 +1,132 @@
+{
+  "counts": {
+    "ok": 9,
+    "phantom": 1,
+    "no_meta": 0,
+    "stale": 0
+  },
+  "rows": [
+    {
+      "model": "tesseract_eng",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2035",
+      "wer": "1.5347",
+      "der": "0.9847",
+      "meta_path": "results/tables/meta/tesseract_eng_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "tesseract_yor",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2435",
+      "wer": "1.6366",
+      "der": "0.8773",
+      "meta_path": "results/tables/meta/tesseract_yor_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "tesseract_eng+yor",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2264",
+      "wer": "1.6003",
+      "der": "0.9386",
+      "meta_path": "results/tables/meta/tesseract_eng+yor_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "qwen25_vl_zero_shot",
+      "split": "test",
+      "status": "ok",
+      "cer": "2.5351",
+      "wer": "3.2945",
+      "der": "1.1958",
+      "meta_path": "results/tables/meta/qwen25_vl_zero_shot_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "paddleocr_vl15_zero_shot",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.0",
+      "wer": "1.0",
+      "der": "1.0",
+      "meta_path": "results/tables/meta/paddleocr_vl15_zero_shot_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "baseline_english_pretrained",
+      "split": "test",
+      "status": "phantom",
+      "cer": "1.7448",
+      "wer": "1.0",
+      "der": "0.8397",
+      "meta_path": "results/tables/meta/baseline_english_pretrained_test.json",
+      "checkpoint_pdparams": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy.pdparams",
+      "checkpoint_sha256": "ea1aa951d492533d33dd9536265e29a779f1a2b2798e68ebb82d2079e7554e7e",
+      "notes": [
+        "head weights not restored: 2"
+      ]
+    },
+    {
+      "model": "tesseract_eng",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2035",
+      "wer": "1.5347",
+      "der": "0.9847",
+      "meta_path": "results/tables/meta/tesseract_eng_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "tesseract_yor",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2435",
+      "wer": "1.6366",
+      "der": "0.8773",
+      "meta_path": "results/tables/meta/tesseract_yor_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "tesseract_eng+yor",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.2264",
+      "wer": "1.6003",
+      "der": "0.9386",
+      "meta_path": "results/tables/meta/tesseract_eng+yor_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "paddleocr_vl15_zero_shot",
+      "split": "test",
+      "status": "ok",
+      "cer": "5.433",
+      "wer": "8.4086",
+      "der": "2.0091",
+      "meta_path": "results/tables/meta/paddleocr_vl15_zero_shot_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    }
+  ]
+}

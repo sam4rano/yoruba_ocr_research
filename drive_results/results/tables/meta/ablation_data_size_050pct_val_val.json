@@ -1,0 +1,58 @@
+{
+  "model": "ablation_data_size_050pct_val",
+  "split": "val",
+  "timestamp": "2026-04-23T18:43:31.557579+00:00",
+  "phantom": "false",
+  "metrics": {
+    "n": 252,
+    "cer": 0.9126,
+    "wer": 1.0235,
+    "der": 0.8819,
+    "der_n": 251,
+    "der_insertion_rate": 0.1111
+  },
+  "git_sha": "9c25da4",
+  "env": {
+    "cwd": "/content/drive/MyDrive/yor_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/ablation_data_size_050pct_val_val.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": "experiments/ablation/data_size/050pct/model/best_accuracy.pdparams",
+    "checkpoint_sha256": "37897590461edcba6f37539df6d77516b3f6d63003ba3982bc0339ee4411d32b",
+    "dict_path": "data/processed/dictionary/yoruba_char_dict.txt",
+    "dict_sha256": "0e052868728f7e83530c7c409d24a350dc135c7dd8ef773a8272184595c7dec7",
+    "dict_size": 99,
+    "rec_config": "experiments/finetuned/config.yml",
+    "rec_config_sha256": "1cb2ecb11860a795ae4c7dd757aceb54f542f9e026f6671a55b19bfc9427248a"
+  },
+  "provenance": {
+    "script": "scripts/05_evaluate.py",
+    "model_dir": "experiments/ablation/data_size/050pct/model",
+    "dict_path": "data/processed/dictionary/yoruba_char_dict.txt",
+    "rec_config": "experiments/finetuned/config.yml",
+    "split": "val",
+    "allow_head_reinit": false,
+    "checkpoint_integrity": {
+      "ckpt_prefix": "experiments/ablation/data_size/050pct/model/best_accuracy",
+      "n_model_params": 196,
+      "n_ckpt_params": 196,
+      "n_restored": 196,
+      "n_missing": 0,
+      "n_shape_mismatch": 0,
+      "n_extra_in_ckpt": 0,
+      "missing_by_component": {
+        "head": 0,
+        "backbone": 0,
+        "other": 0
+      },
+      "shape_mismatch_by_component": {
+        "head": 0,
+        "backbone": 0,
+        "other": 0
+      },
+      "missing_sample": [],
+      "shape_mismatch_sample": []
+    }
+  }
+}

@@ -59,7 +59,11 @@ def load_model_and_processor(model_id: str, quantize: bool):
     """
     try:
         import torch
-        from transformers import AutoProcessor, Qwen2_5_VLForConditionalGeneration, BitsAndBytesConfig  # type: ignore
+        from transformers import (
+            AutoProcessor,  # type: ignore
+            BitsAndBytesConfig,
+            Qwen2_5_VLForConditionalGeneration,
+        )
     except ImportError:
         raise ImportError(
             "Run: pip install transformers accelerate qwen-vl-utils torch\n"
@@ -134,10 +138,7 @@ def transcribe_image(
         )
 
     # Trim prompt tokens from the output
-    trimmed = [
-        out[len(inp):]
-        for inp, out in zip(inputs["input_ids"], output_ids)
-    ]
+    trimmed = [out[len(inp) :] for inp, out in zip(inputs["input_ids"], output_ids)]
     decoded = processor.batch_decode(
         trimmed, skip_special_tokens=True, clean_up_tokenization_spaces=False
     )
@@ -235,7 +236,11 @@ def main() -> None:
     args = parse_args()
 
     sys.path.insert(0, str(Path(__file__).parent))
-    from evaluate_utils import load_test_pairs, aggregate_metrics, save_results  # type: ignore  # noqa: E402
+    from evaluate_utils import (  # type: ignore  # noqa: E402
+        aggregate_metrics,
+        load_test_pairs,
+        save_results,
+    )
 
     pairs = load_test_pairs(args.data_dir, args.split)
     if args.max_samples:
