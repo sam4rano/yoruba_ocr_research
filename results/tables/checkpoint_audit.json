@@ -1,18 +1,18 @@
 {
   "counts": {
-    "ok": 3,
+    "ok": 6,
     "phantom": 0,
     "no_meta": 0,
-    "stale": 0
+    "stale": 4
   },
   "rows": [
     {
       "model": "tesseract_eng",
       "split": "test",
       "status": "ok",
-      "cer": "1.2273",
-      "wer": "1.476",
-      "der": "0.9604",
+      "cer": "1.2035",
+      "wer": "1.5347",
+      "der": "0.9847",
       "meta_path": "results/tables/meta/tesseract_eng_test.json",
       "checkpoint_pdparams": null,
       "checkpoint_sha256": null,
@@ -22,9 +22,9 @@
       "model": "tesseract_yor",
       "split": "test",
       "status": "ok",
-      "cer": "1.2567",
-      "wer": "1.5174",
-      "der": "0.903",
+      "cer": "1.2435",
+      "wer": "1.6366",
+      "der": "0.8773",
       "meta_path": "results/tables/meta/tesseract_yor_test.json",
       "checkpoint_pdparams": null,
       "checkpoint_sha256": null,
@@ -34,13 +34,105 @@
       "model": "tesseract_eng+yor",
       "split": "test",
       "status": "ok",
-      "cer": "1.2228",
-      "wer": "1.4918",
-      "der": "0.931",
+      "cer": "1.2264",
+      "wer": "1.6003",
+      "der": "0.9386",
       "meta_path": "results/tables/meta/tesseract_eng+yor_test.json",
       "checkpoint_pdparams": null,
       "checkpoint_sha256": null,
       "notes": []
+    },
+    {
+      "model": "qwen25_vl_zero_shot",
+      "split": "test",
+      "status": "ok",
+      "cer": "2.5351",
+      "wer": "3.2945",
+      "der": "1.1958",
+      "meta_path": "results/tables/meta/qwen25_vl_zero_shot_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "paddleocr_vl15_zero_shot",
+      "split": "test",
+      "status": "ok",
+      "cer": "5.433",
+      "wer": "8.4086",
+      "der": "2.0091",
+      "meta_path": "results/tables/meta/paddleocr_vl15_zero_shot_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "paddleocr_vl15_lora_finetuned",
+      "split": "test",
+      "status": "ok",
+      "cer": "0.9654",
+      "wer": "1.2264",
+      "der": "0.6644",
+      "meta_path": "results/tables/meta/paddleocr_vl15_lora_finetuned_test.json",
+      "checkpoint_pdparams": null,
+      "checkpoint_sha256": null,
+      "notes": []
+    },
+    {
+      "model": "ablation_data_size_025pct_test",
+      "split": "test",
+      "status": "stale",
+      "cer": "0.8969",
+      "wer": "1.0146",
+      "der": "0.8867",
+      "meta_path": "results/tables/meta/ablation_data_size_025pct_test_test.json",
+      "checkpoint_pdparams": "experiments/ablation/data_size/025pct/model/best_accuracy.pdparams",
+      "checkpoint_sha256": "8436f0b2ffc8af9b93bd6e775654dfdc57b730754e8b696372f9e8cea5ed0973",
+      "notes": [
+        "checkpoint missing on disk: experiments/ablation/data_size/025pct/model/best_accuracy.pdparams"
+      ]
+    },
+    {
+      "model": "ablation_data_size_050pct_test",
+      "split": "test",
+      "status": "stale",
+      "cer": "0.9157",
+      "wer": "1.0217",
+      "der": "0.887",
+      "meta_path": "results/tables/meta/ablation_data_size_050pct_test_test.json",
+      "checkpoint_pdparams": "experiments/ablation/data_size/050pct/model/best_accuracy.pdparams",
+      "checkpoint_sha256": "37897590461edcba6f37539df6d77516b3f6d63003ba3982bc0339ee4411d32b",
+      "notes": [
+        "checkpoint missing on disk: experiments/ablation/data_size/050pct/model/best_accuracy.pdparams"
+      ]
+    },
+    {
+      "model": "ablation_data_size_075pct_test",
+      "split": "test",
+      "status": "stale",
+      "cer": "0.9146",
+      "wer": "1.033",
+      "der": "0.8876",
+      "meta_path": "results/tables/meta/ablation_data_size_075pct_test_test.json",
+      "checkpoint_pdparams": "experiments/ablation/data_size/075pct/model/best_accuracy.pdparams",
+      "checkpoint_sha256": "96c7c0c389d449dd7d8276bd87b762e204f76dafcba050cd09453605f6f19911",
+      "notes": [
+        "checkpoint missing on disk: experiments/ablation/data_size/075pct/model/best_accuracy.pdparams"
+      ]
+    },
+    {
+      "model": "ablation_data_size_100pct_test",
+      "split": "test",
+      "status": "stale",
+      "cer": "0.9154",
+      "wer": "1.0337",
+      "der": "0.9178",
+      "meta_path": "results/tables/meta/ablation_data_size_100pct_test_test.json",
+      "checkpoint_pdparams": "experiments/ablation/data_size/100pct/model/best_accuracy.pdparams",
+      "checkpoint_sha256": "416b97f7fadd1b9b4c2ea0fad2b653d8c17c5dd46c0d940f5f56f88c6a9a7fd6",
+      "notes": [
+        "checkpoint missing on disk: experiments/ablation/data_size/100pct/model/best_accuracy.pdparams"
+      ]
     }
   ]
 }

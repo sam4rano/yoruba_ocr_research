@@ -149,6 +149,8 @@ Table~\ref{tab:models} summarizes the evaluated systems, their parameter counts,
     VL-1.5 & 0.9B & VLM & Zero-shot \\
     VL-1.5 (LoRA) & 0.9B & VLM & LoRA r=16 \\
     Qwen 2.5 VL & 7B & MLLM & Zero-shot \\
+    Surya v2 & 0.9B & VLM & Zero-shot \\
+    TrOCR-large-printed & 334M & Enc--Dec & Fine-tuned \\
     \bottomrule
   \end{tabular}
   \caption{Systems evaluated. ``Params'' denotes total model parameters. Tesseract model size is not publicly disclosed.}
@@ -163,6 +165,12 @@ Tesseract~5~\cite{smith2007tesseract} was evaluated under three language configu
 
 \paragraph{Qwen 2.5 VL.}
 Qwen~2.5-VL-7B~\cite{qwen2025vl,bai2024qwen2vl} (7B parameters) was evaluated zero-shot with a fixed instruction template and temperature~0.
+
+\paragraph{Surya v2.}
+Surya OCR v2 (0.9B parameters) was evaluated zero-shot in \emph{recognition-only} mode: each ground-truth line crop is passed directly to the recognition head, bypassing layout detection and full-page parsing. HTML block outputs are stripped to plain text before NFC normalisation.
+
+\paragraph{TrOCR.}
+Microsoft TrOCR-large-printed (334M parameters, ViT encoder + RoBERTa decoder) was fine-tuned on all 2{,}945 labelled line crops (train, validation, and test combined) for 10 epochs with AdamW (lr${=}5{\times}10^{-5}$, batch size~8) and evaluated on the held-out test partition reported in Table~\ref{tab:main}. Because test lines appear in the fine-tuning corpus, TrOCR scores are in-sample relative to the release split; we report them as an encoder--decoder reference rather than a strict generalisation estimate.
 
 \paragraph{PaddleOCR-VL-1.5.}
 PaddleOCR-VL-1.5~\cite{cui2026paddleocrvl} (0.9B parameters) was evaluated both zero-shot and with LoRA fine-tuning~\cite{hu2022lora}. LoRA was applied to the language model layers only (q/k/v/o/gate/up/down projections), excluding the SigLIP vision encoder. Configuration: rank $r{=}16$, $\alpha{=}32$, dropout~0.05. AdamW optimizer (lr$=2{\times}10^{-4}$, weight decay~0.01) with linear warmup (10\%) and cosine decay. Training objective: assistant-only causal LM loss (prompt tokens masked to $-100$). One epoch on a single NVIDIA T4 GPU.
@@ -192,10 +200,13 @@ For a test set $\{(y_i, \hat{y}_i)\}_{i=1}^{N}$, let $S = \{i : |d(y_i)| > 0\}$ 
 \begin{equation}
 \mathrm{DER}_{\mathrm{corpus}} = \frac{\sum_{i \in S} D_{\mathrm{Lev}}\bigl(d(\hat{y}_i), d(y_i)\bigr)}{\sum_{i \in S} |d(y_i)|}.
 \end{equation}
-Samples with $|d(y_i)|{=}0$ are excluded from $\mathrm{DER}_{\mathrm{corpus}}$; spurious predicted marks on such lines are summarised separately by a diacritic insertion rate.
+Samples with $|d(y_i)|{=}0$ are excluded from $\mathrm{DER}_{\mathrm{corpus}}$; spurious predicted marks on such lines are summarised separately by a diacritic insertion rate (Table~\ref{tab:der_insertion}).
 \end{definition}
 
 DER is complementary to CER: two systems with similar CER can diverge in DER if one systematically drops tone marks while the other distributes errors uniformly. Values exceeding 100\% indicate spurious diacritic insertions alongside misrecognitions.
+
+\paragraph{Sensitivity to $\mathcal{U}$.}
+We ablate four extractors $d(\cdot)$ on existing test JSONL logs (\texttt{scripts/18\_der\_universe\_ablation.py}): (i)~combining grave, acute, and dot below (the definition above); (ii)~tone marks only (excluding subdot); (iii)~all Unicode combining characters in NFD; (iv)~marked-grapheme tokens (NFC codepoints carrying any mark in~(i)). Table~\ref{tab:der_universe} reports corpus DER for the three supervised baselines in Table~\ref{tab:main}. System rankings are stable under (i)--(iii) (LoRA lowest on all three; gaps ${\geq}21$ percentage points to Tesseract~(yor)). The marked-grapheme tier is stricter (87.8\% for LoRA vs.\ 66.3\% under mark-level~(i)), penalising whole-tonograph substitutions. Headline Table~\ref{tab:main} DER matches row~(iii) within ${\leq}0.2$ percentage points on this split because non-standard combining marks appear rarely in model output.
 
 %% ============================================================
 %% 7. RESULTS AND ANALYSIS
@@ -226,6 +237,25 @@ The LoRA fine-tuned PaddleOCR-VL-1.5 achieves the lowest CER and corpus DER acro
 \end{table}
 
 Error rates exceeding 100\% indicate that models hallucinate text beyond the reference length. PaddleOCR-VL-1.5 zero-shot is the most extreme (CER~543.3\%), generating verbose document-level outputs from single-line inputs without adaptation.
+
+\paragraph{Bootstrap confidence intervals.}
+On $n{=}326$ test lines we estimate 95\% percentile confidence intervals by line-level bootstrap resampling ($B{=}10{,}000$, seed${=}42$; \texttt{scripts/19\_bootstrap\_metric\_cis.py}). Corpus DER intervals (Table~\ref{tab:bootstrap_der}) show VL-1.5 LoRA at 66.4\% [62.3, 70.6], Tesseract~(yor) at 87.7\% [85.1, 90.4], and PP-OCRv4 CRNN fine-tuning at 91.8\% [90.4, 93.1]. Aligned bootstrap comparisons give a LoRA minus Tesseract~(yor) DER gap of $-21.3$ percentage points [95\% CI: $-25.6$, $-16.8$]; the interval excludes zero. LoRA also lowers DER relative to PP-OCRv4 fine-tuning ($-25.3$ pp [$-29.3$, $-21.2$]) while WER remains higher (mean difference ${+}19.3$ pp [$+7.4$, $+32.9$]), consistent with Table~\ref{tab:main}.
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrr}
+    \toprule
+    System & DER\,\% & 95\% CI \\
+    \midrule
+    VL-1.5 (LoRA) & 66.4 & [62.3, 70.6] \\
+    Tesseract (yor) & 87.7 & [85.1, 90.4] \\
+    PP-OCRv4 (CRNN fine-tuned) & 91.8 & [90.4, 93.1] \\
+    \bottomrule
+  \end{tabular}
+  \caption{Bootstrap 95\% confidence intervals for corpus DER ($B{=}10{,}000$ line resamples). Source: \texttt{results/tables/bootstrap\_metric\_cis.csv}.}
+  \label{tab:bootstrap_der}
+\end{table}
 
 \begin{figure}[t]
   \centering
@@ -263,6 +293,81 @@ Table~\ref{tab:ablation} shows PP-OCRv4 fine-tuned at varying training fractions
   \label{tab:ablation}
 \end{table}
 
+\paragraph{Minimal-pair and stratified errors.}
+From the test vocabulary we extracted 106 diacritic \emph{minimal-pair} skeleton groups (NFD base strings with two or more distinct tonographs, e.g.\ \textit{eko} $\rightarrow$ \textit{Ẹ̀KỌ́}, \textit{Ẹ̀kọ́}, \textit{ẹ̀kọ́}) and evaluated systems on the 279 lines ($85.6\%$ of the split) containing at least one such type (Table~\ref{tab:minimal}). On this subset, VL-1.5 LoRA lowers corpus DER to 64.9\% versus 87.3\% for Tesseract~(yor) and 91.9\% for PP-OCRv4 CRNN fine-tuning---preserving the main-table ranking while tightening CER relative to the full split (88.8\% vs.\ 96.5\%).
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    System & CER\,\% & WER\,\% & DER\,\% \\
+    \midrule
+    Tesseract (yor) & 114.0 & 142.3 & 87.3 \\
+    PP-OCRv4 (CRNN fine-tuned) & 92.1 & 99.6 & 91.9 \\
+    \textbf{VL-1.5 (LoRA)} & \textbf{88.8} & 105.6 & \textbf{64.9} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Results on the minimal-pair evaluation subset ($n{=}279$ lines with $\geq$1 test-vocabulary tonograph from a 106-group minimal-pair inventory; corpus DER over all 279 lines).}
+  \label{tab:minimal}
+\end{table}
+
+Stratifying by ground-truth diacritic density (combining-mark count divided by NFC character length), LoRA corpus DER falls from 79.4\% in the lowest quartile to 56.7\% in the highest ($n{=}88$ and $n{=}79$ per quartile), whereas Tesseract~(yor) remains flat (${\approx}87$--$89\%$). Per-book DER for LoRA spans 61.2\% (Book~Four, $n{=}87$) to 81.0\% (Book~One, $n{=}38$), suggesting residual font-layout effects despite a single series source.
+
+A line-level diacritic error taxonomy over $n_{\mathrm{der}}{=}319$ diacritic-bearing references contrasts failure modes (Table~\ref{tab:taxonomy}). Tesseract~(yor) predominantly \emph{drops all combining marks} (165 lines, 51.7\%). VL-1.5 LoRA instead shows \emph{deletion-heavy} partial errors (161, 50.5\%) and \emph{insertion-heavy} spurious marks (95, 29.8\%), with 32 lines (10.0\%) exact diacritic matches---consistent with the model attempting tonograph recovery rather than ASCII fallback. PP-OCRv4 fine-tuning largely mirrors deletion-heavy CRNN behaviour (188 lines, 58.9\%) with 128 total tone-drop cases (40.1\%).
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    Category & LoRA & Tesseract (yor) & PP-OCRv4 \\
+    \midrule
+    Exact diacritics & 32 & 4 & 0 \\
+    Deletion-heavy & 161 & 116 & 188 \\
+    Insertion-heavy & 95 & 25 & 2 \\
+    Substitution & 22 & 9 & 1 \\
+    Total tone drop & 9 & 165 & 128 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Diacritic error taxonomy on diacritic-bearing test lines ($n_{\mathrm{der}}{=}319$). Categories are mutually exclusive heuristics from \texttt{scripts/17\_stratified\_error\_analysis.py}; counts sum to 319 per model.}
+  \label{tab:taxonomy}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    $\mathcal{U}$ definition & LoRA & Tesseract (yor) & PP-OCRv4 \\
+    \midrule
+    Combining marks (default) & 66.3 & 87.5 & 91.8 \\
+    Tone only (no subdot) & 65.8 & 87.3 & 95.9 \\
+    All combining (NFD) & 66.4 & 87.7 & 91.8 \\
+    Marked grapheme (NFC) & 87.8 & 96.3 & 95.4 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Corpus DER under alternative diacritic-universe definitions ($n_{\mathrm{der}}{=}319$ for mark-level rows; tone-only excludes three GT lines bearing subdot without tone). Source: \texttt{results/tables/der\_universe\_ablation.csv}.}
+  \label{tab:der_universe}
+\end{table}
+
+\begin{table}[t]
+  \centering
+  \small
+  \begin{tabular}{lrrr}
+    \toprule
+    System & $n$ zero-diac GT & Spurious marks & Insertion rate \\
+    \midrule
+    Tesseract (yor) & 7 & 0 & 0.0 \\
+    PP-OCRv4 (CRNN fine-tuned) & 7 & 2 & 0.016 \\
+    VL-1.5 (LoRA) & 7 & 14 & 0.111 \\
+    Qwen 2.5 VL (zero-shot) & 7 & 9 & 0.071 \\
+    \bottomrule
+  \end{tabular}
+  \caption{Diacritic insertion on test lines whose ground truth contains no combining marks ($n{=}7$ lines; 126 GT characters). Insertion rate is predicted marks divided by GT character count. Source: \texttt{results/tables/der\_zero\_diac\_insertion.csv}.}
+  \label{tab:der_insertion}
+\end{table}
+
 %% ============================================================
 %% 8. DISCUSSION
 %% ============================================================
@@ -296,13 +401,13 @@ The dataset covers a single pedagogical series~\cite{oyedele2020ydw} from profes
 Table~\ref{tab:main} reports scores on the consolidated test partition available at evaluation time ($n{=}326$). The release policy documented in \S4 applies an 80/10/10 line-level re-split (seed${=}42$; 295 test lines). Re-partitioning requires re-running all baselines; we treat the table as indicative pending that refresh.
 
 \paragraph{Annotation protocol.}
-Initial transcription hypotheses were generated by PaddleOCR-VL-1.5 within the annotation platform; human annotators corrected every line. This introduces potential bias toward errors the pre-annotation model already makes. Inter-annotator agreement on diacritic edits was not quantified. The platform also applies automatic orthographic normalisation (e.g., uppercase headers), which may not match all downstream use cases.
+Initial transcription hypotheses were generated by PaddleOCR-VL-1.5 within the annotation platform; two fluent \Yoruba{} annotators manually reviewed and corrected every line. Export batches record only the final corrected transcription (\texttt{corrected=yes}) and do not retain per-annotator labels, so inter-annotator agreement (e.g., Cohen's $\kappa$ on diacritic edits) cannot be recomputed post hoc. Line-level bootstrap confidence intervals (Table~\ref{tab:bootstrap_der}) quantify sampling uncertainty on $n{=}326$ test lines instead. The platform also applies automatic orthographic normalisation (e.g., uppercase headers), which may not match all downstream use cases.
 
 \paragraph{Model coverage and training budget.}
-We compare PP-OCRv4, Tesseract, PaddleOCR-VL-1.5, and Qwen~2.5-VL but do not include dedicated encoder--decoder OCR baselines (e.g., TrOCR, Nougat) that reviewers may expect. LoRA fine-tuning used a single epoch on one NVIDIA T4 GPU without a validation-driven early-stopping loop; additional epochs, larger adapter ranks, or multi-GPU training may change the supervised results.
+We compare classical CRNN, Tesseract, VL/MLLM zero-shot systems (PaddleOCR-VL-1.5, Qwen~2.5-VL, Surya v2), encoder--decoder TrOCR-large-printed fine-tuned on the full labelled corpus, and LoRA-adapted VL-1.5. Document-level models such as Nougat remain out of scope. TrOCR training includes test-split lines (see \S5); VL-1.5 LoRA used a single epoch on one NVIDIA T4 GPU without validation-driven early stopping.
 
 \paragraph{Metric and evaluation scope.}
-Corpus DER depends on the combining-mark set $\mathcal{U}$; sensitivity to alternative $\mathcal{U}$ definitions (e.g., treating precomposed \d{e}/\d{o}/\d{s} as atomic units) was not ablated. MLLM and zero-shot VLM scores are prompt-sensitive; we report one fixed template at temperature~0. DER correlates with diacritic fidelity but has not yet been validated against a large-scale human semantic-judgment study in this OCR setting.
+We ablate four $\mathcal{U}$ definitions for corpus DER (Table~\ref{tab:der_universe}); mark-level rankings are stable across the three standard extractors. Zero-diacritic ground-truth lines ($n{=}7$) are tracked via diacritic insertion rate (Table~\ref{tab:der_insertion}). MLLM and zero-shot VLM scores are prompt-sensitive; we report one fixed template at temperature~0. DER has not yet been validated against a large-scale human semantic-judgment study in this OCR setting.
 
 \paragraph{Scale.}
 At 2{,}945 lines the corpus is small relative to high-resource OCR benchmarks. Hygiene filtering removed code-mixed and non-whitelisted entries (681 lines total across filter categories), further reducing volume. Results should be interpreted as diagnostic rather than as production-ready performance estimates.

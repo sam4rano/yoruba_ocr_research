@@ -45,3 +45,10 @@ qwen-vl-utils>=0.0.8
 
 # ── PaddleOCR-VL-1.5 (HF): scripts/14–16 — use transformers>=5 when running VL-1.5
 # peft>=0.13.0               # optional: LoRA (16_train_paddleocr_vl_lora.py)
+
+# ── Baseline: Surya v2 (scripts/20_baseline_surya_v2.py) ─────────────────────
+# surya-ocr>=0.20.0          # pip install surya-ocr; needs llama.cpp (CPU/MPS) or vllm (GPU)
+
+# ── Baseline: TrOCR (scripts/21–22) ─────────────────────────────────────────
+datasets>=2.18.0             # 21_train_trocr.py
+# torch>=2.2.0               # install manually with correct CUDA / MPS build

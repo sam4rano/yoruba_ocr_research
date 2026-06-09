@@ -68,6 +68,36 @@
 - Frame high absolute CER/WER on off-the-shelf baselines as **expected** on
   diacritic-heavy low-resource line OCR, not as a benchmark defect.
 
+## DER universe ablation
+
+Recompute corpus DER under alternative diacritic extractors (no re-inference):
+
+```bash
+.venv/bin/python scripts/18_der_universe_ablation.py
+```
+
+Outputs:
+
+- `results/tables/der_universe_ablation.csv` — mark-level vs tone-only vs
+  all-combining vs marked-grapheme NFC tokens
+- `results/tables/der_zero_diac_insertion.csv` — spurious marks on the
+  seven test lines with zero GT combining marks
+
+Headline `metrics.csv` DER matches the **all combining (NFD)** row within
+≤0.2 percentage points on the current test split; the paper’s formal 𝒰 is
+{U+0300, U+0301, U+0323} (combining_marks row).
+
+## Bootstrap confidence intervals
+
+```bash
+.venv/bin/python scripts/19_bootstrap_metric_cis.py
+```
+
+Outputs `bootstrap_metric_cis.csv`, `bootstrap_pairwise_comparison.csv`, and
+`bootstrap_metric_cis.json`. Line-level resampling with aligned draws for
+pairwise comparisons. Inter-annotator κ is **not** available from current
+exports (final labels only).
+
 ## Alignment check
 
 After changing `data/processed` or before submission, run:

@@ -24,11 +24,11 @@ The high error rates across all systems underscore the scale of the challenge fo
 
 **Split policy.** The release applies an 80/10/10 line-level split (seed=42) after merging all volumes. This does not guarantee test lines come from unseen book designs. Table 1 metrics (n=326 test) predate enforced re-partitioning (295 test lines) and require re-evaluation.
 
-**Annotation protocol.** Initial hypotheses came from PaddleOCR-VL-1.5; human annotators corrected every line. Inter-annotator agreement on diacritics was not quantified. Automatic orthographic normalisation in the annotation platform may not match all downstream use cases.
+**Annotation protocol.** Initial hypotheses came from PaddleOCR-VL-1.5; two annotators corrected every line, but exports lack per-annotator fields so κ cannot be recomputed. Bootstrap 95% CIs on n=326 test lines quantify sampling uncertainty instead (`bootstrap_metric_cis.csv`).
 
-**Model coverage.** TrOCR/Nougat-style encoder–decoder OCR baselines are not included. LoRA used one epoch on a T4 GPU without validation early stopping.
+**Model coverage.** Surya v2 (recognition-only, zero-shot) and TrOCR-large-printed (fine-tuned on all 2,945 lines) are now scripted (`20`–`22`); Nougat-style document OCR remains excluded. LoRA used one epoch on a T4 GPU without validation early stopping.
 
-**Metrics.** Corpus DER depends on the combining-mark set 𝒰; alternative definitions were not ablated. MLLM scores are prompt-sensitive. No large-scale human semantic validation of DER in this OCR setting.
+**Metrics.** Corpus DER uses combining marks U+0300/U+0301/U+0323 by default; four 𝒰 definitions are ablated in `der_universe_ablation.csv`. Zero-diacritic GT lines (n=7) summarised in `der_zero_diac_insertion.csv`. MLLM scores are prompt-sensitive.
 
 **Scale.** 2,945 lines is small relative to high-resource OCR benchmarks; results are diagnostic, not production estimates.
 

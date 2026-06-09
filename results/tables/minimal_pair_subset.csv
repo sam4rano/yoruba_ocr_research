@@ -1,0 +1,6 @@
+model,n_mp_lines,cer_pct,wer_pct,der_pct,der_n
+paddleocr_vl15_lora_finetuned,279,88.8,105.6,64.9,279
+tesseract_yor,279,114.0,142.3,87.3,279
+tesseract_eng,279,112.0,136.5,98.6,279
+ablation_data_size_100pct_test,279,92.1,99.6,91.9,279
+paddleocr_vl15_zero_shot,279,500.9,755.3,198.4,279

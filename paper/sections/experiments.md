@@ -24,7 +24,11 @@ where D_Lev is Levenshtein distance over diacritic mark sequences.
 DER_corpus = Σ_{i∈S} D_Lev(d(ŷᵢ), d(yᵢ)) / Σ_{i∈S} |d(yᵢ)|
 ```
 
-Samples with no GT diacritics are excluded; spurious predicted marks on those lines are tracked via `der_insertion_rate`.
+Samples with no GT diacritics are excluded from corpus DER; spurious predicted marks on those lines are tracked via `der_insertion_rate` (see `results/tables/der_zero_diac_insertion.csv`).
+
+### 𝒰 sensitivity ablation
+
+`scripts/18_der_universe_ablation.py` recomputes corpus DER under four extractors without re-running inference. Results: `results/tables/der_universe_ablation.csv`. Mark-level rankings (combining / tone-only / all-combining) match Table 1 ordering; marked-grapheme NFC tokens yield higher DER (stricter whole-character criterion).
 
 DER is complementary to CER: two systems with similar CER can diverge in DER if one systematically drops tone marks while the other distributes errors uniformly. Values exceeding 100% indicate spurious diacritic insertions alongside misrecognitions.
 

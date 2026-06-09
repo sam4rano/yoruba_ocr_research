@@ -21,6 +21,8 @@ data/processed/**
 !data/processed/**/
 !data/processed/**/.gitkeep
 
+data/hf_export/
+
 # Checkpoints & training runs (keep only placeholder .gitkeep dirs if present)
 experiments/**
 !experiments/**/

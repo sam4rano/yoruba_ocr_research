@@ -51,3 +51,66 @@ Relative to the best non-fine-tuned system on each metric:
 | 100 | 91.5 | 103.4 | 91.8 |
 
 The ablation reveals a counterintuitive pattern: performance does not monotonically improve with more training data. The 25% fraction achieves the lowest CER (89.7%) and tied-lowest DER (88.7%), while the 100% fraction shows slightly worse DER (91.8%). This suggests that for the classical CRNN architecture, the dataset may contain sufficient redundancy that additional samples do not contribute novel visual patterns, and potential label noise in the full dataset marginally degrades diacritic recognition.
+
+## Minimal-Pair and Stratified Error Analysis
+
+We mined **106 diacritic minimal-pair skeleton groups** from the test vocabulary (NFD base strings with ≥2 distinct surface tonographs; e.g. *eko* → Ẹ̀KỌ́, Ẹ̀kọ́, ẹ̀kọ́) and evaluated systems on **279 lines** (85.6% of the split) containing at least one such type. Source: `results/tables/minimal_pair_vocabulary.json`, `results/tables/minimal_pair_subset.csv`.
+
+**Table 3: Minimal-pair evaluation subset (n=279).**
+
+| System | CER (%) ↓ | WER (%) ↓ | DER (%) ↓ |
+|--------|----------:|----------:|----------:|
+| Tesseract (yor) | 114.0 | 142.3 | 87.3 |
+| PaddleOCR PP-OCRv4 (CRNN fine-tuned) | 92.1 | 99.6 | 91.9 |
+| **PaddleOCR-VL-1.5 (LoRA fine-tuned)** | **88.8** | 105.6 | **64.9** |
+
+On this subset, LoRA retains the lowest DER while improving CER relative to the full split (88.8% vs. 96.5%), indicating that failures on tonographically rich lines are not the sole driver of headline error rates.
+
+**Diacritic density quartiles** (combining-mark count / NFC character length; edges in `stratified_error_analysis.json`): LoRA corpus DER decreases from **79.4%** (Q1, n=88) to **56.7%** (Q4, n=79), whereas Tesseract (yor) stays near **87–89%** across quartiles (`stratified_der_by_density.csv`). LoRA appears relatively stronger on high-density lines—possibly because heavily marked text is more visually distinctive in this book series.
+
+**Per-book DER (LoRA)** spans **61.2%** (Book Four, n=87) to **81.0%** (Book One, n=38); see `stratified_der_by_book.csv`.
+
+**Error taxonomy** (n_der=319 diacritic-bearing lines; `error_taxonomy.csv`):
+
+| Category | LoRA | Tesseract (yor) | PP-OCRv4 CRNN |
+|----------|-----:|----------------:|--------------:|
+| Exact diacritics | 32 (10.0%) | 4 (1.3%) | 0 |
+| Deletion-heavy | 161 (50.5%) | 116 (36.4%) | 188 (58.9%) |
+| Insertion-heavy | 95 (29.8%) | 25 (7.8%) | 2 (0.6%) |
+| Substitution | 22 (6.9%) | 9 (2.8%) | 1 (0.3%) |
+| Total tone drop | 9 (2.8%) | 165 (51.7%) | 128 (40.1%) |
+
+Tesseract (yor) most often strips all combining marks; LoRA more often partially edits the tonograph sequence (deletions and insertions), with 32 lines of exact diacritic recovery. PP-OCRv4 fine-tuning remains deletion-heavy with frequent total tone drop—aligning with CTC's weak diacritic inductive bias despite lower WER on the full split.
+
+## DER Universe Ablation
+
+We recomputed corpus DER under four diacritic-universe definitions from test JSONL logs (`scripts/18_der_universe_ablation.py`; `results/tables/der_universe_ablation.csv`).
+
+**Table 4: Corpus DER by 𝒰 definition (n_der=319 for mark-level rows).**
+
+| 𝒰 definition | LoRA (%) | Tesseract (yor) (%) | PP-OCRv4 CRNN (%) |
+|--------------|---------:|--------------------:|------------------:|
+| Combining marks (default: U+0300, U+0301, U+0323) | 66.3 | 87.5 | 91.8 |
+| Tone only (excludes subdot) | 65.8 | 87.3 | 95.9 |
+| All combining (NFD) | 66.4 | 87.7 | 91.8 |
+| Marked grapheme (NFC tonographs) | 87.8 | 96.3 | 95.4 |
+
+LoRA remains lowest under mark-level definitions (i–iii). The marked-grapheme tier is stricter—whole-character tonograph errors dominate. Headline Table 1 DER aligns with the “all combining” row within ≤0.2pp because non-standard combining marks are rare in model output on this split.
+
+**Zero-diacritic ground-truth lines** (`der_zero_diac_insertion.csv`): 7 test lines (126 GT characters) carry no combining marks. LoRA predicts 14 spurious marks (insertion rate 0.111); Tesseract configurations predict none; PP-OCRv4 predicts 2 (rate 0.016). These lines are excluded from corpus DER but matter for mid-tone vowel hallucination.
+
+## Bootstrap Confidence Intervals
+
+Line-level bootstrap on n=326 test lines (B=10,000, seed=42; `scripts/19_bootstrap_metric_cis.py`).
+
+**Table 5: Corpus DER with 95% CIs** (`bootstrap_metric_cis.csv`).
+
+| System | DER (%) | 95% CI |
+|--------|--------:|--------|
+| PaddleOCR-VL-1.5 (LoRA) | 66.4 | [62.3, 70.6] |
+| Tesseract (yor) | 87.7 | [85.1, 90.4] |
+| PaddleOCR PP-OCRv4 (CRNN fine-tuned) | 91.8 | [90.4, 93.1] |
+
+**Pairwise DER gaps** (`bootstrap_pairwise_comparison.csv`): LoRA − Tesseract (yor) = −21.3 pp [−25.6, −16.8] (P=1.0 that LoRA DER is lower); LoRA − PP-OCRv4 = −25.3 pp [−29.3, −21.2]. LoRA WER remains higher than PP-OCRv4 (+19.3 pp [+7.4, +32.9]).
+
+**Inter-annotator agreement:** Raw exports store only final corrected labels; Cohen's κ on diacritic edits is not available without a dedicated dual-annotation audit (`bootstrap_metric_cis.json` documents this limitation).

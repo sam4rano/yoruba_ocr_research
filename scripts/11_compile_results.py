@@ -47,6 +47,8 @@ MODEL_DISPLAY = {
     "tesseract_eng+yor": "Tesseract (eng+yor)",
     "paddleocr_vl15_zero_shot": "PaddleOCR-VL-1.5 (zero-shot)",
     "qwen25_vl_zero_shot": "Qwen 2.5 VL (zero-shot)",
+    "surya_v2_zero_shot": "Surya v2 (zero-shot, recognition-only)",
+    "trocr_large_printed_finetuned": "TrOCR-large-printed (fine-tuned)",
     "finetuned_paddleocr_v1": "PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison)",
     "paddleocr_vl15_lora_finetuned": "PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised)",
     # Ablation data size (PP-OCRv4 CRNN — not VL-1.5)
@@ -69,7 +71,9 @@ TABLE1_ORDER = [
     "tesseract_eng+yor",
     "paddleocr_vl15_zero_shot",
     "qwen25_vl_zero_shot",
+    "surya_v2_zero_shot",
     "paddleocr_vl15_lora_finetuned",
+    "trocr_large_printed_finetuned",
     "finetuned_paddleocr_v1",
 ]
 

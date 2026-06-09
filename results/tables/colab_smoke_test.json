@@ -1,0 +1,46 @@
+{
+  "timestamp_utc": "2026-06-09T17:20:49.099565+00:00",
+  "steps": [
+    {
+      "name": "data/processed layout",
+      "status": "ok"
+    },
+    {
+      "name": "python deps (editdistance)",
+      "status": "ok"
+    },
+    {
+      "name": "02b data quality audit",
+      "status": "ok"
+    },
+    {
+      "name": "phase_03 config",
+      "status": "ok"
+    },
+    {
+      "name": "phase_14 VL export",
+      "status": "ok"
+    },
+    {
+      "name": "analysis 17-19",
+      "status": "ok"
+    },
+    {
+      "name": "phase_09 compile",
+      "status": "ok"
+    },
+    {
+      "name": "checkpoint audit",
+      "status": "ok"
+    },
+    {
+      "name": "research_approach.md",
+      "status": "ok"
+    },
+    {
+      "name": "yor_ocr.ipynb syntax",
+      "status": "ok"
+    }
+  ],
+  "ok": true
+}
