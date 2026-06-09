@@ -7,5 +7,4 @@
 | Tesseract (eng+yor) | 122.6 | 160.0 | 93.9 |
 | PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 |
 | Qwen 2.5 VL (zero-shot) | 253.5 | 329.5 | 119.6 |
-| PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | 96.5 | 122.6 | **66.4** |
-| PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison) | **91.5** | **103.4** | 91.8 |
+| PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | **96.5** | **122.6** | **66.4** |

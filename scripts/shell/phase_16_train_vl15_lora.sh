@@ -16,6 +16,9 @@ fi
 if [[ -n "${VL15_GRAD_ACCUM:-}" ]]; then
   EXTRA+=(--gradient-accumulation-steps "$VL15_GRAD_ACCUM")
 fi
+if [[ "${VL15_TRAIN_RESUME:-0}" == "1" ]]; then
+  EXTRA+=(--resume)
+fi
 
 require_python
 run_py scripts/16_train_paddleocr_vl_lora.py \

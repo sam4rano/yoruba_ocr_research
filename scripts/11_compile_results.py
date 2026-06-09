@@ -34,7 +34,14 @@ from __future__ import annotations
 import argparse
 import csv
 import logging
+import sys
 from pathlib import Path
+
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+
+from metrics_lifecycle import checkpoint_status_for_row  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -149,21 +156,25 @@ def load_results(csv_path: Path) -> dict[str, dict]:
     return records
 
 
-def prepare_table1_records(records: dict[str, dict]) -> dict[str, dict]:
-    """Build Table 1 rows: apply aliases and skip phantom checkpoints."""
+def prepare_table1_records(
+    records: dict[str, dict],
+    tables_dir: Path,
+) -> dict[str, dict]:
+    """Build Table 1 rows: apply aliases; skip phantom and stale checkpoints."""
     out: dict[str, dict] = {}
     for model_key in TABLE1_ORDER:
         row = records.get(model_key)
+        alias_used = None
         if row is None and model_key in TABLE1_ALIASES:
             alias = TABLE1_ALIASES[model_key]
             row = records.get(alias)
             if row is not None:
-                log.info(
-                    "Table 1: using %s metrics for %s.",
-                    alias,
-                    model_key,
-                )
+                alias_used = alias
         if row is None:
+            log.warning(
+                "Table 1: no usable metrics row for: %s (run eval or check aliases).",
+                model_key,
+            )
             continue
         phantom = (row.get("phantom") or "").strip().lower()
         if phantom == "true":
@@ -172,6 +183,20 @@ def prepare_table1_records(records: dict[str, dict]) -> dict[str, dict]:
                 model_key,
             )
             continue
+        status = checkpoint_status_for_row(row, tables_dir)
+        if status == "stale":
+            log.warning(
+                "Table 1: excluding %s (stale checkpoint%s).",
+                model_key,
+                f"; alias={alias_used}" if alias_used else "",
+            )
+            continue
+        if alias_used:
+            log.info(
+                "Table 1: using %s metrics for %s.",
+                alias_used,
+                model_key,
+            )
         out[model_key] = row
     return out
 
@@ -319,7 +344,7 @@ def main() -> None:
     rows = load_results(args.results_csv)
     log.info("Loaded %d model result rows.", len(rows))
 
-    table1_rows = prepare_table1_records(rows)
+    table1_rows = prepare_table1_records(rows, args.results_csv.parent)
     missing = [m for m in TABLE1_ORDER if m not in table1_rows]
     if missing:
         log.warning(

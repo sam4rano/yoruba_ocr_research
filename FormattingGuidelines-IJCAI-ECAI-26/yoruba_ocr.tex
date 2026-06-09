@@ -51,7 +51,7 @@ Anonymous Authors
 %% ============================================================
 \begin{abstract}
 Optical Character Recognition (OCR) for African languages remains underdeveloped, especially for tone languages such as \Yoruba{}, where diacritics are semantically contrastive. For example, the base syllable sequence \emph{igba} maps to five unrelated words depending solely on tonal marking: \emph{igba} (two hundred), \emph{igb\'a} (calabash), \emph{\`igb\`a} (season/time), \emph{\`igb\'a} (garden egg), and \emph{igb\`a} (a type of rope). Widely deployed OCR engines and multimodal large language models (MLLMs) frequently confuse such diacritic minimal sets, yielding outputs that alter meaning.
-We introduce a curated corpus of 2{,}945 human-corrected line crops from the six-volume \emph{\Yoruba{} di W\'ur\`a} graded reader series, merged into a single corpus and partitioned at line level (80/10/10 train/validation/test, seed${=}42$). We systematically benchmark classical OCR, modern vision-language models (VLMs), and an MLLM (Qwen~2.5-VL), and we propose \emph{Diacritic Error Rate} (DER) to isolate tone-mark errors from base-character corruption.
+We introduce a curated corpus of 2{,}945 human-corrected line crops from the six-volume \emph{\Yoruba{} di W\'ur\`a} graded reader series, merged into a single corpus with export-stable train/validation/test partitions (2{,}367 / 252 / 326 lines). We benchmark classical OCR, vision-language models (VLMs), and a frozen Qwen~2.5-VL zero-shot run, and we propose \emph{Diacritic Error Rate} (DER) to isolate tone-mark errors from base-character corruption.
 We find that even with targeted LoRA fine-tuning, the best-performing model (PaddleOCR-VL-1.5) still misrecognizes roughly two-thirds of combining diacritics on the held-out test split (corpus DER${=}66.4\%$ over $n_{\mathrm{der}}{=}319$ diacritic-bearing lines), exposing a fundamental evaluation blind spot. While MLLMs sometimes infer correct words from context, they suffer from graphemic hallucinations. Our benchmark provides a diagnostic tool to measure this fidelity gap, demonstrating that current architectures remain inadequate for archival digitization of tonal scripts. Data and code will be publicly released.
 \end{abstract}
 
@@ -68,7 +68,7 @@ Standard metrics such as Character Error Rate (CER) and Word Error Rate (WER) tr
 
 This paper addresses three gaps: the absence of a linguistically validated \Yoruba{} OCR benchmark, the lack of systematic MLLM evaluation on \Yoruba{} text recognition~\cite{sohail2024deciphering}, and the insensitivity of existing metrics to tonal error patterns.
 
-We make three contributions: \textbf{(i)}~to our knowledge, the first diacritic-faithful OCR benchmark for \Yoruba{}, featuring human-corrected line-image annotations from a merged six-volume corpus with a reproducible 80/10/10 line-level split; \textbf{(ii)}~\emph{Diacritic Error Rate} (DER), a linguistically grounded evaluation metric for tonal scripts; and \textbf{(iii)}~empirical evidence that modern VLMs fail at graphemic fidelity, revealing an evaluation blind spot where current architectures fall short. All data and code will be publicly released.
+We make three contributions: \textbf{(i)}~to our knowledge, the first diacritic-faithful OCR benchmark for \Yoruba{}, featuring human-corrected line-image annotations from a merged six-volume corpus (2{,}367 / 252 / 326 export-stable split); \textbf{(ii)}~\emph{Diacritic Error Rate} (DER), a linguistically grounded evaluation metric for tonal scripts; and \textbf{(iii)}~empirical evidence that modern VLMs fail at graphemic fidelity, revealing an evaluation blind spot where current architectures fall short. All data and code will be publicly released.
 
 %% ============================================================
 %% 2. RELATED WORK
@@ -122,7 +122,15 @@ We built a custom web-based annotation platform (\emph{\Yoruba{} OCR Hub}, Figur
 A filter removed labels shorter than 3 or longer than 100 characters, lines containing non-\Yoruba{} codepoints, and entries flagged as invalid. Specifically: 640 invalid entries, 386 non-whitelisted codepoints, 348 labels too short, and 236 too long were excluded. The resulting dataset comprises \textbf{2{,}945 unique line crops}.
 
 \paragraph{Train/validation/test split.}
-All six \emph{\Yoruba{} di W\'ur\`a} volumes are merged into one corpus. Lines are assigned to train, validation, and test splits at \textbf{80/10/10} by uniform random sampling over unique line crops (seed${=}42$), yielding 2{,}356 train, 294 validation, and 295 test lines. This line-level partition maximises usable training volume after consolidation; unlike volume-disjoint splits, it does not guarantee that test lines come from unseen book designs, and typographic generalisation across volumes must be assessed separately.
+All six \emph{\Yoruba{} di W\'ur\`a} volumes are merged into one corpus of
+2{,}945 unique line crops. The benchmark release on Hugging Face preserves
+export-stable partitions from the annotation platform:
+\textbf{2{,}367 train / 252 validation / 326 test} lines (Table~1 metrics use
+the 326-line test split). An optional consolidation pass with
+\texttt{--resplit --seed 42} reassigns lines at 80/10/10 uniformly at random,
+yielding 2{,}356 train, 294 validation, and 295 test lines for strict
+line-level partitioning; we report results on the export-stable split unless
+otherwise noted.
 
 \paragraph{Character dictionary.}
 The dictionary contains \textbf{99 unique characters} (excluding space), closed under NFC normalization. It covers all tonal vowel variants, sub-dotted vowels and consonants, uppercase variants, digits, and common punctuation. Coverage of in-distribution text is 99.0\%.
@@ -144,16 +152,16 @@ Table~\ref{tab:models} summarizes the evaluated systems, their parameter counts,
     \toprule
     System & Params & Type & Adaptation \\
     \midrule
-    PP-OCRv4 & ${\sim}$11M & CRNN+CTC & Fine-tuned \\
+    PP-OCRv4$^\dagger$ & ${\sim}$11M & CRNN+CTC & Fine-tuned \\
     Tesseract~5 & -- & LSTM+CTC & Zero-shot \\
     VL-1.5 & 0.9B & VLM & Zero-shot \\
     VL-1.5 (LoRA) & 0.9B & VLM & LoRA r=16 \\
-    Qwen 2.5 VL & 7B & MLLM & Zero-shot \\
-    Surya v2 & 0.9B & VLM & Zero-shot \\
-    TrOCR-large-printed & 334M & Enc--Dec & Fine-tuned \\
+    Qwen 2.5 VL & 7B & MLLM & Zero-shot (frozen run) \\
+    Surya v2$^\ddagger$ & 0.9B & VLM & Zero-shot \\
+    TrOCR-large-printed$^\ddagger$ & 334M & Enc--Dec & Fine-tuned \\
     \bottomrule
   \end{tabular}
-  \caption{Systems evaluated. ``Params'' denotes total model parameters. Tesseract model size is not publicly disclosed.}
+  \caption{Systems evaluated. ``Params'' denotes total model parameters. Tesseract model size is not publicly disclosed. $^\dagger$PP-OCRv4 metrics appear in data-size ablation (Table~\ref{tab:ablation}) from an archived evaluation; training checkpoints were not on disk at paper freeze and the row is omitted from Table~\ref{tab:main}. $^\ddagger$Surya and TrOCR are implemented in the release pipeline but not included in Table~\ref{tab:main} for this submission.}
   \label{tab:models}
 \end{table}
 
@@ -164,13 +172,13 @@ We fine-tuned the English-pretrained PP-OCRv4 recognition model~\cite{du2020ppoc
 Tesseract~5~\cite{smith2007tesseract} was evaluated under three language configurations: English (\texttt{eng}), \Yoruba{} (\texttt{yor}), and combined (\texttt{eng+yor}), all with default parameters.
 
 \paragraph{Qwen 2.5 VL.}
-Qwen~2.5-VL-7B~\cite{qwen2025vl,bai2024qwen2vl} (7B parameters) was evaluated zero-shot with a fixed instruction template and temperature~0.
+Qwen~2.5-VL-7B~\cite{qwen2025vl,bai2024qwen2vl} (7B parameters) was evaluated zero-shot once with a fixed instruction template and temperature~0; we do not re-run this baseline because the locked-in Table~\ref{tab:main} scores already characterise MLLM hallucination on diacritics (see \S\ref{sec:limitations}).
 
 \paragraph{Surya v2.}
-Surya OCR v2 (0.9B parameters) was evaluated zero-shot in \emph{recognition-only} mode: each ground-truth line crop is passed directly to the recognition head, bypassing layout detection and full-page parsing. HTML block outputs are stripped to plain text before NFC normalisation.
+Surya OCR v2 (0.9B parameters) is supported in \emph{recognition-only} mode (ground-truth line crops passed directly to the recognition head). It is not reported in Table~\ref{tab:main} for this submission.
 
 \paragraph{TrOCR.}
-Microsoft TrOCR-large-printed (334M parameters, ViT encoder + RoBERTa decoder) was fine-tuned on all 2{,}945 labelled line crops (train, validation, and test combined) for 10 epochs with AdamW (lr${=}5{\times}10^{-5}$, batch size~8) and evaluated on the held-out test partition reported in Table~\ref{tab:main}. Because test lines appear in the fine-tuning corpus, TrOCR scores are in-sample relative to the release split; we report them as an encoder--decoder reference rather than a strict generalisation estimate.
+Microsoft TrOCR-large-printed (334M parameters) can be fine-tuned with \texttt{scripts/21\_train\_trocr.py} (hold-out test split recommended). It is not reported in Table~\ref{tab:main} for this submission.
 
 \paragraph{PaddleOCR-VL-1.5.}
 PaddleOCR-VL-1.5~\cite{cui2026paddleocrvl} (0.9B parameters) was evaluated both zero-shot and with LoRA fine-tuning~\cite{hu2022lora}. LoRA was applied to the language model layers only (q/k/v/o/gate/up/down projections), excluding the SigLIP vision encoder. Configuration: rank $r{=}16$, $\alpha{=}32$, dropout~0.05. AdamW optimizer (lr$=2{\times}10^{-4}$, weight decay~0.01) with linear warmup (10\%) and cosine decay. Training objective: assistant-only causal LM loss (prompt tokens masked to $-100$). One epoch on a single NVIDIA T4 GPU.
@@ -206,7 +214,7 @@ Samples with $|d(y_i)|{=}0$ are excluded from $\mathrm{DER}_{\mathrm{corpus}}$; 
 DER is complementary to CER: two systems with similar CER can diverge in DER if one systematically drops tone marks while the other distributes errors uniformly. Values exceeding 100\% indicate spurious diacritic insertions alongside misrecognitions.
 
 \paragraph{Sensitivity to $\mathcal{U}$.}
-We ablate four extractors $d(\cdot)$ on existing test JSONL logs (\texttt{scripts/18\_der\_universe\_ablation.py}): (i)~combining grave, acute, and dot below (the definition above); (ii)~tone marks only (excluding subdot); (iii)~all Unicode combining characters in NFD; (iv)~marked-grapheme tokens (NFC codepoints carrying any mark in~(i)). Table~\ref{tab:der_universe} reports corpus DER for the three supervised baselines in Table~\ref{tab:main}. System rankings are stable under (i)--(iii) (LoRA lowest on all three; gaps ${\geq}21$ percentage points to Tesseract~(yor)). The marked-grapheme tier is stricter (87.8\% for LoRA vs.\ 66.3\% under mark-level~(i)), penalising whole-tonograph substitutions. Headline Table~\ref{tab:main} DER matches row~(iii) within ${\leq}0.2$ percentage points on this split because non-standard combining marks appear rarely in model output.
+We ablate four extractors $d(\cdot)$ on existing test JSONL logs (\texttt{scripts/18\_der\_universe\_ablation.py}): (i)~combining grave, acute, and dot below (the definition above); (ii)~tone marks only (excluding subdot); (iii)~all Unicode combining characters in NFD; (iv)~marked-grapheme tokens (NFC codepoints carrying any mark in~(i)). Table~\ref{tab:der_universe} reports corpus DER for LoRA, Tesseract~(yor), and archived PP-OCRv4 logs. System rankings are stable under (i)--(iii) (LoRA lowest on all three; gaps ${\geq}21$ percentage points to Tesseract~(yor)). The marked-grapheme tier is stricter (87.8\% for LoRA vs.\ 66.3\% under mark-level~(i)), penalising whole-tonograph substitutions. Headline Table~\ref{tab:main} DER matches row~(iii) within ${\leq}0.2$ percentage points on this split because non-standard combining marks appear rarely in model output.
 
 %% ============================================================
 %% 7. RESULTS AND ANALYSIS
@@ -228,18 +236,17 @@ The LoRA fine-tuned PaddleOCR-VL-1.5 achieves the lowest CER and corpus DER acro
     Tesseract (eng+yor) & 122.6 & 160.0 & 93.9 \\
     VL-1.5 (zero-shot) & 543.3 & 840.9 & 200.9 \\
     Qwen 2.5 VL (zero-shot) & 253.5 & 329.5 & 119.6 \\
-    PP-OCRv4 (CRNN fine-tuned) & 91.5 & \underline{103.4} & 91.8 \\
     \textbf{VL-1.5 (LoRA)} & \textbf{96.5} & 122.6 & \textbf{66.4} \\
     \bottomrule
   \end{tabular}
-  \caption{Main results on the held-out test split ($n{=}326$; corpus DER over $n_{\mathrm{der}}{=}319$ diacritic-bearing lines). Table metrics reflect the consolidated export partition prior to enforced 80/10/10 re-splitting (295 test lines under seed${=}42$); see \S\ref{sec:limitations}. Bold: best; underline: second-best. Error rates $>$100\% reflect hallucinated content exceeding reference length. PP-OCRv4 CRNN fine-tuned uses the 100\% training-fraction checkpoint.}
+  \caption{Main results on the export-stable test split ($n{=}326$; corpus DER over $n_{\mathrm{der}}{=}319$ diacritic-bearing lines). Bold: best; underline: second-best among non-fine-tuned systems (Tesseract~(yor) DER). Error rates $>$100\% reflect hallucinated content exceeding reference length. PP-OCRv4 CRNN fine-tuning is reported separately in Table~\ref{tab:ablation} (archived eval; checkpoint not retained at paper freeze).}
   \label{tab:main}
 \end{table}
 
 Error rates exceeding 100\% indicate that models hallucinate text beyond the reference length. PaddleOCR-VL-1.5 zero-shot is the most extreme (CER~543.3\%), generating verbose document-level outputs from single-line inputs without adaptation.
 
 \paragraph{Bootstrap confidence intervals.}
-On $n{=}326$ test lines we estimate 95\% percentile confidence intervals by line-level bootstrap resampling ($B{=}10{,}000$, seed${=}42$; \texttt{scripts/19\_bootstrap\_metric\_cis.py}). Corpus DER intervals (Table~\ref{tab:bootstrap_der}) show VL-1.5 LoRA at 66.4\% [62.3, 70.6], Tesseract~(yor) at 87.7\% [85.1, 90.4], and PP-OCRv4 CRNN fine-tuning at 91.8\% [90.4, 93.1]. Aligned bootstrap comparisons give a LoRA minus Tesseract~(yor) DER gap of $-21.3$ percentage points [95\% CI: $-25.6$, $-16.8$]; the interval excludes zero. LoRA also lowers DER relative to PP-OCRv4 fine-tuning ($-25.3$ pp [$-29.3$, $-21.2$]) while WER remains higher (mean difference ${+}19.3$ pp [$+7.4$, $+32.9$]), consistent with Table~\ref{tab:main}.
+On $n{=}326$ test lines we estimate 95\% percentile confidence intervals by line-level bootstrap resampling ($B{=}10{,}000$, seed${=}42$; \texttt{scripts/19\_bootstrap\_metric\_cis.py}). Corpus DER intervals (Table~\ref{tab:bootstrap_der}) show VL-1.5 LoRA at 66.4\% [62.3, 70.6] and Tesseract~(yor) at 87.7\% [85.1, 90.4]. Aligned bootstrap comparisons give a LoRA minus Tesseract~(yor) DER gap of $-21.3$ percentage points [95\% CI: $-25.6$, $-16.8$]; the interval excludes zero. An archived PP-OCRv4 fine-tuning run (Table~\ref{tab:ablation}) yields DER 91.8\% [90.4, 93.1] on the same JSONL logs; LoRA lowers DER relative to that run by $-25.3$ pp [$-29.3$, $-21.2$] while WER remains higher ($+19.3$ pp [$+7.4$, $+32.9$]).
 
 \begin{table}[t]
   \centering
@@ -250,10 +257,9 @@ On $n{=}326$ test lines we estimate 95\% percentile confidence intervals by line
     \midrule
     VL-1.5 (LoRA) & 66.4 & [62.3, 70.6] \\
     Tesseract (yor) & 87.7 & [85.1, 90.4] \\
-    PP-OCRv4 (CRNN fine-tuned) & 91.8 & [90.4, 93.1] \\
     \bottomrule
   \end{tabular}
-  \caption{Bootstrap 95\% confidence intervals for corpus DER ($B{=}10{,}000$ line resamples). Source: \texttt{results/tables/bootstrap\_metric\_cis.csv}.}
+  \caption{Bootstrap 95\% confidence intervals for corpus DER on Table~\ref{tab:main} systems ($B{=}10{,}000$ line resamples). Source: \texttt{results/tables/bootstrap\_metric\_cis.csv}.}
   \label{tab:bootstrap_der}
 \end{table}
 
@@ -265,7 +271,7 @@ On $n{=}326$ test lines we estimate 95\% percentile confidence intervals by line
 \end{figure}
 
 \paragraph{Baseline analysis.}
-Among non-fine-tuned systems, Tesseract~(yor) achieves the lowest corpus DER (87.7\%), suggesting its language model provides partial diacritic awareness. However, its CER (124.4\%) remains high. English Tesseract shows the opposite: marginally better CER (120.3\%) but worse DER (98.5\%), consistent with accurate shape reading but lacking the linguistic prior for diacritic selection. PP-OCRv4 CRNN fine-tuning achieves the lowest WER in Table~\ref{tab:main} (103.4\%) and marginally lower CER than LoRA (91.5\% vs.\ 96.5\%), yet its corpus DER (91.8\%) remains far above the LoRA model---classical CTC decoding recovers word boundaries somewhat better while still failing systematically on tone marks and subdots.
+Among non-fine-tuned systems, Tesseract~(yor) achieves the lowest corpus DER (87.7\%), suggesting its language model provides partial diacritic awareness. However, its CER (124.4\%) remains high. English Tesseract shows the opposite: marginally better CER (120.3\%) but worse DER (98.5\%), consistent with accurate shape reading but lacking the linguistic prior for diacritic selection. Archived PP-OCRv4 CRNN fine-tuning (Table~\ref{tab:ablation}) achieves lower WER (103.4\%) and marginally lower CER (91.5\%) than LoRA, yet corpus DER (91.8\%) remains far above the LoRA model---classical CTC decoding recovers word boundaries somewhat better while still failing systematically on tone marks and subdots.
 
 \paragraph{Context vs.\ fidelity in MLLMs.}
 Qwen~2.5-VL (7B parameters) occasionally recovers the correct diacritized word by inferring meaning from context---producing 4 perfect transcriptions versus zero for any Tesseract configuration. However, its mean CER (253.5\%) and corpus DER (119.6\%) are far worse overall, driven by frequent hallucination. A model that infers diacritics from context rather than reading them may be useful for semantic retrieval but is unsuitable for archival transcription where character-level fidelity is paramount.
@@ -289,7 +295,7 @@ Table~\ref{tab:ablation} shows PP-OCRv4 fine-tuned at varying training fractions
     100 & 91.5 & 103.4 & 91.8 \\
     \bottomrule
   \end{tabular}
-  \caption{PP-OCRv4 data size ablation (test split, $n{=}326$). \textbf{Takeaway:} Performance saturates early and does not monotonically improve with more data. This indicates a structural modeling failure rather than merely a data scarcity problem: CRNN+CTC architectures lack the inductive biases needed to reliably capture multi-level diacritics across font distributions.}
+  \caption{PP-OCRv4 data size ablation (test split, $n{=}326$; archived evaluation---training \texttt{.pdparams} files were not on disk at paper freeze). \textbf{Takeaway:} Performance saturates early and does not monotonically improve with more data. This indicates a structural modeling failure rather than merely a data scarcity problem: CRNN+CTC architectures lack the inductive biases needed to reliably capture multi-level diacritics across font distributions.}
   \label{tab:ablation}
 \end{table}
 
@@ -398,13 +404,16 @@ These results motivate larger annotated datasets -- potentially augmented with s
 The dataset covers a single pedagogical series~\cite{oyedele2020ydw} from professionally typeset graded readers. Newspapers, government records, handwriting, and informal digital text are not represented. Merging all six volumes before splitting increases training data but removes volume-disjoint evaluation; reported test scores may therefore overestimate performance on unseen book designs or fonts.
 
 \paragraph{Split policy and reported metrics.}
-Table~\ref{tab:main} reports scores on the consolidated test partition available at evaluation time ($n{=}326$). The release policy documented in \S4 applies an 80/10/10 line-level re-split (seed${=}42$; 295 test lines). Re-partitioning requires re-running all baselines; we treat the table as indicative pending that refresh.
+Table~\ref{tab:main} reports scores on the export-stable test partition ($n{=}326$; 2{,}367 / 252 / 326 train/validation/test). An optional \texttt{--resplit --seed 42} pass yields a strict 80/10/10 line-level partition (2{,}356 / 294 / 295); applying it requires re-running all baselines. We report the export-stable split throughout.
+
+\paragraph{Checkpoint reproducibility.}
+PP-OCRv4 CRNN fine-tuning metrics in Table~\ref{tab:ablation} and supplementary analyses derive from an archived evaluation whose \texttt{.pdparams} checkpoints were not present on disk at paper freeze; \texttt{scripts/11\_compile\_results.py} therefore omits that row from Table~\ref{tab:main}. Re-training with \texttt{scripts/04\_train\_paddleocr.py} restores a reproducible classical baseline.
 
 \paragraph{Annotation protocol.}
 Initial transcription hypotheses were generated by PaddleOCR-VL-1.5 within the annotation platform; two fluent \Yoruba{} annotators manually reviewed and corrected every line. Export batches record only the final corrected transcription (\texttt{corrected=yes}) and do not retain per-annotator labels, so inter-annotator agreement (e.g., Cohen's $\kappa$ on diacritic edits) cannot be recomputed post hoc. Line-level bootstrap confidence intervals (Table~\ref{tab:bootstrap_der}) quantify sampling uncertainty on $n{=}326$ test lines instead. The platform also applies automatic orthographic normalisation (e.g., uppercase headers), which may not match all downstream use cases.
 
 \paragraph{Model coverage and training budget.}
-We compare classical CRNN, Tesseract, VL/MLLM zero-shot systems (PaddleOCR-VL-1.5, Qwen~2.5-VL, Surya v2), encoder--decoder TrOCR-large-printed fine-tuned on the full labelled corpus, and LoRA-adapted VL-1.5. Document-level models such as Nougat remain out of scope. TrOCR training includes test-split lines (see \S5); VL-1.5 LoRA used a single epoch on one NVIDIA T4 GPU without validation-driven early stopping.
+Table~\ref{tab:main} reports six systems with on-disk inference logs. Qwen~2.5-VL was evaluated once (zero-shot, temperature~0) and is not re-run because the result already characterises MLLM hallucination. PP-OCRv4 ablation numbers use archived JSONL logs (see above). TrOCR-large-printed and Surya~v2 are implemented (\texttt{scripts/20}--\texttt{22}) but not evaluated for this submission. Document-level models such as Nougat remain out of scope. VL-1.5 LoRA used a single epoch on one NVIDIA T4 GPU without validation-driven early stopping.
 
 \paragraph{Metric and evaluation scope.}
 We ablate four $\mathcal{U}$ definitions for corpus DER (Table~\ref{tab:der_universe}); mark-level rankings are stable across the three standard extractors. Zero-diacritic ground-truth lines ($n{=}7$) are tracked via diacritic insertion rate (Table~\ref{tab:der_insertion}). MLLM and zero-shot VLM scores are prompt-sensitive; we report one fixed template at temperature~0. DER has not yet been validated against a large-scale human semantic-judgment study in this OCR setting.
@@ -417,7 +426,7 @@ At 2{,}945 lines the corpus is small relative to high-resource OCR benchmarks. H
 %% ============================================================
 \section{Conclusion}
 
-A line-image OCR benchmark for \Yoruba{} with a merged six-volume corpus and reproducible 80/10/10 line-level split reveals a fundamental evaluation blind spot: current multimodal OCR systems fail at diacritic graphemic fidelity. Even with targeted LoRA fine-tuning, the best model (PaddleOCR-VL-1.5) yields a corpus DER of 66.4\% ($n_{\mathrm{der}}{=}319$), indicating that roughly two-thirds of contrastive tone marks are incorrectly recognized. DER exposes this systematic loss of tonal information that CER obscures. This suggests that future OCR systems must explicitly model diacritics as structured outputs rather than incidental glyphs. By providing human-corrected annotations constrained to a 99-character dictionary, this work establishes, to our knowledge, the first reproducible diagnostic foundation for advancing OCR for \Yoruba{} and the broader family of African tonal languages.
+A line-image OCR benchmark for \Yoruba{} with a merged six-volume corpus and export-stable train/validation/test partitions reveals a fundamental evaluation blind spot: current multimodal OCR systems fail at diacritic graphemic fidelity. Even with targeted LoRA fine-tuning, the best model (PaddleOCR-VL-1.5) yields a corpus DER of 66.4\% ($n_{\mathrm{der}}{=}319$), indicating that roughly two-thirds of contrastive tone marks are incorrectly recognized. DER exposes this systematic loss of tonal information that CER obscures. This suggests that future OCR systems must explicitly model diacritics as structured outputs rather than incidental glyphs. By providing human-corrected annotations constrained to a 99-character dictionary, this work establishes, to our knowledge, the first reproducible diagnostic foundation for advancing OCR for \Yoruba{} and the broader family of African tonal languages.
 
 %% ============================================================
 %% ETHICAL STATEMENT

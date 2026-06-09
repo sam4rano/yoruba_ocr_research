@@ -25,6 +25,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -86,6 +87,11 @@ def parse_args() -> argparse.Namespace:
         "--full-sequence-loss",
         action="store_true",
         help="Train on full sequence (no label masking). Not recommended for SFT.",
+    )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume from adapter + training_state.json under --output-dir.",
     )
     return parser.parse_args()
 
@@ -266,7 +272,21 @@ def main() -> None:
         lora_dropout=0.05,
         target_modules=target_modules,
     )
-    model = get_peft_model(model, lora_config)
+
+    adapter_dir = args.output_dir / "adapter"
+    training_state_path = args.output_dir / "training_state.json"
+    start_epoch = 0
+
+    if args.resume and adapter_dir.is_dir() and (adapter_dir / "adapter_config.json").is_file():
+        from peft import PeftModel  # type: ignore
+
+        model = PeftModel.from_pretrained(model, adapter_dir, is_trainable=True)
+        if training_state_path.is_file():
+            state = json.loads(training_state_path.read_text(encoding="utf-8"))
+            start_epoch = int(state.get("completed_epochs", 0))
+        log.info("Resuming LoRA training from epoch %d (adapter=%s).", start_epoch, adapter_dir)
+    else:
+        model = get_peft_model(model, lora_config)
     model.print_trainable_parameters()
 
     opt = torch.optim.AdamW(
@@ -301,14 +321,13 @@ def main() -> None:
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    adapter_dir = args.output_dir / "adapter"
     # Must match eval (15_baseline_paddleocr_vl15.py) resolution to avoid
     # train/eval distribution shift.  768 * 28 * 28 = 602,112 is safe for T4.
     max_pixels = 768 * 28 * 28
     device = next(model.parameters()).device
     grad_accum = max(1, int(args.gradient_accumulation_steps))
 
-    for epoch in range(args.epochs):
+    for epoch in range(start_epoch, args.epochs):
         # Shuffle training data each epoch to prevent order memorization
         random.shuffle(samples)
 
@@ -451,6 +470,20 @@ def main() -> None:
             skipped,
             total_loss / max(micro_steps, 1),
         )
+        model.save_pretrained(adapter_dir)
+        training_state_path.write_text(
+            json.dumps(
+                {
+                    "completed_epochs": epoch + 1,
+                    "total_epochs": args.epochs,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        log.info("Checkpoint saved after epoch %d → %s", epoch + 1, adapter_dir)
 
     model.save_pretrained(adapter_dir)
     processor.save_pretrained(args.output_dir / "processor_snapshot")

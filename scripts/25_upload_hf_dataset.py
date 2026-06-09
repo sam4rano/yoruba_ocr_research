@@ -97,6 +97,15 @@ def parse_args() -> argparse.Namespace:
         default="Upload Yorùbá OCR line-crop benchmark",
         help="Hub commit message when --push is set.",
     )
+    parser.add_argument(
+        "--upload-mode",
+        choices=("auto", "push_to_hub", "large_folder"),
+        default="auto",
+        help=(
+            "Hub upload strategy: datasets push_to_hub, resumable large_folder, "
+            "or auto (large_folder when >2000 examples)."
+        ),
+    )
     return parser.parse_args()
 
 
@@ -459,19 +468,45 @@ def push_to_hub(
     private: bool,
     commit_message: str,
     data_dir: Path,
+    upload_mode: str = "auto",
 ) -> None:
-    """Create Hub repo, push dataset parquet shards, README, and dictionary."""
+    """Create Hub repo, push dataset shards, README, LICENSE, and dictionary."""
+    import tempfile
+
     from huggingface_hub import HfApi, create_repo
 
     api = HfApi()
     create_repo(repo_id=repo_id, repo_type="dataset", private=private, exist_ok=True)
-    log.info("Pushing DatasetDict to %s (private=%s)…", repo_id, private)
-    dataset_dict.push_to_hub(
-        repo_id,
-        private=private,
-        commit_message=commit_message,
-        max_shard_size="500MB",
-    )
+
+    n_examples = sum(len(dataset_dict[split]) for split in dataset_dict)
+    mode = upload_mode
+    if mode == "auto" and n_examples > 2000:
+        mode = "large_folder"
+
+    if mode == "large_folder":
+        with tempfile.TemporaryDirectory(prefix="yoruba_hf_upload_") as tmp:
+            staging = Path(tmp) / "dataset"
+            log.info(
+                "Saving DatasetDict to %s for resumable upload (%d examples)…",
+                staging,
+                n_examples,
+            )
+            dataset_dict.save_to_disk(staging)
+            log.info("Uploading via upload_large_folder to %s …", repo_id)
+            api.upload_large_folder(
+                folder_path=str(staging),
+                repo_id=repo_id,
+                repo_type="dataset",
+                commit_message=commit_message,
+            )
+    else:
+        log.info("Pushing DatasetDict to %s via push_to_hub …", repo_id)
+        dataset_dict.push_to_hub(
+            repo_id,
+            private=private,
+            commit_message=commit_message,
+            max_shard_size="500MB",
+        )
     api.upload_file(
         path_or_fileobj=readme.encode("utf-8"),
         path_in_repo="README.md",
@@ -562,6 +597,7 @@ def main() -> None:
                 private=args.private,
                 commit_message=args.commit_message,
                 data_dir=args.data_dir,
+                upload_mode=args.upload_mode,
             )
     elif not args.dry_run and not args.export_dir:
         log.info("Built dataset in memory. Pass --dry-run, --export-dir, or --push.")

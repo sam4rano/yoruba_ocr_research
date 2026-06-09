@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-06-09T17:20:49.099565+00:00",
+  "timestamp_utc": "2026-06-09T17:51:41.466857+00:00",
   "steps": [
     {
       "name": "data/processed layout",
@@ -11,6 +11,10 @@
     },
     {
       "name": "02b data quality audit",
+      "status": "ok"
+    },
+    {
+      "name": "02c refresh dataset report",
       "status": "ok"
     },
     {
@@ -35,6 +39,10 @@
     },
     {
       "name": "research_approach.md",
+      "status": "ok"
+    },
+    {
+      "name": "HF dataset card dry-run",
       "status": "ok"
     },
     {

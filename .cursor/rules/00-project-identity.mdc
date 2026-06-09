@@ -22,8 +22,7 @@ scripted ablations. The researcher built a custom annotation platform
 - Approximate totals after consolidation + hygiene: 2,945 unique lines
   (80/10/10 line-level split with `--resplit --seed 42`: 2,356 train /
   294 val / 295 test; reported Table 1 metrics use prior n=326 test export)
-- Character dictionary: 102 chars including combining diacritics (U+0300, U+0301, U+0323)
-  and precomposed Yorùbá characters (ẹ, ọ, ṣ, and all tonal variants)
+- Character dictionary: built from consolidated labels (currently **99** graphemes excl. space on disk; varies with hygiene)
 - Metadata columns: image, text, source, year, dialect, corrected, parent_image, line_index
 - Consolidated data lives in data/processed/ after running 01_consolidate_data.py
 
@@ -40,6 +39,7 @@ scripted ablations. The researcher built a custom annotation platform
 10. scripts/17_stratified_error_analysis.py, 18_der_universe_ablation.py, 19_bootstrap_metric_cis.py — analysis
 11. **Surya v2 + TrOCR:** scripts/20_baseline_surya_v2.py → 21_train_trocr.py → 22_evaluate_trocr.py
 12. **Hub release:** scripts/25_upload_hf_dataset.py — push `data/processed/` to Hugging Face Datasets with dataset card
+13. **Run hygiene:** scripts/metrics_lifecycle.py (archive+reset metrics), scripts/02c_refresh_dataset_report.py
 
 ## Models being compared
 1. PaddleOCR-VL-1.5 (Hugging Face) — **zero-shot** and **LoRA fine-tuned on Yorùbá data (primary supervised result)**; scripts 14–16

@@ -47,7 +47,23 @@
     the phantom concept does not apply.
   - `unknown` — provenance did not include an integrity report (legacy rows).
 
-`scripts/11_compile_results.py` skips rows with `phantom=true` when building Table 1.
+`scripts/11_compile_results.py` skips rows with `phantom=true` or **stale**
+checkpoints (meta references a missing `.pdparams` file) when building Table 1.
+
+## Archiving before re-runs
+
+Before a full Colab re-evaluation, archive and reset metrics so rows are not
+duplicated:
+
+```bash
+python scripts/metrics_lifecycle.py archive
+```
+
+This copies `metrics.csv`, JSONL logs, meta JSON, and compiled tables to
+`results/tables/archive/pre_run_<timestamp>/`, then truncates `metrics.csv`
+to the header row only and **removes** working copies of JSONL logs, meta
+JSON, and compiled table snapshots (except the reset `metrics.csv`) so
+scripts 17--19 cannot mix archived and fresh inference logs.
 
 ## Compiled tables (`table1_main_comparison.csv`, `metrics_summary.csv`)
 

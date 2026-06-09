@@ -105,6 +105,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Disable validation during training.",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Resume Hugging Face Trainer from last checkpoint in --output-dir.",
+    )
     return parser.parse_args()
 
 
@@ -171,6 +176,16 @@ def main() -> None:
 
     processor = TrOCRProcessor.from_pretrained(args.model_id)
     model = VisionEncoderDecoderModel.from_pretrained(args.model_id)
+
+    if torch.cuda.is_available():
+        model = model.to("cuda")
+        train_device = "cuda"
+    elif getattr(torch.backends, "mps", None) and torch.backends.mps.is_available():
+        model = model.to("mps")
+        train_device = "mps"
+    else:
+        train_device = "cpu"
+    log.info("TrOCR training device: %s", train_device)
 
     model.config.decoder_start_token_id = processor.tokenizer.cls_token_id
     model.config.pad_token_id = processor.tokenizer.pad_token_id
@@ -240,7 +255,17 @@ def main() -> None:
         data_collator=default_data_collator,
     )
 
-    train_result = trainer.train()
+    resume_ckpt = None
+    if args.resume:
+        checkpoints = sorted(
+            args.output_dir.glob("checkpoint-*"),
+            key=lambda p: int(p.name.split("-")[-1]) if p.name.split("-")[-1].isdigit() else 0,
+        )
+        if checkpoints:
+            resume_ckpt = str(checkpoints[-1])
+            log.info("Resuming TrOCR from %s", resume_ckpt)
+
+    train_result = trainer.train(resume_from_checkpoint=resume_ckpt)
     best_dir = args.output_dir / "best"
     best_dir.mkdir(parents=True, exist_ok=True)
     trainer.save_model(str(best_dir))

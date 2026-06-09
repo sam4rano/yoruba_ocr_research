@@ -157,15 +157,27 @@ def main() -> None:
     def deps_checks() -> None:
         import editdistance  # noqa: F401
 
+    def refresh_report() -> None:
+        run([PY, "scripts/02c_refresh_dataset_report.py"])
+
+    def hf_dataset_card() -> None:
+        run([PY, "scripts/25_upload_hf_dataset.py", "--dry-run"])
+        check_path(ROOT / "data/hf_export/README.md")
+        check_path(ROOT / "data/hf_export/LICENSE")
+        if "cc-by-4.0" not in (ROOT / "data/hf_export/README.md").read_text(encoding="utf-8"):
+            raise ValueError("HF dataset card missing cc-by-4.0 license")
+
     step("data/processed layout", data_checks)
     step("python deps (editdistance)", deps_checks)
     step("02b data quality audit", audit_and_eda)
+    step("02c refresh dataset report", refresh_report)
     step("phase_03 config", config_phase)
     step("phase_14 VL export", vl_export)
     step("analysis 17-19", analysis)
     step("phase_09 compile", compile_tables)
     step("checkpoint audit", checkpoint_audit)
     step("research_approach.md", research_doc)
+    step("HF dataset card dry-run", hf_dataset_card)
     step("yor_ocr.ipynb syntax", notebook_syntax)
 
     args.report.parent.mkdir(parents=True, exist_ok=True)

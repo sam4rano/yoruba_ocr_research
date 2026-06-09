@@ -59,5 +59,7 @@
       "image_too_tall": 0,
       "non_whitelisted_codepoint": 386
     }
-  }
+  },
+  "refreshed_at": "2026-06-09T17:51:42.003587+00:00",
+  "split_source": "on_disk_labels"
 }

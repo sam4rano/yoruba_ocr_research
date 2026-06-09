@@ -1,7 +1,7 @@
 # Yorùbá OCR — Research Approach & Run Log
 
-**Generated (UTC):** 2026-06-09T17:20:52Z  
-**Git commit:** `676bcec`  
+**Generated (UTC):** 2026-06-09T17:51:44Z  
+**Git commit:** `5418dd8`  
 **Project root:** `/Users/mac/Desktop/yoruba_ocr_research`  
 
 ## Workflow
@@ -40,7 +40,6 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 | PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 | 326 |
 | Qwen 2.5 VL (zero-shot) | 253.5 | 329.5 | 119.6 | 326 |
 | PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | 96.5 | 122.6 | 66.4 | 326 |
-| PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison) | 91.5 | 103.4 | 91.8 | 326 |
 
 ## Paper artifacts on disk
 
@@ -61,6 +60,7 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 - **Ablation augmentation:** `results/tables/ablation_augmentation.csv` (missing)
 - **Eval alignment report:** `results/tables/eval_alignment_report.json` (yes)
 - **Checkpoint audit:** `results/tables/checkpoint_audit.json` (yes)
+- **HF dataset upload manifest:** `results/tables/hf_dataset_upload.json` (yes)
 - **Consolidation report:** `results/tables/consolidation_report.json` (yes)
 - **Data quality audit:** `results/tables/data_quality.json` (yes)
 
