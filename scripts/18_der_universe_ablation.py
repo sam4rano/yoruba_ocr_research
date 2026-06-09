@@ -49,6 +49,8 @@ DEFAULT_MODEL_JSONLS = [
     "paddleocr_vl15_zero_shot_test.jsonl",
     "qwen25_vl3_zero_shot_test.jsonl",
     "qwen25_vl_zero_shot_test.jsonl",
+    "surya_v2_zero_shot_test.jsonl",
+    "trocr_large_printed_finetuned_test.jsonl",
 ]
 
 

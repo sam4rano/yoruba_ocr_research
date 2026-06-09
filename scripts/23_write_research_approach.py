@@ -188,8 +188,8 @@ def main() -> None:
         "| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` |",
         "| PaddleOCR-VL-1.5 zero-shot / LoRA | `15_baseline_paddleocr_vl15.py`, `16_train_paddleocr_vl_lora.py` |",
         "| Qwen 2.5-VL zero-shot | `09_baseline_qwen.py` |",
-        "| TrOCR-large-printed | `21_train_trocr.py`, `22_evaluate_trocr.py` |",
-        "| Surya v2 (local only) | `20_baseline_surya_v2.py` |",
+        "| TrOCR-large-printed | `21_train_trocr.py`, `22_evaluate_trocr.py` (Phase 21) |",
+        "| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` (Phase 20) |",
         "",
     ]
 

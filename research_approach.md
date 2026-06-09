@@ -1,7 +1,7 @@
 # Yorùbá OCR — Research Approach & Run Log
 
-**Generated (UTC):** 2026-06-09T17:51:44Z  
-**Git commit:** `5418dd8`  
+**Generated (UTC):** 2026-06-09T19:27:53Z  
+**Git commit:** `f582afb`  
 **Project root:** `/Users/mac/Desktop/yoruba_ocr_research`  
 
 ## Workflow
@@ -38,7 +38,6 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 | Tesseract (yor) | 124.4 | 163.7 | 87.7 | 326 |
 | Tesseract (eng+yor) | 122.6 | 160.0 | 93.9 | 326 |
 | PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 | 326 |
-| Qwen 2.5 VL (zero-shot) | 253.5 | 329.5 | 119.6 | 326 |
 | PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | 96.5 | 122.6 | 66.4 | 326 |
 
 ## Paper artifacts on disk
@@ -79,6 +78,6 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 | PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` |
 | PaddleOCR-VL-1.5 zero-shot / LoRA | `15_baseline_paddleocr_vl15.py`, `16_train_paddleocr_vl_lora.py` |
 | Qwen 2.5-VL zero-shot | `09_baseline_qwen.py` |
-| TrOCR-large-printed | `21_train_trocr.py`, `22_evaluate_trocr.py` |
-| Surya v2 (local only) | `20_baseline_surya_v2.py` |
+| TrOCR-large-printed | `21_train_trocr.py`, `22_evaluate_trocr.py` (Phase 21) |
+| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` (Phase 20) |
 

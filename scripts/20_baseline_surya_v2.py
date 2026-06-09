@@ -70,6 +70,13 @@ def parse_args() -> argparse.Namespace:
         help="Leave Surya inference server running after exit.",
     )
     parser.add_argument(
+        "--inference-backend",
+        type=str,
+        default="auto",
+        choices=["auto", "vllm", "llamacpp"],
+        help="Surya v2 VLM backend (auto: vllm on CUDA, else Surya default).",
+    )
+    parser.add_argument(
         "--results-csv",
         type=Path,
         default=Path("results/tables/metrics.csv"),
@@ -114,7 +121,30 @@ def extract_page_text(page_result) -> str:
     return unicodedata.normalize("NFC", text)
 
 
-def load_surya_predictor(keep_server: bool):
+def resolve_inference_backend(explicit: str) -> str | None:
+    """
+    Resolve Surya v2 backend from CLI, env, or host (CUDA → vllm).
+
+    Returns None to let ``SuryaInferenceManager`` pick its default.
+    """
+    import os
+
+    if explicit and explicit != "auto":
+        return explicit
+    env_backend = os.environ.get("SURYA_INFERENCE_BACKEND", "").strip().lower()
+    if env_backend in {"vllm", "llamacpp"}:
+        return env_backend
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            return "vllm"
+    except ImportError:
+        pass
+    return None
+
+
+def load_surya_predictor(keep_server: bool, inference_backend: str = "auto"):
     """Initialise Surya v2 inference manager and recognition predictor."""
     try:
         from surya.inference import SuryaInferenceManager  # type: ignore
@@ -122,11 +152,17 @@ def load_surya_predictor(keep_server: bool):
     except ImportError as exc:
         raise ImportError(
             "Install Surya v2: pip install surya-ocr\n"
-            "Then provide an inference backend (llama.cpp or vllm). "
+            "On GPU (Colab): pip install vllm and set SURYA_INFERENCE_BACKEND=vllm.\n"
+            "On CPU/MPS: brew install llama.cpp or set SURYA_INFERENCE_BACKEND=llamacpp.\n"
             "See https://github.com/datalab-to/surya"
         ) from exc
 
-    manager = SuryaInferenceManager()
+    backend = resolve_inference_backend(inference_backend)
+    if backend:
+        log.info("Surya inference backend: %s", backend)
+        manager = SuryaInferenceManager(method=backend)
+    else:
+        manager = SuryaInferenceManager()
     if keep_server:
         import os
 
@@ -170,7 +206,9 @@ def main() -> None:
         pairs = pairs[: args.max_samples]
         log.info("Limited to %d samples.", args.max_samples)
 
-    manager, predictor = load_surya_predictor(args.keep_server)
+    manager, predictor = load_surya_predictor(
+        args.keep_server, inference_backend=args.inference_backend
+    )
 
     pred_pairs: list[tuple[str, str]] = []
     failed = 0
@@ -211,6 +249,7 @@ def main() -> None:
         "model_kind": "surya_v2",
         "mode": "recognition_only_line_crops",
         "batch_size": batch_size,
+        "inference_backend": args.inference_backend,
         "keep_server": args.keep_server,
         "data_dir": str(args.data_dir),
         "n_images": len(pairs),

@@ -46,6 +46,8 @@ DEFAULT_MODEL_JSONLS = [
     "paddleocr_vl15_lora_finetuned_test.jsonl",
     "tesseract_yor_test.jsonl",
     "ablation_data_size_100pct_test_test.jsonl",
+    "surya_v2_zero_shot_test.jsonl",
+    "trocr_large_printed_finetuned_test.jsonl",
 ]
 
 PAIRWISE_COMPARISONS = (

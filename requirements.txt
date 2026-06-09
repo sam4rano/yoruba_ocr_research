@@ -47,7 +47,7 @@ qwen-vl-utils>=0.0.8
 # peft>=0.13.0               # optional: LoRA (16_train_paddleocr_vl_lora.py)
 
 # ── Baseline: Surya v2 (scripts/20_baseline_surya_v2.py) ─────────────────────
-# surya-ocr>=0.20.0          # pip install surya-ocr; needs llama.cpp (CPU/MPS) or vllm (GPU)
+surya-ocr>=0.20.0          # GPU: also pip install vllm; CPU/MPS: llama.cpp
 
 # ── Baseline: TrOCR (scripts/21–22) ─────────────────────────────────────────
 datasets>=2.18.0             # 21_train_trocr.py
