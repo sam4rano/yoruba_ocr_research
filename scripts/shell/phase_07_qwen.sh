@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 7: Qwen 2.5 VL zero-shot (heavy download + GPU RAM). Skipped by default.
+# Phase 7: Qwen 2.5 VL-3B zero-shot (4-bit on T4). Skipped by default.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib_common.sh
@@ -19,7 +19,8 @@ QWEN_ARGS=(
   --results-csv "${METRICS_CSV:-results/tables/metrics.csv}"
   --batch-size "${QWEN_BATCH_LOG:-10}"
 )
-[[ -n "${QWEN_MODEL_ID:-}" ]] && QWEN_ARGS+=( --model-id "$QWEN_MODEL_ID" )
+QWEN_MODEL_ID="${QWEN_MODEL_ID:-Qwen/Qwen2.5-VL-3B-Instruct}"
+QWEN_ARGS+=( --model-id "$QWEN_MODEL_ID" )
 [[ -n "${QWEN_MAX_SAMPLES:-}" ]] && QWEN_ARGS+=( --max-samples "$QWEN_MAX_SAMPLES" )
 [[ "${QWEN_QUANTIZE:-1}" == "1" ]] && QWEN_ARGS+=( --quantize )
 

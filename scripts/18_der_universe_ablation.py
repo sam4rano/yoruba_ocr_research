@@ -47,6 +47,7 @@ DEFAULT_MODEL_JSONLS = [
     "tesseract_eng_test.jsonl",
     "ablation_data_size_100pct_test_test.jsonl",
     "paddleocr_vl15_zero_shot_test.jsonl",
+    "qwen25_vl3_zero_shot_test.jsonl",
     "qwen25_vl_zero_shot_test.jsonl",
 ]
 

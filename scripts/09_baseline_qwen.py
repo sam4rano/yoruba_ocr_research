@@ -1,16 +1,16 @@
 """
 Qwen 2.5 VL zero-shot baseline for the Yorùbá OCR benchmark.
 
-Loads Qwen/Qwen2.5-VL-7B-Instruct from Hugging Face and prompts it to
+Loads Qwen/Qwen2.5-VL-3B-Instruct from Hugging Face and prompts it to
 transcribe each line-crop image verbatim, preserving all Yorùbá diacritics.
 
 This is a zero-shot multimodal LLM evaluation — no fine-tuning is performed.
-The model demonstrates whether large vision-language models trained on
-multilingual web data can handle Yorùbá tone marks without task-specific
-supervision.
+The model demonstrates whether vision-language models trained on multilingual
+web data can handle Yorùbá tone marks without task-specific supervision.
 
-Hardware: requires ~16 GB VRAM for 7B in bfloat16, or use 4-bit quantisation
-(--quantize) on smaller GPUs.
+Hardware: ~8 GB VRAM for 3B in bfloat16; use 4-bit quantisation (--quantize)
+on Colab T4. An archived 7B pilot is logged as ``qwen25_vl_zero_shot``; new
+runs use ``qwen25_vl3_zero_shot``.
 
 Install:
     pip install transformers accelerate qwen-vl-utils torch
@@ -20,7 +20,7 @@ Install:
 Usage:
     python scripts/09_baseline_qwen.py
     python scripts/09_baseline_qwen.py \
-        --model-id Qwen/Qwen2.5-VL-7B-Instruct \
+        --model-id Qwen/Qwen2.5-VL-3B-Instruct \
         --data-dir data/processed \
         --split test \
         --quantize \
@@ -39,7 +39,8 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-MODEL_LABEL = "qwen25_vl_zero_shot"
+DEFAULT_MODEL_ID = "Qwen/Qwen2.5-VL-3B-Instruct"
+MODEL_LABEL = "qwen25_vl3_zero_shot"
 
 # Prompt that requests verbatim Yorùbá transcription
 USER_PROMPT = (
@@ -183,8 +184,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model-id",
         type=str,
-        default="Qwen/Qwen2.5-VL-7B-Instruct",
-        help="Hugging Face model ID.",
+        default=DEFAULT_MODEL_ID,
+        help="Hugging Face model ID (default: Qwen2.5-VL-3B-Instruct).",
     )
     parser.add_argument(
         "--data-dir",
