@@ -12,6 +12,10 @@
   out-of-domain model (e.g. Tesseract `eng`, English-only PP-OCRv3).
 
 - **DER** (Diacritic Error Rate) is a **corpus-level, conditional** metric:
+  - Predictions and references are preprocessed with `normalize_yoruba_text()`
+    (NFC plus repair of detached combining marks separated by whitespace or
+    apostrophe from the base letter), matching the restoringdiacritics2 benchmark
+    pipeline.
   - Strings are NFD-decomposed to isolate combining diacritics (U+0300 grave,
     U+0301 acute, U+0323 combining dot below — the three diacritics that carry
     Yorùbá tone and vowel quality).
@@ -42,6 +46,8 @@
   - `n/a`   — non-Paddle baseline (Tesseract, Qwen 2.5-VL, PaddleOCR-VL 1.5);
     the phantom concept does not apply.
   - `unknown` — provenance did not include an integrity report (legacy rows).
+
+`scripts/11_compile_results.py` skips rows with `phantom=true` when building Table 1.
 
 ## Compiled tables (`table1_main_comparison.csv`, `metrics_summary.csv`)
 

@@ -10,7 +10,7 @@ Diacritic restoration has been studied as a standalone NLP task for Arabic, Viet
 
 ## African-Language NLP Benchmarks and Datasets
 
-Cross-lingual corpora for African languages have primarily targeted downstream NLP tasks. MasakhaNER (Adelani et al., 2021) established named entity recognition benchmarks across multiple African languages; AfriSenti and related initiatives have expanded to sentiment analysis and machine translation. OCR complements these efforts: scanned pedagogical and literary texts are a major source of raw material for training language technologies, provided diacritically faithful transcriptions can be recovered. To our knowledge, no prior work releases a Yorùbá line-OCR benchmark with explicit diacritic-aware evaluation, nor does any existing African-language dataset enforce book-level splits to test typographic generalization.
+Cross-lingual corpora for African languages have primarily targeted downstream NLP tasks. MasakhaNER (Adelani et al., 2021) established named entity recognition benchmarks across multiple African languages; AfriSenti and related initiatives have expanded to sentiment analysis and machine translation. OCR complements these efforts: scanned pedagogical and literary texts are a major source of raw material for training language technologies, provided diacritically faithful transcriptions can be recovered. To our knowledge, no prior work releases a Yorùbá line-OCR benchmark with explicit diacritic-aware evaluation on a merged multi-volume corpus with a documented line-level split policy.
 
 ## Multimodal Large Language Models for Document Understanding
 

@@ -19,8 +19,9 @@ scripted ablations. The researcher built a custom annotation platform
 - Format: line crops (PNG) + tab-separated label files (PaddleOCR format)
   - Each label line: images/{split}/hash_lineNNNN.png<TAB>ground_truth_text
 - 25+ independent annotation export batches in data/raw/
-- Approximate totals across all exports: ~3,481 train / ~350 val / ~539 test
-  (exact unique counts produced after running 01_consolidate_data.py)
+- Approximate totals after consolidation + hygiene: 2,945 unique lines
+  (80/10/10 line-level split with `--resplit --seed 42`: 2,356 train /
+  294 val / 295 test; reported Table 1 metrics use prior n=326 test export)
 - Character dictionary: 102 chars including combining diacritics (U+0300, U+0301, U+0323)
   and precomposed Yorùbá characters (ẹ, ọ, ṣ, and all tonal variants)
 - Metadata columns: image, text, source, year, dialect, corrected, parent_image, line_index

@@ -43,3 +43,23 @@ wandb/
 .DS_Store
 Thumbs.db
 .hf_cache/
+
+# Pre-anonymization figure backups (may contain deployment URLs)
+**/ocr_extraction_interface_original.jpeg
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+FormattingGuidelines-IJCAI-ECAI-26/*.pdf
+
+# Colab/Drive backup mirrors (use scripts/shell/phase_99_backup.sh → Drive)
+drive_results/
+
+# Notebook checkpoints
+.ipynb_checkpoints/

@@ -1,24 +1,32 @@
 # Diacritic Error Rate
 
-Standard CER weights all character errors equally: a substitution of *ò* → *o* (tone loss) incurs the same penalty as *ò* → *z* (random corruption). For Yorùbá OCR, the former is the dominant and most consequential failure mode—it silently changes word meaning—while the latter is easily detectable by downstream systems.
+Standard CER weights all character errors equally: a substitution of *ò* → *o* (tone loss) incurs the same penalty as *ò* → *z* (random corruption). For Yorùbá OCR, the former is the dominant and most consequential failure mode.
 
-We define DER to isolate diacritic-specific errors. Given reference y and hypothesis ŷ, we first decompose both strings into their NFD (canonical decomposition) representations, then extract the subsequence of combining diacritical marks:
+Let Σ denote the Standard Yorùbá character set with |Σ| = 99 after Unicode Normalization Form C (NFC). Let y ∈ Σ* denote ground truth and ŷ ∈ Σ* the hypothesis. Both strings undergo NFC normalization and detached-mark repair (collapsing spurious whitespace or apostrophes between a base letter and its combining mark).
 
-```
-diacritics(s) = [c for c in NFD(s) if unicodedata.combining(c)]
-```
-
-This captures combining acute (U+0301), combining grave (U+0300), and combining dot below (U+0323)—the three marks that encode tonal and sub-dot contrasts in Standard Yorùbá.
-
-**Definition (Diacritic Error Rate):** Let d_gt = diacritics(y) and d_pred = diacritics(ŷ). Then:
+Decompose both sequences into Normalization Form D (NFD). Let 𝒰 denote combining acute (U+0301), combining grave (U+0300), and combining dot below (U+0323). The diacritic subsequence extractor is:
 
 ```
-DER = EditDistance(d_pred, d_gt) / max(1, |d_gt|)
+d(s) = (cᵢ | cᵢ ∈ NFD(s) ∧ cᵢ ∈ 𝒰)
 ```
 
-DER is complementary to CER: two systems with similar CER can diverge sharply in DER if one systematically drops tone marks while the other makes uniformly distributed character errors. A system that perfectly preserves base characters but strips all diacritics would achieve moderate CER (since diacritics are a fraction of total characters) but catastrophic DER. Conversely, a system with high CER due to spacing or punctuation errors may achieve low DER if diacritic marks are preserved.
+Per-sample DER:
 
-DER values exceeding 100% indicate that the system inserts spurious diacritics in addition to misrecognizing those present in the reference, which we observe in several zero-shot configurations.
+```
+DER(y, ŷ) = D_Lev(d(ŷ), d(y)) / max(1, |d(y)|)
+```
+
+where D_Lev is Levenshtein distance over diacritic mark sequences.
+
+**Corpus DER (reported in tables):** For test pairs {(yᵢ, ŷᵢ)}, let S = {i : |d(yᵢ)| > 0}. Then:
+
+```
+DER_corpus = Σ_{i∈S} D_Lev(d(ŷᵢ), d(yᵢ)) / Σ_{i∈S} |d(yᵢ)|
+```
+
+Samples with no GT diacritics are excluded; spurious predicted marks on those lines are tracked via `der_insertion_rate`.
+
+DER is complementary to CER: two systems with similar CER can diverge in DER if one systematically drops tone marks while the other distributes errors uniformly. Values exceeding 100% indicate spurious diacritic insertions alongside misrecognitions.
 
 # Experiments
 
@@ -26,19 +34,17 @@ DER values exceeding 100% indicate that the system inserts spurious diacritics i
 
 All systems received identical line-crop images from the held-out test split (n=326). No additional binarization, denoising, or resolution normalization was applied beyond model-specific input requirements. Per-sample CER, WER, and DER were computed and logged to JSONL files alongside predictions and ground truth for auditability. Aggregate metrics are the arithmetic mean across all test samples.
 
-**Note on pre-trained baseline decoding.** When evaluating the English pre-trained PP-OCRv4 baseline, we configured the inference pipeline to decode using our Yorùbá character dictionary. While this differs from an out-of-the-box English setup, it constitutes a deliberate like-for-like comparison: by restricting the baseline to output characters within the Yorùbá character scope, we measure its ability to recognize diacritic topologies rather than unfairly penalizing it for vocabulary mismatches during decoding.
-
 ## Systems Compared
 
 Seven configurations were evaluated on the test split:
 
-1. **PaddleOCR PP-OCRv4 (EN pretrained)** — English-pretrained SVTR_LCNet with Yorùbá dictionary decoding
-2. **Tesseract (eng)** — Tesseract 5, English language pack
-3. **Tesseract (yor)** — Tesseract 5, Yorùbá language pack
-4. **Tesseract (eng+yor)** — Tesseract 5, combined English + Yorùbá
-5. **PaddleOCR-VL-1.5 (zero-shot)** — Vision-language model, fixed prompt, no adaptation
-6. **Qwen 2.5 VL (zero-shot)** — Multimodal LLM, fixed prompt, temperature 0
-7. **PaddleOCR-VL-1.5 (LoRA fine-tuned)** — LoRA-adapted on training split, primary supervised result
+1. **Tesseract (eng)** — Tesseract 5, English language pack
+2. **Tesseract (yor)** — Tesseract 5, Yorùbá language pack
+3. **Tesseract (eng+yor)** — Tesseract 5, combined English + Yorùbá
+4. **PaddleOCR-VL-1.5 (zero-shot)** — Vision-language model, fixed prompt, no adaptation
+5. **Qwen 2.5 VL (zero-shot)** — Multimodal LLM, fixed prompt, temperature 0
+6. **PaddleOCR-VL-1.5 (LoRA fine-tuned)** — LoRA-adapted on training split, primary supervised result
+7. **PaddleOCR PP-OCRv4 (CRNN fine-tuned)** — full training split, 40 epochs (100% data-size ablation checkpoint)
 
 ## PP-OCRv4 Data Size Ablation
 

@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import random
 import re
 import shutil
 import unicodedata
@@ -215,6 +216,50 @@ def collect_registry(
     return registry, drops
 
 
+def assign_line_splits(
+    registry: dict[str, dict],
+    *,
+    train_ratio: float,
+    val_ratio: float,
+    test_ratio: float,
+    seed: int,
+) -> None:
+    """
+    Reassign every registry entry to train/val/test at line level.
+
+    Mutates ``registry`` in place. Ratios must sum to 1.0 within floating-point
+    tolerance. The test split receives any remainder after flooring train and val
+    so all samples are assigned exactly once.
+    """
+    total = train_ratio + val_ratio + test_ratio
+    if abs(total - 1.0) > 1e-6:
+        raise ValueError(f"Split ratios must sum to 1.0, got {total}")
+
+    stems = sorted(registry.keys())
+    rng = random.Random(seed)
+    rng.shuffle(stems)
+
+    n = len(stems)
+    n_train = int(n * train_ratio)
+    n_val = int(n * val_ratio)
+    n_test = n - n_train - n_val
+
+    for stem in stems[:n_train]:
+        registry[stem]["split"] = "train"
+    for stem in stems[n_train : n_train + n_val]:
+        registry[stem]["split"] = "val"
+    for stem in stems[n_train + n_val :]:
+        registry[stem]["split"] = "test"
+
+    log.info(
+        "Reassigned line-level splits (seed=%d): train=%d val=%d test=%d",
+        seed,
+        n_train,
+        n_val,
+        n_test,
+    )
+
+
 def collect_char_dicts_from_registry(registry: dict[str, dict]) -> list[str]:
     """
     Build the character dictionary dynamically from all text in the consolidated dataset.
@@ -353,6 +398,38 @@ def parse_args() -> argparse.Namespace:
         help="Disable the Yorùbá Unicode whitelist (keeps annotation noise).",
     )
     parser.set_defaults(strict_charset=True)
+    parser.add_argument(
+        "--resplit",
+        action="store_true",
+        help=(
+            "Ignore export-assigned splits and reassign all unique lines to "
+            "train/val/test using --train-ratio/--val-ratio/--test-ratio."
+        ),
+    )
+    parser.add_argument(
+        "--train-ratio",
+        type=float,
+        default=0.8,
+        help="Training fraction when --resplit is set (default: 0.8).",
+    )
+    parser.add_argument(
+        "--val-ratio",
+        type=float,
+        default=0.1,
+        help="Validation fraction when --resplit is set (default: 0.1).",
+    )
+    parser.add_argument(
+        "--test-ratio",
+        type=float,
+        default=0.1,
+        help="Test fraction when --resplit is set (default: 0.1).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for line-level reassignment when --resplit is set.",
+    )
     return parser.parse_args()
 
 
@@ -385,6 +462,15 @@ def main() -> None:
         if v:
             log.info("  dropped %s: %d", k, v)
 
+    if args.resplit:
+        assign_line_splits(
+            registry,
+            train_ratio=args.train_ratio,
+            val_ratio=args.val_ratio,
+            test_ratio=args.test_ratio,
+            seed=args.seed,
+        )
+
     log.info("Collecting character dictionaries ...")
     chars = collect_char_dicts_from_registry(registry)
     log.info("Merged character set size: %d", len(chars))
@@ -411,6 +497,13 @@ def main() -> None:
             "max_image_height": args.max_image_height,
             "strict_charset": args.strict_charset,
             "drop_counts": drops,
+        },
+        "resplit": {
+            "enabled": args.resplit,
+            "train_ratio": args.train_ratio,
+            "val_ratio": args.val_ratio,
+            "test_ratio": args.test_ratio,
+            "seed": args.seed,
         },
     }
     save_report(report, args.log_file)

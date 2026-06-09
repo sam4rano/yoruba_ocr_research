@@ -10,7 +10,7 @@ This paper addresses three interconnected gaps. There is no publicly available, 
 
 We present the following contributions:
 
-1. **A curated dataset** of 2,945 annotated line crops from the *Yorùbá di Wúrà* graded reader series (Books 1–6), authored by co-authors of this paper, providing first-party ground truth data with known typographic properties. Annotations are human-corrected, UTF-8 normalized (NFC), and constrained to a 99-character Yorùbá diacritic dictionary. The dataset uses a strict book-level train/test split to evaluate cross-font generalization.
+1. **A curated dataset** of 2,945 annotated line crops from the *Yorùbá di Wúrà* graded reader series (Books 1–6), merged into one corpus with an 80/10/10 line-level split (seed=42: 2,356 train / 294 val / 295 test). Annotations are human-corrected, UTF-8 normalized (NFC), and constrained to a 99-character Yorùbá diacritic dictionary.
 
 2. **A systematic benchmark** comparing PaddleOCR PP-OCRv4, Tesseract (three language configurations), Qwen 2.5 VL, and PaddleOCR-VL-1.5 under zero-shot and LoRA fine-tuned conditions. The fine-tuned vision-language model achieves the lowest error rates across CER, WER, and DER on the held-out test split.
 

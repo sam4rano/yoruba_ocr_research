@@ -8,6 +8,7 @@ Repository for experiments, analysis, and paper writing for Yorùbá OCR.
 - `experiments/`: checkpoints — PP-OCRv4 fine-tune / ablations, **PaddleOCR-VL-1.5 LoRA** under `paddleocr_vl15_lora/` (all **gitignored** except `.gitkeep`; regenerate via training scripts)
 - `paper/`: paper sections, figures, and bibliography
 - `scripts/`: preprocessing, training, and evaluation; **main supervised result** is PaddleOCR-VL-1.5 LoRA (`14`–`16` + eval); PP-OCRv4 train/eval (`04`–`05`) is the classical fine-tuned comparison
-- `results/tables/`: traceable metrics used in manuscript text
+- `results/tables/`: traceable metrics (`metrics.csv`, compiled tables, per-run `*.jsonl`, `meta/`)
+- `results/tables/archive/`: historical metric snapshots (do not cite in the paper)
 - `scripts/shell/`: phased bash runners (`run_all.sh`, Drive backup) — see `scripts/shell/README.md`
 - `.cursorrules` and `.cursor/rules/`: Cursor project and context rules

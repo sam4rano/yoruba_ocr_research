@@ -13,12 +13,23 @@ import csv
 import hashlib
 import json
 import os
+import re
 import subprocess
 import unicodedata
 from datetime import datetime, timezone
 from pathlib import Path
 
 import editdistance
+
+# OCR outputs sometimes emit a space or apostrophe between base letter and mark.
+_SPACED_MARK = re.compile(
+    r"([\w\u00C0-\u024F\u1E00-\u1EFF])(\s+)([\u0300-\u036f\u1DC0-\u1DFF\uFE20-\uFE2F]+)",
+    re.UNICODE,
+)
+_APOS_MARK = re.compile(
+    r"([\w\u00C0-\u024F\u1E00-\u1EFF])(['\u2018\u2019])([\u0300-\u036f\u1DC0-\u1DFF\uFE20-\uFE2F]+)",
+    re.UNICODE,
+)
 
 # ---------------------------------------------------------------------------
 # Provenance helpers
@@ -119,9 +130,27 @@ def _phantom_flag_from_provenance(provenance: dict | None) -> str:
 # ---------------------------------------------------------------------------
 
 
+def normalize_yoruba_text(text: str) -> str:
+    """
+    NFC-normalise and repair detached combining marks common in OCR output.
+
+    Collapses patterns such as ``e`` + space + combining grave into a single
+    precomposed character before metric computation, matching the restoration
+    benchmark preprocessing pipeline.
+    """
+    text = unicodedata.normalize("NFC", text.strip())
+    while True:
+        fixed = _SPACED_MARK.sub(r"\1\3", text)
+        fixed = _APOS_MARK.sub(r"\1\3", fixed)
+        if fixed == text:
+            break
+        text = fixed
+    return unicodedata.normalize("NFC", text)
+
+
 def nfc(text: str) -> str:
     """Return NFC-normalised form for consistent character comparison."""
-    return unicodedata.normalize("NFC", text)
+    return normalize_yoruba_text(text)
 
 
 def compute_cer(pred: str, gt: str) -> float:
@@ -214,7 +243,7 @@ def load_test_pairs(data_dir: Path, split: str) -> list[tuple[Path, str]]:
             if not img_path.exists():
                 missing += 1
                 continue
-            pairs.append((img_path, unicodedata.normalize("NFC", gt)))
+            pairs.append((img_path, normalize_yoruba_text(gt)))
 
     return pairs
 
@@ -258,8 +287,10 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
     total_insertions = 0
     total_gt_chars_nodiac = 0
     for pred, gt in pairs:
-        pred_nfd = unicodedata.normalize("NFD", pred)
-        gt_nfd = unicodedata.normalize("NFD", gt)
+        pred_norm = normalize_yoruba_text(pred)
+        gt_norm = normalize_yoruba_text(gt)
+        pred_nfd = unicodedata.normalize("NFD", pred_norm)
+        gt_nfd = unicodedata.normalize("NFD", gt_norm)
         pred_diacs = [c for c in pred_nfd if unicodedata.combining(c)]
         gt_diacs = [c for c in gt_nfd if unicodedata.combining(c)]
 
@@ -271,15 +302,15 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
             per_sample_der = edits / len(gt_diacs)
         else:
             total_insertions += len(pred_diacs)
-            total_gt_chars_nodiac += len(gt)
+            total_gt_chars_nodiac += len(gt_norm)
             per_sample_der = 0.0 if not pred_diacs else 1.0
 
         rows.append(
             {
-                "pred": pred,
-                "gt": gt,
-                "cer": compute_cer(pred, gt),
-                "wer": compute_wer(pred, gt),
+                "pred": pred_norm,
+                "gt": gt_norm,
+                "cer": compute_cer(pred_norm, gt_norm),
+                "wer": compute_wer(pred_norm, gt_norm),
                 "der": per_sample_der,
             }
         )

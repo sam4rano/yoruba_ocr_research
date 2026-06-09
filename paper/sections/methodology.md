@@ -4,11 +4,11 @@
 
 ### Source Material
 
-Line crops originate from the *Yorùbá di Wúrà* graded reader series (Books 1–6), professionally typeset educational material authored by co-authors of this paper. The series uses consistent pedagogical progression with controlled vocabulary, providing ground truth with known typographic properties across six distinct book designs.
+Line crops originate from the *Yorùbá di Wúrà* graded reader series (Books 1–6), professionally typeset educational material authored by the creators of the graded reader series. The series uses consistent pedagogical progression with controlled vocabulary, providing ground truth with known typographic properties across six distinct book designs.
 
 ### Annotation Pipeline
 
-Images were annotated using a custom web-based annotation platform (yoruba-ocr.vercel.app). Annotators segmented page scans at line granularity and transcribed each line into UTF-8 text. All transcriptions underwent NFC normalization to collapse equivalent Unicode representations (e.g., precomposed *é* vs. base *e* + combining acute). The pipeline processed 33 independent annotation export batches, yielding raw annotations that were then consolidated and deduplicated by script `01_consolidate_data.py`.
+Images were annotated using a custom annotation platform. Annotators segmented page scans at line granularity and transcribed each line into UTF-8 text. All transcriptions underwent NFC normalization to collapse equivalent Unicode representations (e.g., precomposed *é* vs. base *e* + combining acute). The pipeline processed 33 independent annotation export batches, yielding raw annotations that were then consolidated and deduplicated by script `01_consolidate_data.py`.
 
 ### Data Hygiene
 
@@ -18,17 +18,17 @@ A hygiene filter removed labels shorter than 3 characters or longer than 100 cha
 
 The character dictionary contains **99 unique characters** (excluding the implicit space token), closed under NFC normalization. It encodes all tonal vowel variants (à, á, è, é, ì, í, ò, ó, ù, ú), sub-dotted vowels (ẹ, ọ) with their tonal combinations, the sub-dotted consonant (ṣ), the syllabic nasal (ń), uppercase variants, digits, and common punctuation. Coverage of in-distribution text is 99.0%.
 
-### Train/Test Split
+### Train/validation/test split
 
-To probe generalization across typography, we enforce a **book-level split**: training and test sets share no volume from the six-book series. This is stricter than random line splits and better reflects deployment on unseen book designs with different fonts, page layouts, and print quality. The validation set is drawn from books not present in the test set.
+All six *Yorùbá di Wúrà* volumes are merged into a single corpus after deduplication. Lines are assigned to train, validation, and test at **80/10/10** by uniform random sampling over unique line crops (`scripts/01_consolidate_data.py --resplit --seed 42`), yielding **2,356 train / 294 val / 295 test** from 2,945 unique lines.
+
+This line-level partition maximises training volume but does not hold out entire volumes; typographic generalisation across book designs is therefore not guaranteed by the split alone. Reported model scores in Table 1 (n=326 test) reflect the consolidated export partition at evaluation time and will be refreshed after applying the documented 80/10/10 re-split.
 
 ## Model Configurations
 
-### PaddleOCR PP-OCRv4 (Classical Baseline)
+### PaddleOCR PP-OCRv4 (Classical Comparison)
 
-We evaluate the English-pretrained PP-OCRv4 recognition model (SVTR_LCNet architecture with CTC head) using our Yorùbá character dictionary for decoding. This isolates the model's visual recognition capability on Yorùbá glyphs without penalizing it for vocabulary mismatches. Configuration: MobileNetV1Enhance backbone (scale 0.5), SequenceEncoder neck (SVTR, dims=64, depth=2), input resolution 3×48×960.
-
-For the fine-tuned PP-OCRv4 comparison, we trained with Adam optimizer (β₁=0.9, β₂=0.999), cosine learning rate schedule (initial lr=0.001, warmup 2 epochs), L2 regularization (factor=3×10⁻⁵), batch size 64, for 40 epochs. RecAug augmentation was applied during training. Checkpoints were saved every 10 epochs; the best-accuracy checkpoint on validation was selected.
+We fine-tuned the English-pretrained PP-OCRv4 recognition model (SVTR_LCNet architecture with CTC head) on the full training split with our 99-character Yorùbá dictionary. Configuration: MobileNetV1Enhance backbone (scale 0.5), SequenceEncoder neck (SVTR, dims=64, depth=2), input resolution 3×48×960. Training used Adam (β₁=0.9, β₂=0.999), cosine learning rate schedule (initial lr=0.001, warmup 2 epochs), L2 regularization (factor=3×10⁻⁵), batch size 64, for 40 epochs with RecAug augmentation. The best-accuracy validation checkpoint is reported in Table 1 (100% data-size ablation run).
 
 ### Tesseract
 
@@ -60,4 +60,4 @@ CER = EditDistance(ŷ, y) / max(1, |y|)
 
 ### Preprocessing
 
-All systems received identical line-crop inputs without additional binarization or resolution normalization beyond model-specific requirements. Evaluation was performed on the held-out test split (n=326 lines) from books not seen during training.
+All systems received identical line-crop inputs without additional binarization or resolution normalization beyond model-specific requirements. Evaluation was performed on the held-out test split. Table 1 reports n=326 from the consolidated export prior to enforced 80/10/10 re-partitioning (295 test lines under seed=42).

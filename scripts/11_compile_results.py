@@ -64,7 +64,6 @@ MODEL_DISPLAY = {
 
 # Ordered model rows for Table 1 (supervised VL LoRA before CRNN fine-tune for narrative)
 TABLE1_ORDER = [
-    "baseline_english_pretrained",
     "tesseract_eng",
     "tesseract_yor",
     "tesseract_eng+yor",
@@ -73,6 +72,11 @@ TABLE1_ORDER = [
     "paddleocr_vl15_lora_finetuned",
     "finetuned_paddleocr_v1",
 ]
+
+# When the canonical eval name is absent, borrow from an equivalent run.
+TABLE1_ALIASES: dict[str, str] = {
+    "finetuned_paddleocr_v1": "ablation_data_size_100pct_test",
+}
 
 # Ablation groupings for Tables 2–4
 ABLATION_GROUPS = {
@@ -139,6 +143,33 @@ def load_results(csv_path: Path) -> dict[str, dict]:
         if chosen is not None:
             records[model] = chosen
     return records
+
+
+def prepare_table1_records(records: dict[str, dict]) -> dict[str, dict]:
+    """Build Table 1 rows: apply aliases and skip phantom checkpoints."""
+    out: dict[str, dict] = {}
+    for model_key in TABLE1_ORDER:
+        row = records.get(model_key)
+        if row is None and model_key in TABLE1_ALIASES:
+            alias = TABLE1_ALIASES[model_key]
+            row = records.get(alias)
+            if row is not None:
+                log.info(
+                    "Table 1: using %s metrics for %s.",
+                    alias,
+                    model_key,
+                )
+        if row is None:
+            continue
+        phantom = (row.get("phantom") or "").strip().lower()
+        if phantom == "true":
+            log.warning(
+                "Table 1: excluding %s (phantom checkpoint).",
+                model_key,
+            )
+            continue
+        out[model_key] = row
+    return out
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +257,7 @@ def write_csv_table(
                 "wer_pct",
                 "der_pct",
                 "n",
+                "der_n",
             ],
         )
         writer.writeheader()
@@ -239,6 +271,7 @@ def write_csv_table(
                     "wer_pct": pct(r.get("wer")),
                     "der_pct": pct(r.get("der")),
                     "n": r.get("n", ""),
+                    "der_n": r.get("der_n", ""),
                 }
             )
 
@@ -282,22 +315,22 @@ def main() -> None:
     rows = load_results(args.results_csv)
     log.info("Loaded %d model result rows.", len(rows))
 
-    missing = [m for m in TABLE1_ORDER if m not in rows]
+    table1_rows = prepare_table1_records(rows)
+    missing = [m for m in TABLE1_ORDER if m not in table1_rows]
     if missing:
         log.warning(
-            "Table 1: no metrics row for: %s (run the corresponding eval or expect "
-            "— in tables).",
+            "Table 1: no usable metrics row for: %s (run eval or check aliases).",
             ", ".join(missing),
         )
 
     # --- Table 1: Main Comparison ---
-    table1_md = render_markdown_table(rows, TABLE1_ORDER)
+    table1_md = render_markdown_table(table1_rows, TABLE1_ORDER)
     (args.output_dir / "table1_main_comparison.md").write_text(
         "# Table 1 — Main Model Comparison (test split)\n\n" + table1_md + "\n",
         encoding="utf-8",
     )
     table1_csv = args.output_dir / "table1_main_comparison.csv"
-    write_csv_table(rows, TABLE1_ORDER, table1_csv)
+    write_csv_table(table1_rows, TABLE1_ORDER, table1_csv)
     # Alias for notebooks / older docs that expect this filename
     summary_alias = args.output_dir / "metrics_summary.csv"
     summary_alias.write_text(table1_csv.read_text(encoding="utf-8"), encoding="utf-8")
