@@ -130,6 +130,12 @@ def main() -> None:
     split_counts = consolidation.get("split_counts", {})
     n_test = split_counts.get("test", "?")
 
+    resplit_val = "unknown"
+    if "resplit" in consolidation:
+        resplit_val = str(consolidation["resplit"].get("enabled", "unknown"))
+    elif "split_source" in consolidation:
+        resplit_val = "false" if consolidation["split_source"] == "on_disk_labels" else "true"
+
     body = [
         "# Yorùbá OCR — Research Approach & Run Log",
         "",
@@ -152,7 +158,7 @@ def main() -> None:
         f"- Split counts: train={split_counts.get('train', '?')}, "
         f"val={split_counts.get('val', '?')}, test={split_counts.get('test', '?')}",
         f"- Character dict size: {consolidation.get('char_dict_size', '?')}",
-        f"- Resplit enabled: {consolidation.get('resplit', {}).get('enabled', 'unknown')}",
+        f"- Resplit enabled: {resplit_val}",
         "",
         "## Pipeline toggles",
         "",

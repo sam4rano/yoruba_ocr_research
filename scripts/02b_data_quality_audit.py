@@ -201,7 +201,20 @@ def profile_split(
             )
 
     # Image dimensions
-    dims = load_image_dimensions([p for p, _ in entries])
+    img_paths = [p for p, _ in entries]
+    dims = load_image_dimensions(img_paths)
+    if not dims and img_paths:
+        sample_paths = img_paths[:3]
+        exists = [p.exists() for p in sample_paths]
+        log.warning(
+            "No image dimensions loaded for %s split (%d images). "
+            "Sample paths exist=%s: %s. "
+            "Ensure Pillow is installed and images are on disk.",
+            split,
+            len(img_paths),
+            exists,
+            [str(p) for p in sample_paths],
+        )
     widths = [w for w, _ in dims]
     heights = [h for _, h in dims]
 

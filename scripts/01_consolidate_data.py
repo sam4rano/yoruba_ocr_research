@@ -508,6 +508,15 @@ def main() -> None:
     }
     save_report(report, args.log_file)
 
+    # Freeze a copy of the split files for reproducibility
+    splits_dir = args.output_dir.parent / "splits"
+    splits_dir.mkdir(parents=True, exist_ok=True)
+    for split in SPLITS:
+        src = args.output_dir / "labels" / f"{split}.txt"
+        if src.is_file():
+            shutil.copy2(src, splits_dir / f"{split}.txt")
+    log.info("Split files frozen to %s", splits_dir)
+
     log.info(
         "Done. Train: %d  Val: %d  Test: %d",
         counts["train"],

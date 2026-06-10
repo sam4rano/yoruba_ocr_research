@@ -67,12 +67,11 @@ def apply_run_plan(plan: Mapping[str, bool] | None = None) -> dict[str, str]:
     # Section A — OOTB baselines (no training)
     env["SKIP_TROCR_ZERO_SHOT"] = "0" if p["A_baselines_ootb"] else "1"
     env["SKIP_SURYA"] = "0" if p["A_baselines_ootb"] else "1"
-    env["SKIP_VL15_ZERO_SHOT"] = "1"
+    env["SKIP_VL15_ZERO_SHOT"] = "0" if p["A_baselines_ootb"] else "1"
     env["SKIP_QWEN"] = "0" if p["extra_qwen_zero_shot"] else "1"
 
     # Section B — fine-tuned models
     env["SKIP_VL15_LORA"] = "0" if p["B_finetuned"] else "1"
-    env["SKIP_VL15_ZERO_SHOT"] = "0" if p["B_finetuned"] else "1"
     env["SKIP_SURYA_FINETUNE"] = "0" if p["B_finetuned"] else "1"
 
     # Section C — PP-OCRv4 ablations

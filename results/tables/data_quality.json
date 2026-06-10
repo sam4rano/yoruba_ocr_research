@@ -25,22 +25,22 @@
         "max": 26.0
       },
       "image_width_px": {
-        "min": 0.0,
-        "p50": 0.0,
-        "p90": 0.0,
-        "p95": 0.0,
-        "p99": 0.0,
-        "max": 0.0
+        "min": 856.0,
+        "p50": 1000.0,
+        "p90": 1000.0,
+        "p95": 1000.0,
+        "p99": 1068.0,
+        "max": 1104.0
       },
       "image_height_px": {
-        "min": 0.0,
-        "p50": 0.0,
-        "p90": 0.0,
-        "p95": 0.0,
-        "p99": 0.0,
-        "max": 0.0
+        "min": 41.0,
+        "p50": 86.0,
+        "p90": 167.0,
+        "p95": 187.0,
+        "p99": 301.0,
+        "max": 977.0
       },
-      "n_with_image_dims": 0,
+      "n_with_image_dims": 2367,
       "block_histogram": {
         "ascii": 42607,
         "latin-1-supplement": 12308,
@@ -65,8 +65,19 @@
         },
         "image_too_tall": {
           "threshold_max_height_px": 180,
-          "count": 0,
-          "example_heights": []
+          "count": 176,
+          "example_heights": [
+            508,
+            499,
+            301,
+            306,
+            977,
+            289,
+            290,
+            289,
+            289,
+            285
+          ]
         },
         "non_yoruba_codepoint": {
           "count": 0
@@ -92,22 +103,22 @@
         "max": 29.0
       },
       "image_width_px": {
-        "min": 0.0,
-        "p50": 0.0,
-        "p90": 0.0,
-        "p95": 0.0,
-        "p99": 0.0,
-        "max": 0.0
+        "min": 1000.0,
+        "p50": 1000.0,
+        "p90": 1000.0,
+        "p95": 1000.0,
+        "p99": 1060.0,
+        "max": 1060.0
       },
       "image_height_px": {
-        "min": 0.0,
-        "p50": 0.0,
-        "p90": 0.0,
-        "p95": 0.0,
-        "p99": 0.0,
-        "max": 0.0
+        "min": 56.0,
+        "p50": 86.5,
+        "p90": 148.0,
+        "p95": 213.0,
+        "p99": 304.0,
+        "max": 309.0
       },
-      "n_with_image_dims": 0,
+      "n_with_image_dims": 252,
       "block_histogram": {
         "ascii": 4851,
         "latin-1-supplement": 1493,
@@ -130,8 +141,19 @@
         },
         "image_too_tall": {
           "threshold_max_height_px": 180,
-          "count": 0,
-          "example_heights": []
+          "count": 21,
+          "example_heights": [
+            295,
+            296,
+            295,
+            291,
+            213,
+            213,
+            212,
+            213,
+            213,
+            209
+          ]
         },
         "non_yoruba_codepoint": {
           "count": 0
@@ -157,22 +179,22 @@
         "max": 23.0
       },
       "image_width_px": {
-        "min": 0.0,
-        "p50": 0.0,
-        "p90": 0.0,
-        "p95": 0.0,
-        "p99": 0.0,
-        "max": 0.0
+        "min": 820.0,
+        "p50": 1000.0,
+        "p90": 1000.0,
+        "p95": 1000.0,
+        "p99": 1000.0,
+        "max": 1000.0
       },
       "image_height_px": {
-        "min": 0.0,
-        "p50": 0.0,
-        "p90": 0.0,
-        "p95": 0.0,
-        "p99": 0.0,
-        "max": 0.0
+        "min": 47.0,
+        "p50": 97.0,
+        "p90": 158.0,
+        "p95": 184.0,
+        "p99": 255.0,
+        "max": 733.0
       },
-      "n_with_image_dims": 0,
+      "n_with_image_dims": 326,
       "block_histogram": {
         "ascii": 6479,
         "latin-1-supplement": 1764,
@@ -197,8 +219,19 @@
         },
         "image_too_tall": {
           "threshold_max_height_px": 180,
-          "count": 0,
-          "example_heights": []
+          "count": 23,
+          "example_heights": [
+            486,
+            478,
+            222,
+            184,
+            184,
+            184,
+            184,
+            184,
+            184,
+            181
+          ]
         },
         "non_yoruba_codepoint": {
           "count": 0
@@ -210,7 +243,7 @@
     "would_drop": {
       "label_too_short": 0,
       "label_too_long": 0,
-      "image_too_tall": 0,
+      "image_too_tall": 220,
       "non_yoruba_codepoint": 0
     },
     "n": {

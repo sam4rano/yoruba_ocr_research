@@ -6,12 +6,12 @@ The LoRA fine-tuned PaddleOCR-VL-1.5 achieves the lowest corpus DER across all s
 
 **Table 1: Main results on the held-out test split (n=326). Bold indicates best per column; underline second-best.**
 
-| System | CER (%) ↓ | WER (%) ↓ | DER (%) ↓ |
-|--------|----------:|----------:|----------:|
-| PaddleOCR PP-OCRv4 (CRNN fine-tuned) | **91.5** | **103.4** | 91.8 |
-| Qwen 2.5 VL (zero-shot) | 253.5 | 329.5 | 119.6 |
-| PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 |
-| **PaddleOCR-VL-1.5 (LoRA fine-tuned)** | 96.5 | 122.6 | **66.4** |
+| System | CER (%) ↓ | Median CER (%) ↓ | Micro CER (%) ↓ | WER (%) ↓ | DER (%) ↓ |
+|--------|----------:|-----------------:|----------------:|----------:|----------:|
+| PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 100.0 | 270.6 | 840.9 | 200.9 |
+| Qwen 2.5 VL-7B (zero-shot, archived pilot) | 253.5 | 114.3 | 158.1 | 329.5 | 119.6 |
+| **PaddleOCR-VL-1.5 (LoRA fine-tuned)** | 96.5 | **88.8** | **84.9** | 122.6 | **66.4** |
+| PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison) | **91.5** | 96.3 | 93.9 | **103.4** | 91.8 |
 
 TrOCR-large-printed (zero-shot), Surya v2 (zero-shot), and English-pretrained PP-OCRv4 rows are populated after Section A baseline runs; see `results/tables/metrics.csv`.
 
@@ -29,10 +29,10 @@ This creates a paradox for digitization: a model that sometimes recovers meaning
 
 ## Effect of Fine-Tuning
 
-The LoRA fine-tuned PaddleOCR-VL-1.5 reduces mean CER from 543.3% (zero-shot) to 96.5%—an 82.2% relative reduction. Corpus DER drops from 200.9% to 66.4% (66.9% relative reduction).
+The LoRA fine-tuned PaddleOCR-VL-1.5 reduces mean CER from 543.3% (zero-shot) to 96.5%—an 82.2% relative reduction. Median CER decreases from 100.0% to 88.8%, and Micro CER decreases from 270.6% to 84.9%. Corpus DER drops from 200.9% to 66.4% (66.9% relative reduction).
 
 Relative to PP-OCRv4 CRNN fine-tuning on the same split:
-- CER: 96.5% vs. 91.5% → LoRA does not win CER; CRNN retains a 5.0 pp advantage
+- CER: 96.5% vs. 91.5% → LoRA does not win mean CER; CRNN retains a 5.0 pp advantage. However, LoRA achieves a lower Median CER (88.8% vs. 96.3%) and Micro CER (84.9% vs. 93.9%), demonstrating superior performance on typical/typical-length sentences despite macro-mean inflation.
 - DER: 66.4% vs. 91.8% → 27.7% relative reduction in diacritic error
 - WER: 122.6% vs. 103.4% → LoRA WER is 19.3 pp higher (bootstrap 95% CI [7.4, 32.9])
 
@@ -64,7 +64,7 @@ On this subset, LoRA retains the lowest DER while improving CER relative to the 
 
 **Diacritic density quartiles** (combining-mark count / NFC character length; edges in `stratified_error_analysis.json`): LoRA corpus DER decreases from **79.4%** (Q1, n=88) to **56.7%** (Q4, n=79), whereas PP-OCRv4 CRNN fine-tuning stays near **90–93%** across quartiles (`stratified_der_by_density.csv`). LoRA appears relatively stronger on high-density lines—possibly because heavily marked text is more visually distinctive in this book series.
 
-**Per-book DER (LoRA)** spans **61.2%** (Book Four, n=87) to **81.0%** (Book One, n=38) when book metadata is available; see `stratified_der_by_book.csv`.
+**Per-book DER (LoRA)** is currently consolidated under a single `"unknown"` book source in `stratified_der_by_book.csv` (since explicit book metadata is absent in the processed splits).
 
 **Error taxonomy** (n_der=319 diacritic-bearing lines; `error_taxonomy.csv`):
 
@@ -93,7 +93,7 @@ We recomputed corpus DER under four diacritic-universe definitions from test JSO
 
 LoRA remains lowest under mark-level definitions (i–iii). The marked-grapheme tier is stricter—whole-character tonograph errors dominate. Headline Table 1 DER aligns with the “all combining” row within ≤0.2pp because non-standard combining marks are rare in model output on this split.
 
-**Zero-diacritic ground-truth lines** (`der_zero_diac_insertion.csv`): 7 test lines (126 GT characters) carry no combining marks. LoRA predicts 14 spurious marks (insertion rate 0.111); PP-OCRv4 predicts 2 (rate 0.016). These lines are excluded from corpus DER but matter for mid-tone vowel hallucination.
+**Zero-diacritic ground-truth lines** (`der_zero_diac_insertion.csv`): 7 test lines (126 GT characters) carry no combining marks. LoRA predicts 14 spurious marks (insertion rate 0.111); PP-OCRv4 predicts 2 (rate 0.016). These lines are excluded from corpus DER but matter for mid-tone vowel hallucination. *Note that because this subset is extremely small (n=7 lines), these rates should be interpreted as purely diagnostic rather than statistically robust.*
 
 ## Bootstrap Confidence Intervals
 

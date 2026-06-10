@@ -53,17 +53,38 @@ TABLE_SNAPSHOTS = (
 )
 
 
-def checkpoint_status_for_row(row: dict, tables_dir: Path) -> str:
+def checkpoint_status_for_row(
+    row: dict,
+    tables_dir: Path,
+    *,
+    allow_stale_with_jsonl: bool = False,
+) -> str:
     """
     Return checkpoint audit status for one metrics.csv row.
 
     Mirrors ``12_diagnose_hypotheses.py checkpoints`` logic:
     ``ok`` | ``phantom`` | ``stale`` | ``no_meta``.
+
+    Non-Paddle models (phantom="n/a") never produce ``.pdparams`` files;
+    they are always ``ok`` if their meta exists and is not phantom.
+
+    When ``allow_stale_with_jsonl=True``, a row whose checkpoint is
+    missing on disk is downgraded from ``stale`` to ``ok`` if the
+    per-sample JSONL log still exists — the inference evidence is
+    preserved even though the model weights were deleted (common on
+    ephemeral Colab disk).
     """
     model = row.get("model", "")
     split = row.get("split", "")
     csv_phantom = (row.get("phantom") or "").strip().lower()
     meta_path = tables_dir / "meta" / f"{model}_{split}.json"
+
+    # Non-Paddle models (Qwen, TrOCR, VL, Surya) have phantom="n/a".
+    # They never produce .pdparams files, so skip checkpoint verification.
+    if csv_phantom == "n/a":
+        if not meta_path.is_file():
+            return "no_meta"
+        return "ok"
 
     if not meta_path.is_file():
         return "phantom" if csv_phantom == "true" else "no_meta"
@@ -76,8 +97,16 @@ def checkpoint_status_for_row(row: dict, tables_dir: Path) -> str:
     if str(meta.get("phantom", "")).lower() == "true":
         return "phantom"
 
+    # Non-Paddle model kinds also use phantom="n/a" in meta.
+    if str(meta.get("phantom", "")).lower() == "n/a":
+        return "ok"
+
     ckpt_path = (meta.get("artifacts") or {}).get("checkpoint_pdparams")
     if ckpt_path and not Path(ckpt_path).is_file():
+        if allow_stale_with_jsonl:
+            jsonl_path = tables_dir / f"{model}_{split}.jsonl"
+            if jsonl_path.is_file():
+                return "ok"
         return "stale"
 
     return "ok"

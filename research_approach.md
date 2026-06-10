@@ -1,7 +1,7 @@
 # Yorùbá OCR — Research Approach & Run Log
 
-**Generated (UTC):** 2026-06-10T07:12:32Z  
-**Git commit:** `8a8c581`  
+**Generated (UTC):** 2026-06-10T10:02:06Z  
+**Git commit:** `422b9e0`  
 **Project root:** `/Users/mac/Desktop/yoruba_ocr_research`  
 
 ## Workflow
@@ -18,7 +18,7 @@
 - Unique line crops (consolidation): **2945**
 - Split counts: train=2367, val=252, test=326
 - Character dict size: 99
-- Resplit enabled: unknown
+- Resplit enabled: false
 
 ## Pipeline toggles
 
@@ -35,7 +35,9 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 | display_name | cer_pct | wer_pct | der_pct | n |
 | --- | --- | --- | --- | --- |
 | PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 | 326 |
+| Qwen 2.5 VL-3B (zero-shot) | 253.5 | 329.5 | 119.6 | 326 |
 | PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | 96.5 | 122.6 | 66.4 | 326 |
+| PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison) | 91.5 | 103.4 | 91.8 | 326 |
 
 ## Paper artifacts on disk
 

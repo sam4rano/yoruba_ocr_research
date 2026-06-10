@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import logging
 import sys
 from pathlib import Path
@@ -87,6 +88,7 @@ TABLE1_ORDER = [
 # When the canonical eval name is absent, borrow from an equivalent run.
 TABLE1_ALIASES: dict[str, str] = {
     "finetuned_paddleocr_v1": "ablation_data_size_100pct_test",
+    "qwen25_vl3_zero_shot": "qwen25_vl_zero_shot",
 }
 
 # Ablation groupings for Tables 2–4
@@ -152,6 +154,30 @@ def load_results(csv_path: Path) -> dict[str, dict]:
                     chosen = row
                     break
         if chosen is not None:
+            if not chosen.get("median_cer") or not chosen.get("micro_cer"):
+                split = chosen.get("split", "test")
+                jsonl_path = csv_path.parent / f"{model}_{split}.jsonl"
+                if jsonl_path.is_file():
+                    try:
+                        pairs = []
+                        with jsonl_path.open("r", encoding="utf-8") as fh:
+                            for line in fh:
+                                line = line.strip()
+                                if not line:
+                                    continue
+                                item = json.loads(line)
+                                pred = item.get("pred", "")
+                                gt = item.get("gt", "")
+                                pairs.append((pred, gt))
+                        if pairs:
+                            from evaluate_utils import aggregate_metrics
+                            agg = aggregate_metrics(pairs)
+                            chosen["median_cer"] = str(agg["median_cer"]) if agg["median_cer"] is not None else ""
+                            chosen["median_wer"] = str(agg["median_wer"]) if agg["median_wer"] is not None else ""
+                            chosen["micro_cer"] = str(agg["micro_cer"]) if agg["micro_cer"] is not None else ""
+                            chosen["micro_wer"] = str(agg["micro_wer"]) if agg["micro_wer"] is not None else ""
+                    except Exception as e:
+                        log.warning("Could not re-calculate metrics from jsonl for %s: %s", jsonl_path, e)
             records[model] = chosen
     return records
 
@@ -183,7 +209,9 @@ def prepare_table1_records(
                 model_key,
             )
             continue
-        status = checkpoint_status_for_row(row, tables_dir)
+        status = checkpoint_status_for_row(
+            row, tables_dir, allow_stale_with_jsonl=True,
+        )
         if status == "stale":
             log.warning(
                 "Table 1: excluding %s (stale checkpoint%s).",
@@ -237,33 +265,37 @@ def format_cell(val: str | None, is_best: bool) -> str:
 
 
 def render_markdown_table(
-    rows: list[dict],
+    rows: dict[str, dict],
     model_order: list[str],
 ) -> str:
     """
     Render a Markdown results table in the paper's standard format.
 
-    | Model | CER ↓ | WER ↓ | DER ↓ |
+    | Model | CER ↓ | Median CER ↓ | Micro CER ↓ | WER ↓ | DER ↓ |
     Bold the best (lowest) value per metric column.
     """
     present = [m for m in model_order if m in rows]
     data_rows = [rows[m] for m in present]
 
     best_cer = best_column(data_rows, "cer")
+    best_median_cer = best_column(data_rows, "median_cer")
+    best_micro_cer = best_column(data_rows, "micro_cer")
     best_wer = best_column(data_rows, "wer")
     best_der = best_column(data_rows, "der")
 
     lines = [
-        "| Model | CER ↓ | WER ↓ | DER ↓ |",
-        "|-------|------:|------:|------:|",
+        "| Model | CER ↓ | Median CER ↓ | Micro CER ↓ | WER ↓ | DER ↓ |",
+        "|-------|------:|-------------:|------------:|------:|------:|",
     ]
     for model_key in present:
         r = rows[model_key]
         display = MODEL_DISPLAY.get(model_key, model_key)
         cer = format_cell(r.get("cer"), r["model"] == best_cer)
+        median_cer = format_cell(r.get("median_cer"), r["model"] == best_median_cer)
+        micro_cer = format_cell(r.get("micro_cer"), r["model"] == best_micro_cer)
         wer = format_cell(r.get("wer"), r["model"] == best_wer)
         der = format_cell(r.get("der"), r["model"] == best_der)
-        lines.append(f"| {display} | {cer} | {wer} | {der} |")
+        lines.append(f"| {display} | {cer} | {median_cer} | {micro_cer} | {wer} | {der} |")
 
     return "\n".join(lines)
 
@@ -283,6 +315,8 @@ def write_csv_table(
                 "model_label",
                 "display_name",
                 "cer_pct",
+                "median_cer_pct",
+                "micro_cer_pct",
                 "wer_pct",
                 "der_pct",
                 "n",
@@ -297,6 +331,8 @@ def write_csv_table(
                     "model_label": key,
                     "display_name": MODEL_DISPLAY.get(key, key),
                     "cer_pct": pct(r.get("cer")),
+                    "median_cer_pct": pct(r.get("median_cer")),
+                    "micro_cer_pct": pct(r.get("micro_cer")),
                     "wer_pct": pct(r.get("wer")),
                     "der_pct": pct(r.get("der")),
                     "n": r.get("n", ""),

@@ -35,8 +35,6 @@ _APOS_MARK = re.compile(
 # Provenance helpers
 # ---------------------------------------------------------------------------
 
-# Columns written when the metrics CSV is first created. Older CSVs may
-# predate some of these; see _write_csv_row for the compatibility path.
 _DEFAULT_CSV_FIELDS = [
     "model",
     "split",
@@ -46,10 +44,15 @@ _DEFAULT_CSV_FIELDS = [
     "der",
     "der_n",
     "der_insertion_rate",
+    "median_cer",
+    "median_wer",
+    "micro_cer",
+    "micro_wer",
     "phantom",
     "meta_path",
     "timestamp",
 ]
+
 
 
 def _sha256_file(path: Path) -> str | None:
@@ -286,6 +289,13 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
 
     total_insertions = 0
     total_gt_chars_nodiac = 0
+
+    # Track totals for micro-averaged CER/WER
+    total_char_edits = 0
+    total_gt_chars = 0
+    total_word_edits = 0
+    total_gt_words = 0
+
     for pred, gt in pairs:
         pred_norm = normalize_yoruba_text(pred)
         gt_norm = normalize_yoruba_text(gt)
@@ -305,12 +315,23 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
             total_gt_chars_nodiac += len(gt_norm)
             per_sample_der = 0.0 if not pred_diacs else 1.0
 
+        cer_val = compute_cer(pred_norm, gt_norm)
+        wer_val = compute_wer(pred_norm, gt_norm)
+
+        # Accumulate for micro-averaged CER/WER
+        total_char_edits += editdistance.eval(list(pred_norm), list(gt_norm))
+        total_gt_chars += len(gt_norm)
+        pred_words = pred_norm.split()
+        gt_words = gt_norm.split()
+        total_word_edits += editdistance.eval(pred_words, gt_words)
+        total_gt_words += len(gt_words)
+
         rows.append(
             {
                 "pred": pred_norm,
                 "gt": gt_norm,
-                "cer": compute_cer(pred_norm, gt_norm),
-                "wer": compute_wer(pred_norm, gt_norm),
+                "cer": cer_val,
+                "wer": wer_val,
                 "der": per_sample_der,
             }
         )
@@ -324,6 +345,10 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
             "der": None,
             "der_n": 0,
             "der_insertion_rate": None,
+            "median_cer": None,
+            "median_wer": None,
+            "micro_cer": None,
+            "micro_wer": None,
             "rows": [],
         }
 
@@ -334,6 +359,16 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
         else None
     )
 
+    sorted_cers = sorted(r["cer"] for r in rows)
+    sorted_wers = sorted(r["wer"] for r in rows)
+    mid = n // 2
+    median_cer = (
+        sorted_cers[mid] if n % 2 else (sorted_cers[mid - 1] + sorted_cers[mid]) / 2
+    )
+    median_wer = (
+        sorted_wers[mid] if n % 2 else (sorted_wers[mid - 1] + sorted_wers[mid]) / 2
+    )
+
     return {
         "n": n,
         "cer": round(sum(r["cer"] for r in rows) / n, 4),
@@ -341,6 +376,10 @@ def aggregate_metrics(pairs: list[tuple[str, str]]) -> dict:
         "der": der,
         "der_n": der_n_samples,
         "der_insertion_rate": der_insertion_rate,
+        "median_cer": round(median_cer, 4),
+        "median_wer": round(median_wer, 4),
+        "micro_cer": round(total_char_edits / total_gt_chars, 4) if total_gt_chars else None,
+        "micro_wer": round(total_word_edits / total_gt_words, 4) if total_gt_words else None,
         "rows": rows,
     }
 
@@ -408,6 +447,10 @@ def save_results(
             if metrics.get("der_insertion_rate") is not None
             else ""
         ),
+        "median_cer": metrics.get("median_cer") if metrics.get("median_cer") is not None else "",
+        "median_wer": metrics.get("median_wer") if metrics.get("median_wer") is not None else "",
+        "micro_cer": metrics.get("micro_cer") if metrics.get("micro_cer") is not None else "",
+        "micro_wer": metrics.get("micro_wer") if metrics.get("micro_wer") is not None else "",
         "phantom": phantom_flag,
         "meta_path": (
             meta_path.relative_to(csv_path.parent.parent).as_posix()
@@ -503,6 +546,10 @@ def _build_meta_payload(
             "der": metrics["der"],
             "der_n": metrics.get("der_n"),
             "der_insertion_rate": metrics.get("der_insertion_rate"),
+            "median_cer": metrics.get("median_cer"),
+            "median_wer": metrics.get("median_wer"),
+            "micro_cer": metrics.get("micro_cer"),
+            "micro_wer": metrics.get("micro_wer"),
         },
         "git_sha": _git_sha(),
         "env": {
