@@ -225,12 +225,20 @@ def main() -> None:
     samples = load_train_samples(args.export_dir, args.max_samples)
     log.info("Training samples: %d", len(samples))
 
-    processor = AutoProcessor.from_pretrained(args.model_id, trust_remote_code=False)
+    sys.path.insert(0, str(Path(__file__).parent))
+    from paddle_vl_shared import (  # noqa: E402
+        hf_trust_remote_code_model,
+        hf_trust_remote_code_processor,
+    )
+
+    processor = AutoProcessor.from_pretrained(
+        args.model_id, trust_remote_code=hf_trust_remote_code_processor()
+    )
     model = AutoModelForImageTextToText.from_pretrained(
         args.model_id,
         dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
         device_map="auto",
-        trust_remote_code=False,
+        trust_remote_code=hf_trust_remote_code_model(),
     )
 
     # Enable gradient checkpointing to save memory

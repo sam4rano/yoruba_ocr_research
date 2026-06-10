@@ -14,7 +14,7 @@ Usage:
     python scripts/17_stratified_error_analysis.py
     python scripts/17_stratified_error_analysis.py \\
         --jsonl results/tables/paddleocr_vl15_lora_finetuned_test.jsonl \\
-        --jsonl results/tables/tesseract_yor_test.jsonl
+        --jsonl results/tables/trocr_large_printed_zero_shot_test.jsonl
 """
 
 from __future__ import annotations
@@ -37,10 +37,12 @@ WORD_SPLIT = re.compile(r"[^\w\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f\u0323]+", 
 
 DEFAULT_MODEL_JSONLS = [
     "paddleocr_vl15_lora_finetuned_test.jsonl",
-    "tesseract_yor_test.jsonl",
-    "tesseract_eng_test.jsonl",
-    "ablation_data_size_100pct_test_test.jsonl",
     "paddleocr_vl15_zero_shot_test.jsonl",
+    "baseline_english_pretrained_test.jsonl",
+    "ablation_data_size_100pct_test_test.jsonl",
+    "surya_v2_zero_shot_test.jsonl",
+    "surya_finetuned_test.jsonl",
+    "trocr_large_printed_zero_shot_test.jsonl",
 ]
 
 DENSITY_LABELS = ("q1_low", "q2", "q3", "q4_high")

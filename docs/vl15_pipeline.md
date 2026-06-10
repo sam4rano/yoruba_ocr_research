@@ -1,6 +1,6 @@
 # PaddleOCR-VL-1.5 pipeline (no Mistral OCR)
 
-**Primary supervised model:** LoRA fine-tuning of [PaddlePaddle/PaddleOCR-VL-1.5](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.5) on Yorùbá line crops (scripts **14 → 16 → 15** with adapter), on the **same** images and labels as PP-OCRv4. Zero-shot VL-1.5 (**15** without adapter) is a baseline. **Mistral OCR is not implemented** here (use Tesseract, Qwen VL, PP-OCRv4, and the rows above for the comparison table).
+**Primary supervised model:** LoRA fine-tuning of [PaddlePaddle/PaddleOCR-VL-1.5](https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.5) on Yorùbá line crops (scripts **14 → 16 → 15** with adapter), on the **same** images and labels as PP-OCRv4. Zero-shot VL-1.5 (**15** without adapter) is a baseline. Out-of-the-box baselines include TrOCR, PP-OCR EN, and Surya v2 (see `yor_ocr.ipynb` Section A).
 
 ## Data safety
 

@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-06-09T19:27:51.972754+00:00",
+  "timestamp_utc": "2026-06-10T05:40:26.290289+00:00",
   "steps": [
     {
       "name": "data/processed layout",
@@ -7,11 +7,6 @@
     },
     {
       "name": "python deps (editdistance)",
-      "status": "fail",
-      "error": "No module named 'editdistance'"
-    },
-    {
-      "name": "02b data quality audit",
       "status": "ok"
     },
     {
@@ -27,32 +22,15 @@
       "status": "ok"
     },
     {
-      "name": "analysis 17-19",
-      "status": "fail",
-      "error": "Command '['/opt/homebrew/opt/python@3.14/bin/python3.14', 'scripts/17_stratified_error_analysis.py']' returned non-zero exit status 1."
-    },
-    {
-      "name": "phase_09 compile",
-      "status": "fail",
-      "error": "Command '['bash', 'scripts/shell/phase_09_compile.sh']' returned non-zero exit status 1."
-    },
-    {
-      "name": "checkpoint audit",
+      "name": "compile table1 (if metrics.csv exists)",
       "status": "ok"
-    },
-    {
-      "name": "research_approach.md",
-      "status": "ok"
-    },
-    {
-      "name": "HF dataset card dry-run",
-      "status": "fail",
-      "error": "Command '['/opt/homebrew/opt/python@3.14/bin/python3.14', 'scripts/25_upload_hf_dataset.py', '--dry-run']' returned non-zero exit status 1."
     },
     {
       "name": "yor_ocr.ipynb syntax",
       "status": "ok"
     }
   ],
-  "ok": false
+  "ok": true,
+  "mode": "quick",
+  "python": ".venv/bin/python"
 }

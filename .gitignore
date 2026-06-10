@@ -37,6 +37,7 @@ experiments/**
 *.zip
 
 # PaddleOCR clone — install per machine / Colab; do not vendor
+vendor/
 PaddleOCR/
 
 wandb/

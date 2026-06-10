@@ -32,24 +32,23 @@ scripted ablations. The researcher built a custom annotation platform
 3. scripts/03_generate_config.py   — download pretrained weights + write fine-tune YAML
 4. scripts/04_train_paddleocr.py   — PP-OCRv4 CRNN fine-tuning (comparison + ablations; needs PaddleOCR repo)
 5. scripts/05_evaluate.py          — CER/WER/DER evaluation for any model
-6. scripts/06_baseline_pretrained.py — English pretrained model baseline
-7. scripts/07_baseline_tesseract.py, scripts/09_baseline_qwen.py, scripts/10_ablation_study.py — other baselines / PP-OCRv4 ablations
+6. scripts/06_baseline_pretrained.py — English pretrained PP-OCR eval (via 05)
+7. scripts/09_baseline_qwen.py, scripts/10_ablation_study.py — optional Qwen / PP-OCRv4 ablations
 8. scripts/11_compile_results.py   — paper tables from metrics.csv
-9. **PaddleOCR-VL-1.5 (HF) — main supervised track:** scripts/14_export_paddleocr_vl_sft.py → 15 (zero-shot) → 16_train_paddleocr_vl_lora.py → 15 with adapter
-10. scripts/17_stratified_error_analysis.py, 18_der_universe_ablation.py, 19_bootstrap_metric_cis.py — analysis
-11. **Surya v2 + TrOCR:** scripts/20_baseline_surya_v2.py → 21_train_trocr.py → 22_evaluate_trocr.py
-12. **Hub release:** scripts/25_upload_hf_dataset.py — push `data/processed/` to Hugging Face Datasets with dataset card
-13. **Run hygiene:** scripts/metrics_lifecycle.py (archive+reset metrics), scripts/02c_refresh_dataset_report.py
+9. **PaddleOCR-VL-1.5 (HF) — main supervised track:** scripts/14–16 + adapter eval (15)
+10. scripts/17–19 — stratified DER, DER-universe, bootstrap CIs
+11. **OOTB baselines (Section A):** `22_evaluate_trocr.py` (zero-shot), `20_baseline_surya_v2.py`
+12. **Fine-tuned (Section B):** VL-1.5 LoRA (16); Surya Foundation (`26–28`)
+13. **Hub release:** `25_upload_hf_dataset.py`, `29_upload_hf_models.py`
+14. **Run hygiene:** scripts/metrics_lifecycle.py, scripts/02c_refresh_dataset_report.py
 
 ## Models being compared
-1. PaddleOCR-VL-1.5 (Hugging Face) — **zero-shot** and **LoRA fine-tuned on Yorùbá data (primary supervised result)**; scripts 14–16
-2. PaddleOCR PP-OCRv4 (English pretrained — baseline, no fine-tuning)
-3. PaddleOCR PP-OCRv4 (CRNN fine-tuned on Yorùbá dataset — classical comparison; ablations target this stack)
-4. Tesseract (multiple language configs)
-5. Qwen 2.5 VL (zero-shot multimodal)
-6. Surya v2 (zero-shot, recognition-only on line crops) — scripts/20
-7. TrOCR-large-printed (fine-tuned on full 2,945-line corpus) — scripts/21–22
-8. Mistral OCR — **not** in this repository
+1. PaddleOCR-VL-1.5 (Hugging Face) — zero-shot + **LoRA fine-tuned (primary supervised)**; scripts 14–16
+2. PaddleOCR PP-OCRv4 English pretrained — baseline (`05_evaluate.py`)
+3. PaddleOCR PP-OCRv4 CRNN fine-tuned — classical comparison + ablation target (`04`, `10`)
+4. TrOCR-large-printed — **zero-shot** (`22` + `--pretrained-model-id`); optional fine-tune (`21–22`)
+5. Surya v2 — zero-shot recognition on line crops (`20`); Surya Foundation fine-tune (`26–28`)
+6. Qwen 2.5 VL — zero-shot multimodal (`09`, optional)
 
 ## Metrics
 - CER — Character Error Rate (NFC-normalised edit distance / gt char count)

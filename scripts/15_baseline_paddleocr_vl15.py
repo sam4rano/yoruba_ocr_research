@@ -200,9 +200,14 @@ def load_model_and_processor(
             "Install transformers>=5 for PaddleOCR-VL-1.5: pip install 'transformers>=5'"
         ) from exc
 
-    # transformers>=5 ships native PaddleOCR-VL; trust_remote_code pulls hub config
-    # that mismatches modeling (text_config vs get_text_config). See PaddleOCR#17666.
-    kwargs: dict = {"trust_remote_code": False}
+    sys.path.insert(0, str(Path(__file__).parent))
+    from paddle_vl_shared import (  # noqa: E402
+        hf_trust_remote_code_model,
+        hf_trust_remote_code_processor,
+    )
+
+    # Model: default hub code off (PaddleOCR#17666). Processor: default on (required on Colab).
+    kwargs: dict = {"trust_remote_code": hf_trust_remote_code_model()}
     if quantize_4bit:
         try:
             from transformers import BitsAndBytesConfig  # type: ignore
@@ -217,7 +222,9 @@ def load_model_and_processor(
         kwargs["device_map"] = "auto"
 
     model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
-    processor = AutoProcessor.from_pretrained(model_id, trust_remote_code=False)
+    processor = AutoProcessor.from_pretrained(
+        model_id, trust_remote_code=hf_trust_remote_code_processor()
+    )
 
     if adapter_path is not None:
         if not adapter_path.is_dir():

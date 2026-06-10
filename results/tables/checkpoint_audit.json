@@ -1,47 +1,11 @@
 {
   "counts": {
-    "ok": 6,
+    "ok": 3,
     "phantom": 0,
     "no_meta": 0,
     "stale": 4
   },
   "rows": [
-    {
-      "model": "tesseract_eng",
-      "split": "test",
-      "status": "ok",
-      "cer": "1.2035",
-      "wer": "1.5347",
-      "der": "0.9847",
-      "meta_path": "results/tables/meta/tesseract_eng_test.json",
-      "checkpoint_pdparams": null,
-      "checkpoint_sha256": null,
-      "notes": []
-    },
-    {
-      "model": "tesseract_yor",
-      "split": "test",
-      "status": "ok",
-      "cer": "1.2435",
-      "wer": "1.6366",
-      "der": "0.8773",
-      "meta_path": "results/tables/meta/tesseract_yor_test.json",
-      "checkpoint_pdparams": null,
-      "checkpoint_sha256": null,
-      "notes": []
-    },
-    {
-      "model": "tesseract_eng+yor",
-      "split": "test",
-      "status": "ok",
-      "cer": "1.2264",
-      "wer": "1.6003",
-      "der": "0.9386",
-      "meta_path": "results/tables/meta/tesseract_eng+yor_test.json",
-      "checkpoint_pdparams": null,
-      "checkpoint_sha256": null,
-      "notes": []
-    },
     {
       "model": "qwen25_vl_zero_shot",
       "split": "test",

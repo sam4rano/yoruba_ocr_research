@@ -18,6 +18,32 @@ USER_TEXT_OCR_YORUBA = (
 )
 
 
+def hf_trust_remote_code_model() -> bool:
+    """
+    Whether ``AutoModelForImageTextToText`` should run hub custom code.
+
+    Default ``False`` avoids a known config mismatch on some transformers builds
+    (PaddleOCR#17666). Set ``HF_TRUST_REMOTE_CODE=1`` to force hub modeling code.
+    """
+    import os
+
+    v = os.environ.get("HF_TRUST_REMOTE_CODE", "0").strip().lower()
+    return v in ("1", "true", "yes", "on")
+
+
+def hf_trust_remote_code_processor() -> bool:
+    """
+    Whether ``AutoProcessor`` should run hub custom code.
+
+    Default ``True``: recent transformers require hub processor code for
+    ``PaddlePaddle/PaddleOCR-VL-1.5`` (Colab fails without it).
+    """
+    import os
+
+    v = os.environ.get("HF_TRUST_REMOTE_CODE", "1").strip().lower()
+    return v not in ("0", "false", "no", "off")
+
+
 def clean_vl_transcript(raw: str) -> str:
     """
     Strip common VLM artefacts (fenced code blocks, extra chatter) and NFC-normalise.

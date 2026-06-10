@@ -21,19 +21,34 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-MODEL_LABEL = "trocr_large_printed_finetuned"
+DEFAULT_FINETUNED_DIR = Path("experiments/trocr_large_printed/best")
+DEFAULT_PRETRAINED_ID = "microsoft/trocr-large-printed"
+MODEL_LABEL_FINETUNED = "trocr_large_printed_finetuned"
+MODEL_LABEL_ZERO_SHOT = "trocr_large_printed_zero_shot"
 
 
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Evaluate fine-tuned TrOCR on Yorùbá line crops."
+        description="Evaluate TrOCR (fine-tuned checkpoint or HF pretrained) on line crops."
     )
     parser.add_argument(
         "--model-dir",
         type=Path,
-        default=Path("experiments/trocr_large_printed/best"),
-        help="Directory with saved TrOCR weights + processor.",
+        default=None,
+        help="Directory with saved TrOCR weights + processor (fine-tuned eval).",
+    )
+    parser.add_argument(
+        "--pretrained-model-id",
+        type=str,
+        default=None,
+        help="Hugging Face model id for zero-shot eval (e.g. microsoft/trocr-large-printed).",
+    )
+    parser.add_argument(
+        "--model-label",
+        type=str,
+        default=None,
+        help="Row label in metrics.csv (default: finetuned or zero-shot).",
     )
     parser.add_argument(
         "--data-dir",
@@ -115,17 +130,26 @@ def run_inference(
 
 
 def main() -> None:
-    """Load TrOCR checkpoint and evaluate."""
+    """Load TrOCR checkpoint or pretrained weights and evaluate."""
     args = parse_args()
+    zero_shot = bool(args.pretrained_model_id)
+    model_label = args.model_label or (
+        MODEL_LABEL_ZERO_SHOT if zero_shot else MODEL_LABEL_FINETUNED
+    )
     if args.per_sample_log is None:
-        args.per_sample_log = Path("results/tables") / f"{MODEL_LABEL}_{args.split}.jsonl"
+        args.per_sample_log = Path("results/tables") / f"{model_label}_{args.split}.jsonl"
 
-    if not args.model_dir.is_dir():
-        log.error(
-            "Checkpoint not found: %s\nRun: python scripts/21_train_trocr.py",
-            args.model_dir,
-        )
-        sys.exit(1)
+    model_dir = args.model_dir or DEFAULT_FINETUNED_DIR
+    if zero_shot:
+        load_path = args.pretrained_model_id
+    else:
+        if not model_dir.is_dir():
+            log.error(
+                "Checkpoint not found: %s\nRun: python scripts/21_train_trocr.py",
+                model_dir,
+            )
+            sys.exit(1)
+        load_path = str(model_dir)
 
     sys.path.insert(0, str(Path(__file__).parent))
     from evaluate_utils import aggregate_metrics, load_test_pairs, save_results  # noqa: E402
@@ -142,8 +166,8 @@ def main() -> None:
     if args.max_samples:
         pairs = pairs[: args.max_samples]
 
-    processor = TrOCRProcessor.from_pretrained(args.model_dir)
-    model = VisionEncoderDecoderModel.from_pretrained(args.model_dir)
+    processor = TrOCRProcessor.from_pretrained(load_path)
+    model = VisionEncoderDecoderModel.from_pretrained(load_path)
     model.eval()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -154,28 +178,31 @@ def main() -> None:
     metrics = aggregate_metrics(pred_pairs)
     log.info(
         "%s — CER: %.4f  WER: %.4f  DER: %.4f  (n=%d)",
-        MODEL_LABEL,
+        model_label,
         metrics["cer"],
         metrics["wer"],
         metrics["der"],
         metrics["n"],
     )
 
-    ckpt_file = args.model_dir / "pytorch_model.bin"
-    if not ckpt_file.exists():
-        ckpt_file = args.model_dir / "model.safetensors"
+    ckpt_file = None
+    if not zero_shot:
+        ckpt_file = model_dir / "pytorch_model.bin"
+        if not ckpt_file.exists():
+            ckpt_file = model_dir / "model.safetensors"
     provenance = {
         "model_kind": "trocr",
-        "base_model_id": "microsoft/trocr-large-printed",
-        "checkpoint_dir": str(args.model_dir),
-        "checkpoint_sha256": _sha256_file(ckpt_file) if ckpt_file.exists() else None,
+        "base_model_id": DEFAULT_PRETRAINED_ID,
+        "checkpoint_dir": None if zero_shot else str(model_dir),
+        "pretrained_model_id": args.pretrained_model_id if zero_shot else None,
+        "checkpoint_sha256": _sha256_file(ckpt_file) if ckpt_file and ckpt_file.exists() else None,
         "batch_size": args.batch_size,
         "data_dir": str(args.data_dir),
         "n_images": len(pairs),
     }
     save_results(
         metrics,
-        model_name=MODEL_LABEL,
+        model_name=model_label,
         split=args.split,
         csv_path=args.results_csv,
         jsonl_path=args.per_sample_log,

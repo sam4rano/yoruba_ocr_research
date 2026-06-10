@@ -30,9 +30,9 @@ This line-level partition maximises training volume but does not hold out entire
 
 We fine-tuned the English-pretrained PP-OCRv4 recognition model (SVTR_LCNet architecture with CTC head) on the full training split with our 99-character Yorùbá dictionary. Configuration: MobileNetV1Enhance backbone (scale 0.5), SequenceEncoder neck (SVTR, dims=64, depth=2), input resolution 3×48×960. Training used Adam (β₁=0.9, β₂=0.999), cosine learning rate schedule (initial lr=0.001, warmup 2 epochs), L2 regularization (factor=3×10⁻⁵), batch size 64, for 40 epochs with RecAug augmentation. The best-accuracy validation checkpoint is reported in Table 1 (100% data-size ablation run).
 
-### Tesseract
+### Out-of-the-box baselines (TrOCR, Surya v2, English PP-OCRv4)
 
-Tesseract 5 was evaluated under three language configurations: English only (`eng`), Yorùbá only (`yor`), and combined (`eng+yor`). All used default parameters with no additional preprocessing beyond the line-crop input format.
+**TrOCR-large-printed** (`microsoft/trocr-large-printed`) was evaluated zero-shot on line crops with greedy decoding. **Surya v2** (`scripts/20_baseline_surya_v2.py`) runs recognition-only on each crop with the public v0.20 stack. **English-pretrained PP-OCRv4** uses the stock English recognition checkpoint but decodes with the project Yorùbá character dictionary so that comparisons isolate script adaptation rather than decode-vocabulary mismatch.
 
 ### Qwen 2.5 VL (Zero-Shot)
 

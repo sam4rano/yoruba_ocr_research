@@ -26,9 +26,9 @@ check_deps
 
 # Default: core pipeline. For the **primary supervised VL-1.5 LoRA** row, add
 # 14 (export), 15 (set SKIP_VL15_EVAL=0), 16 (LoRA), then 15 again with adapter — or run those phases manually; e.g.
-#   PHASES="01 02 03 04 05 06 07 08 14 15 09 99" bash scripts/shell/run_all.sh
+#   PHASES="01 02 03 04 05 07 08 14 15 09 99" bash scripts/shell/run_all.sh
 # (16 is long; run phase_16_train_vl15_lora.sh separately, then eval 15 with adapter)
-DEFAULT_PHASES="01 02 03 04 05 06 07 08 09 99"
+DEFAULT_PHASES="01 02 03 04 05 07 08 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
 
 run_phase() {
@@ -40,8 +40,9 @@ run_phase() {
     03) f="${SCRIPT_DIR}/phase_03_config.sh" ;;
     04) f="${SCRIPT_DIR}/phase_04_train.sh" ;;
     05) f="${SCRIPT_DIR}/phase_05_eval_paddle.sh" ;;
-    06) f="${SCRIPT_DIR}/phase_06_tesseract.sh" ;;
     07) f="${SCRIPT_DIR}/phase_07_qwen.sh" ;;
+    20) f="${SCRIPT_DIR}/phase_20_surya.sh" ;;
+    22) f="${SCRIPT_DIR}/phase_22_trocr_zero_shot.sh" ;;
     08) f="${SCRIPT_DIR}/phase_08_ablation.sh" ;;
     09) f="${SCRIPT_DIR}/phase_09_compile.sh" ;;
     12) f="${SCRIPT_DIR}/phase_12_diagnose.sh" ;;

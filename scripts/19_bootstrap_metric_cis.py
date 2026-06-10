@@ -44,16 +44,19 @@ log = logging.getLogger(__name__)
 
 DEFAULT_MODEL_JSONLS = [
     "paddleocr_vl15_lora_finetuned_test.jsonl",
-    "tesseract_yor_test.jsonl",
     "ablation_data_size_100pct_test_test.jsonl",
     "surya_v2_zero_shot_test.jsonl",
+    "surya_finetuned_test.jsonl",
+    "trocr_large_printed_zero_shot_test.jsonl",
     "trocr_large_printed_finetuned_test.jsonl",
 ]
 
 PAIRWISE_COMPARISONS = (
-    ("paddleocr_vl15_lora_finetuned", "tesseract_yor"),
+    ("paddleocr_vl15_lora_finetuned", "baseline_english_pretrained"),
+    ("paddleocr_vl15_lora_finetuned", "trocr_large_printed_zero_shot"),
+    ("paddleocr_vl15_lora_finetuned", "surya_v2_zero_shot"),
     ("paddleocr_vl15_lora_finetuned", "ablation_data_size_100pct_test"),
-    ("tesseract_yor", "ablation_data_size_100pct_test"),
+    ("surya_finetuned", "surya_v2_zero_shot"),
 )
 
 

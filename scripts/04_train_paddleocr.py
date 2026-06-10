@@ -103,39 +103,52 @@ def run_training(
     log_file: Path,
 ) -> dict:
     """
-    Execute the training command and stream output to the terminal.
+    Execute the training command and stream stdout/stderr line-by-line.
+
+    PaddleOCR's ``tools/train.py`` can run for hours (40 epochs). Colab/Jupyter
+    buffer subprocess output unless we stream explicitly and set
+    ``PYTHONUNBUFFERED=1``.
 
     Returns a metadata dict with timing and exit status.
     """
-    log.info("Starting training:\n  %s", " ".join(cmd))
+    log.info("Starting training (this may take 1–3 h on Colab T4 for 40 epochs):")
+    log.info("  %s", " ".join(cmd))
     start = time.time()
 
     env = os.environ.copy()
-    # Ensure PaddleOCR's own modules are importable
+    env["PYTHONUNBUFFERED"] = "1"
     env["PYTHONPATH"] = str(paddle_dir) + os.pathsep + env.get("PYTHONPATH", "")
 
-    result = subprocess.run(
+    proc = subprocess.Popen(
         cmd,
         cwd=str(paddle_dir),
         env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1,
     )
+    assert proc.stdout is not None
+    for line in proc.stdout:
+        print(line, end="", flush=True)
 
+    returncode = proc.wait()
     elapsed = round(time.time() - start, 1)
-    success = result.returncode == 0
+    success = returncode == 0
 
     if success:
         log.info("Training finished in %.1f s.", elapsed)
     else:
         log.error(
             "Training exited with code %d after %.1f s.",
-            result.returncode,
+            returncode,
             elapsed,
         )
 
     return {
         "stage": "train",
         "command": " ".join(cmd),
-        "returncode": result.returncode,
+        "returncode": returncode,
         "elapsed_seconds": elapsed,
         "success": success,
         "timestamp": datetime.now(timezone.utc).isoformat(),

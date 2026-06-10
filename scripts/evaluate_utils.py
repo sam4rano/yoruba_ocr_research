@@ -94,7 +94,7 @@ def _detect_existing_fieldnames(csv_path: Path) -> list[str] | None:
 
 
 _NON_PADDLE_MODEL_KINDS = frozenset(
-    {"tesseract", "qwen_vl", "qwen2_vl", "paddleocr_vl"}
+    {"qwen_vl", "qwen2_vl", "paddleocr_vl", "trocr", "surya_foundation_finetuned"}
 )
 
 
@@ -106,8 +106,8 @@ def _phantom_flag_from_provenance(provenance: dict | None) -> str:
     * ``"true"``  — checkpoint-integrity check found missing / shape-
       mismatched head weights; the row measures a random head.
     * ``"false"`` — integrity check passed.
-    * ``"n/a"``   — ``model_kind`` is a non-Paddle baseline (Tesseract,
-      Qwen, PaddleOCR-VL) for which the "phantom head" concept does not
+    * ``"n/a"``   — ``model_kind`` is a non-Paddle baseline (TrOCR, Qwen,
+      PaddleOCR-VL, Surya) for which the "phantom head" concept does not
       apply.
     * ``"unknown"`` — no integrity data and no recognised ``model_kind``.
     """
@@ -377,7 +377,7 @@ def save_results(
     * ``phantom`` — checkpoint-integrity flag:
       ``"true"``  = head weights not restored; the row measures a random head;
       ``"false"`` = clean;
-      ``"n/a"``   = non-Paddle baseline (Tesseract, Qwen, PaddleOCR-VL);
+      ``"n/a"``   = non-Paddle baseline (TrOCR, Qwen, PaddleOCR-VL, Surya);
       ``"unknown"`` = provenance did not include an integrity report.
 
     Returns the path to the sibling meta file (or ``None`` when no

@@ -1,13 +1,19 @@
 """
 Colab / local smoke test for the Yorùbá OCR pipeline.
 
-Validates data layout, config generation, VL export, analysis scripts,
-table compilation, checkpoint audit, and research_approach.md — without
-full GPU training or multi-hour eval runs.
+Two modes:
+
+  --quick (default for Colab Step 5b)
+      Data layout, Python deps, config/VL export sanity — **no eval JSONL required**.
+      Use after Step 3 install, before GPU baselines.
+
+  --full
+      Also runs analysis 17–19, compile+alignment, checkpoint audit, HF card dry-run.
+      Requires prior eval JSONL logs under results/tables/.
 
 Usage:
-    python scripts/24_colab_smoke_test.py
-    python scripts/24_colab_smoke_test.py --skip-config   # if weights already fetched
+    python scripts/24_colab_smoke_test.py --quick --skip-config
+    python scripts/24_colab_smoke_test.py --full --skip-config
 """
 
 from __future__ import annotations
@@ -21,7 +27,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-PY = sys.executable
+PY = os.environ.get("PYTHON", sys.executable)
 SHELL_ENV = {**os.environ, "PYTHON": PY, "PROJECT_ROOT": str(ROOT)}
 
 
@@ -52,6 +58,17 @@ def main() -> None:
         action="store_true",
         help="Skip phase_03 (Paddle weight download).",
     )
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument(
+        "--quick",
+        action="store_true",
+        help="Pre-flight only: data, deps, VL export (no eval JSONL needed).",
+    )
+    mode.add_argument(
+        "--full",
+        action="store_true",
+        help="Full pipeline smoke: includes analysis 17–19 and HF card dry-run.",
+    )
     parser.add_argument(
         "--report",
         type=Path,
@@ -59,6 +76,8 @@ def main() -> None:
         help="JSON report path.",
     )
     args = parser.parse_args()
+    if not args.quick and not args.full:
+        args.quick = True
 
     results: dict = {
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
@@ -157,8 +176,25 @@ def main() -> None:
     def deps_checks() -> None:
         import editdistance  # noqa: F401
 
+    def deps_full_checks() -> None:
+        import datasets  # noqa: F401
+
+        deps_checks()
+
     def refresh_report() -> None:
         run([PY, "scripts/02c_refresh_dataset_report.py"])
+
+    def compile_tables_quick() -> None:
+        metrics = ROOT / "results/tables/metrics.csv"
+        if not metrics.is_file():
+            print("metrics.csv missing — skipping compile (run baselines first)")
+            return
+        run([
+            PY, "scripts/11_compile_results.py",
+            "--results-csv", "results/tables/metrics.csv",
+            "--output-dir", "results/tables",
+        ])
+        check_path(ROOT / "results/tables/table1_main_comparison.csv")
 
     def hf_dataset_card() -> None:
         run([PY, "scripts/25_upload_hf_dataset.py", "--dry-run"])
@@ -169,16 +205,23 @@ def main() -> None:
 
     step("data/processed layout", data_checks)
     step("python deps (editdistance)", deps_checks)
-    step("02b data quality audit", audit_and_eda)
     step("02c refresh dataset report", refresh_report)
     step("phase_03 config", config_phase)
     step("phase_14 VL export", vl_export)
-    step("analysis 17-19", analysis)
-    step("phase_09 compile", compile_tables)
-    step("checkpoint audit", checkpoint_audit)
-    step("research_approach.md", research_doc)
-    step("HF dataset card dry-run", hf_dataset_card)
+    step("compile table1 (if metrics.csv exists)", compile_tables_quick)
     step("yor_ocr.ipynb syntax", notebook_syntax)
+
+    if args.full:
+        step("02b data quality audit", audit_and_eda)
+        step("analysis 17-19", analysis)
+        step("phase_09 compile + alignment", compile_tables)
+        step("checkpoint audit", checkpoint_audit)
+        step("research_approach.md", research_doc)
+        step("python deps (datasets)", deps_full_checks)
+        step("HF dataset card dry-run", hf_dataset_card)
+
+    results["mode"] = "full" if args.full else "quick"
+    results["python"] = PY
 
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(results, indent=2) + "\n", encoding="utf-8")

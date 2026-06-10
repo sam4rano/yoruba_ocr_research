@@ -43,13 +43,11 @@ U_TONE_ONLY = frozenset({"\u0300", "\u0301"})
 
 DEFAULT_MODEL_JSONLS = [
     "paddleocr_vl15_lora_finetuned_test.jsonl",
-    "tesseract_yor_test.jsonl",
-    "tesseract_eng_test.jsonl",
     "ablation_data_size_100pct_test_test.jsonl",
     "paddleocr_vl15_zero_shot_test.jsonl",
-    "qwen25_vl3_zero_shot_test.jsonl",
-    "qwen25_vl_zero_shot_test.jsonl",
     "surya_v2_zero_shot_test.jsonl",
+    "surya_finetuned_test.jsonl",
+    "trocr_large_printed_zero_shot_test.jsonl",
     "trocr_large_printed_finetuned_test.jsonl",
 ]
 

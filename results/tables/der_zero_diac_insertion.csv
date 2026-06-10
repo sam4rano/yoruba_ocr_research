@@ -1,7 +1,4 @@
 model,n_zero_diac_gt,total_gt_chars,spurious_marks_predicted,der_insertion_rate
 paddleocr_vl15_lora_finetuned,7,126,14,0.1111
-tesseract_yor,7,126,0,0.0
-tesseract_eng,7,126,0,0.0
 ablation_data_size_100pct_test,7,126,2,0.0159
 paddleocr_vl15_zero_shot,7,126,1,0.0079
-qwen25_vl_zero_shot,7,126,9,0.0714

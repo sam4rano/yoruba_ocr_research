@@ -45,12 +45,12 @@ This document contrasts the repository’s OCR research pipeline with typical **
 
 ---
 
-## 3. Baselines: Tesseract, Qwen, zero-shot VL-1.5
+## 3. Baselines: TrOCR, Surya v2, Qwen, zero-shot VL-1.5
 
 ### Fairness of inputs
 
-- **07**, **09**, **15** all call `evaluate_utils.load_test_pairs` for the same `--data-dir` and `--split` → same crops and ground truth. **Tesseract** uses PSM 7 (single line), which matches the crop type.
-- **Differences that are intentional:** engine capabilities (no VLM reasoning parity with Tesseract), prompt wording (Qwen vs VL-1.5 vs fixed OCR prompt in `paddle_vl_shared.py`), and runtime (zero-shot VLMs are slow).
+- **20**, **22**, **06**, **09**, **15** all call `evaluate_utils.load_test_pairs` for the same `--data-dir` and `--split` → same crops and ground truth.
+- **Differences that are intentional:** engine capabilities (VLM reasoning vs. CTC/TrOCR/Surya recognition-only), prompt wording (Qwen vs VL-1.5 vs fixed OCR prompt in `paddle_vl_shared.py`), and runtime (zero-shot VLMs are slow).
 
 ### Multimodal standards note
 

@@ -8,7 +8,7 @@ The dramatic improvement from LoRA fine-tuning (CER reduction from 543.3% to 96.
 
 Even the best-performing system (LoRA fine-tuned VL-1.5, corpus DER 66.4%) misrecognizes roughly two-thirds of combining diacritics on diacritic-bearing lines (der_n=319). For a language where every diacritic carries lexical meaning, this renders outputs unreliable for archival digitization or downstream NLP tasks that assume correct tonal marking.
 
-The DER gap between Tesseract (yor) at 87.7% and Tesseract (eng) at 98.5% confirms that language-specific priors improve diacritic selection—but by a modest margin insufficient for practical use.
+PP-OCRv4 CRNN fine-tuning achieves lower WER than LoRA but corpus DER near 92%, confirming that word-boundary recovery and diacritic fidelity decouple on tonal orthographies.
 
 ## Contextual Inference vs. Graphemic Fidelity
 

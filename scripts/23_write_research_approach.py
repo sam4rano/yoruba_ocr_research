@@ -183,13 +183,14 @@ def main() -> None:
         "",
         "| Model key | Script |",
         "| --- | --- |",
-        "| Tesseract (eng/yor/eng+yor) | `07_baseline_tesseract.py` |",
+        "| TrOCR-large-printed (zero-shot) | `22_evaluate_trocr.py --pretrained-model-id` |",
         "| PaddleOCR EN pretrained | `05_evaluate.py` |",
-        "| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` |",
+        "| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` / ablation 100% |",
         "| PaddleOCR-VL-1.5 zero-shot / LoRA | `15_baseline_paddleocr_vl15.py`, `16_train_paddleocr_vl_lora.py` |",
         "| Qwen 2.5-VL zero-shot | `09_baseline_qwen.py` |",
-        "| TrOCR-large-printed | `21_train_trocr.py`, `22_evaluate_trocr.py` (Phase 21) |",
-        "| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` (Phase 20) |",
+        "| TrOCR-large-printed (fine-tuned) | `21_train_trocr.py`, `22_evaluate_trocr.py` |",
+        "| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` |",
+        "| Surya Foundation (fine-tuned) | `26–28` export / train / eval |",
         "",
     ]
 

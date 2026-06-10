@@ -1,7 +1,7 @@
 # Yorùbá OCR — Research Approach & Run Log
 
-**Generated (UTC):** 2026-06-09T19:27:53Z  
-**Git commit:** `f582afb`  
+**Generated (UTC):** 2026-06-10T07:12:32Z  
+**Git commit:** `8a8c581`  
 **Project root:** `/Users/mac/Desktop/yoruba_ocr_research`  
 
 ## Workflow
@@ -34,9 +34,6 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 
 | display_name | cer_pct | wer_pct | der_pct | n |
 | --- | --- | --- | --- | --- |
-| Tesseract (eng) | 120.3 | 153.5 | 98.5 | 326 |
-| Tesseract (yor) | 124.4 | 163.7 | 87.7 | 326 |
-| Tesseract (eng+yor) | 122.6 | 160.0 | 93.9 | 326 |
 | PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 | 326 |
 | PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | 96.5 | 122.6 | 66.4 | 326 |
 
@@ -73,11 +70,12 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 
 | Model key | Script |
 | --- | --- |
-| Tesseract (eng/yor/eng+yor) | `07_baseline_tesseract.py` |
+| TrOCR-large-printed (zero-shot) | `22_evaluate_trocr.py --pretrained-model-id` |
 | PaddleOCR EN pretrained | `05_evaluate.py` |
-| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` |
+| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` / ablation 100% |
 | PaddleOCR-VL-1.5 zero-shot / LoRA | `15_baseline_paddleocr_vl15.py`, `16_train_paddleocr_vl_lora.py` |
 | Qwen 2.5-VL zero-shot | `09_baseline_qwen.py` |
-| TrOCR-large-printed | `21_train_trocr.py`, `22_evaluate_trocr.py` (Phase 21) |
-| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` (Phase 20) |
+| TrOCR-large-printed (fine-tuned) | `21_train_trocr.py`, `22_evaluate_trocr.py` |
+| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` |
+| Surya Foundation (fine-tuned) | `26–28` export / train / eval |
 

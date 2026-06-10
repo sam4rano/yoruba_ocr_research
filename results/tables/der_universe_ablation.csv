@@ -3,14 +3,6 @@ paddleocr_vl15_lora_finetuned,combining_marks,"Combining grave, acute, and dot b
 paddleocr_vl15_lora_finetuned,tone_only,Combining grave and acute only (subdot excluded),326,65.8,316,0.0616,10,2363
 paddleocr_vl15_lora_finetuned,all_combining,All Unicode combining characters in NFD,326,66.4,319,0.1111,7,3406
 paddleocr_vl15_lora_finetuned,marked_grapheme,NFC tonographs with any standard combining mark,326,87.8,319,0.1111,7,3406
-tesseract_yor,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,87.5,319,0.0,7,3406
-tesseract_yor,tone_only,Combining grave and acute only (subdot excluded),326,87.3,316,0.0,10,2363
-tesseract_yor,all_combining,All Unicode combining characters in NFD,326,87.7,319,0.0,7,3406
-tesseract_yor,marked_grapheme,NFC tonographs with any standard combining mark,326,96.3,319,0.0,7,3406
-tesseract_eng,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,98.5,319,0.0,7,3406
-tesseract_eng,tone_only,Combining grave and acute only (subdot excluded),326,97.9,316,0.0,10,2363
-tesseract_eng,all_combining,All Unicode combining characters in NFD,326,98.5,319,0.0,7,3406
-tesseract_eng,marked_grapheme,NFC tonographs with any standard combining mark,326,99.7,319,0.0,7,3406
 ablation_data_size_100pct_test,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,91.8,319,0.0159,7,3406
 ablation_data_size_100pct_test,tone_only,Combining grave and acute only (subdot excluded),326,95.9,316,0.0205,10,2363
 ablation_data_size_100pct_test,all_combining,All Unicode combining characters in NFD,326,91.8,319,0.0159,7,3406
@@ -19,7 +11,3 @@ paddleocr_vl15_zero_shot,combining_marks,"Combining grave, acute, and dot below 
 paddleocr_vl15_zero_shot,tone_only,Combining grave and acute only (subdot excluded),326,148.9,316,0.0068,10,2363
 paddleocr_vl15_zero_shot,all_combining,All Unicode combining characters in NFD,326,200.9,319,0.0079,7,3406
 paddleocr_vl15_zero_shot,marked_grapheme,NFC tonographs with any standard combining mark,326,154.0,319,0.0079,7,3406
-qwen25_vl_zero_shot,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,118.9,319,0.0714,7,3406
-qwen25_vl_zero_shot,tone_only,Combining grave and acute only (subdot excluded),326,118.3,316,0.1027,10,2363
-qwen25_vl_zero_shot,all_combining,All Unicode combining characters in NFD,326,119.6,319,0.0714,7,3406
-qwen25_vl_zero_shot,marked_grapheme,NFC tonographs with any standard combining mark,326,147.4,319,0.0714,7,3406

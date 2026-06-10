@@ -146,10 +146,11 @@ Do **not** pass `--cpu` on Colab when you want GPU training. Use `--epochs`, `--
 |------|--------|------|
 | 4 | `scripts/05_evaluate.py` | Paddle checkpoints: CER / WER / DER → `results/tables/metrics.csv` + JSONL |
 | 5 | `scripts/06_baseline_pretrained.py` | English pretrained baseline (delegates to `05`) |
-| 6 | `scripts/07_baseline_tesseract.py` | Tesseract baselines (needs system `tesseract`) |
-| 7 | `scripts/09_baseline_qwen.py` | Qwen 2.5 VL zero-shot (GPU; large download) |
-| 8 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
-| 9 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
+| 6 | `scripts/09_baseline_qwen.py` | Qwen 2.5 VL zero-shot (GPU; optional) |
+| 7 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
+| 8 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
+| — | `scripts/20_baseline_surya_v2.py` | Surya v2 zero-shot (Section A) |
+| — | `scripts/22_evaluate_trocr.py --pretrained-model-id …` | TrOCR zero-shot (Section A) |
 
 **Evaluate fine-tuned model** (point `--model-dir` at the directory containing `best_accuracy.pdparams` or the checkpoint prefix your run produced, often under `experiments/finetuned/`):
 
@@ -161,13 +162,6 @@ python scripts/05_evaluate.py \
   --model-name finetuned_paddleocr_v1 \
   --use-gpu \
   --paddle-dir PaddleOCR
-```
-
-**Tesseract on Colab:**
-
-```bash
-apt-get update -qq && apt-get install -y -qq tesseract-ocr tesseract-ocr-yor
-python scripts/07_baseline_tesseract.py --data-dir data/processed --split test --langs eng yor "eng+yor"
 ```
 
 **Qwen on T4:** use `--quantize` if you hit VRAM limits; set `HF_TOKEN` if the model is gated. Prefer a capped run first:

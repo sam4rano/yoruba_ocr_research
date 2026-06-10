@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-09T17:51:42.652134+00:00",
+  "timestamp": "2026-06-10T07:12:32.714916+00:00",
   "universes": [
     {
       "universe_id": "combining_marks",
@@ -59,82 +59,6 @@
         "n_zero_diac_gt": 7,
         "total_gt_tokens": 3406,
         "total_pred_tokens_on_zero_gt": 14
-      }
-    },
-    "tesseract_yor": {
-      "combining_marks": {
-        "n": 326,
-        "der": 0.8755,
-        "der_n": 319,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 0
-      },
-      "tone_only": {
-        "n": 326,
-        "der": 0.8726,
-        "der_n": 316,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 10,
-        "total_gt_tokens": 2363,
-        "total_pred_tokens_on_zero_gt": 0
-      },
-      "all_combining": {
-        "n": 326,
-        "der": 0.8773,
-        "der_n": 319,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 0
-      },
-      "marked_grapheme": {
-        "n": 326,
-        "der": 0.963,
-        "der_n": 319,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 0
-      }
-    },
-    "tesseract_eng": {
-      "combining_marks": {
-        "n": 326,
-        "der": 0.9847,
-        "der_n": 319,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 0
-      },
-      "tone_only": {
-        "n": 326,
-        "der": 0.9793,
-        "der_n": 316,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 10,
-        "total_gt_tokens": 2363,
-        "total_pred_tokens_on_zero_gt": 0
-      },
-      "all_combining": {
-        "n": 326,
-        "der": 0.9847,
-        "der_n": 319,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 0
-      },
-      "marked_grapheme": {
-        "n": 326,
-        "der": 0.9968,
-        "der_n": 319,
-        "der_insertion_rate": 0.0,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 0
       }
     },
     "ablation_data_size_100pct_test": {
@@ -211,44 +135,6 @@
         "n_zero_diac_gt": 7,
         "total_gt_tokens": 3406,
         "total_pred_tokens_on_zero_gt": 1
-      }
-    },
-    "qwen25_vl_zero_shot": {
-      "combining_marks": {
-        "n": 326,
-        "der": 1.1894,
-        "der_n": 319,
-        "der_insertion_rate": 0.0714,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 9
-      },
-      "tone_only": {
-        "n": 326,
-        "der": 1.1828,
-        "der_n": 316,
-        "der_insertion_rate": 0.1027,
-        "n_zero_diac_gt": 10,
-        "total_gt_tokens": 2363,
-        "total_pred_tokens_on_zero_gt": 15
-      },
-      "all_combining": {
-        "n": 326,
-        "der": 1.1958,
-        "der_n": 319,
-        "der_insertion_rate": 0.0714,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 9
-      },
-      "marked_grapheme": {
-        "n": 326,
-        "der": 1.4745,
-        "der_n": 319,
-        "der_insertion_rate": 0.0714,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 9
       }
     }
   }

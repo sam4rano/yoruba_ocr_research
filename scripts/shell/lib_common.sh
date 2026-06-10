@@ -29,7 +29,8 @@ cd_project() {
 run_py() {
   cd_project
   log "RUN: $PYTHON $*"
-  "$PYTHON" "$@"
+  export PYTHONUNBUFFERED=1
+  "$PYTHON" -u "$@"
 }
 
 require_python() {
@@ -40,9 +41,6 @@ check_deps() {
   cd_project
   if [[ ! -d "PaddleOCR" ]]; then
     die "PaddleOCR directory not found. Please clone: git clone https://github.com/PaddlePaddle/PaddleOCR.git"
-  fi
-  if ! command -v tesseract >/dev/null 2>&1; then
-    log "WARN: tesseract command not found. Phase 06 (Tesseract baseline) will fail if run."
   fi
   # Verify Paddle imports correctly or warn
   "$PYTHON" -c "import paddle" 2>/dev/null || die "paddlepaddle is not installed or import failed in $PYTHON."

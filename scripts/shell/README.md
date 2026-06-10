@@ -11,21 +11,25 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 | `phase_03_config.sh` | `03_generate_config.py` + pretrained download |
 | `phase_04_train.sh` | `04_train_paddleocr.py` |
 | `phase_05_eval_paddle.sh` | English pretrained + fine-tuned Paddle eval |
-| `phase_06_tesseract.sh` | Tesseract baselines |
 | `phase_07_qwen.sh` | Qwen VL zero-shot (off unless `SKIP_QWEN=0`) |
 | `phase_08_ablation.sh` | Ablation study (off unless `SKIP_ABLATION=0`) |
 | `phase_09_compile.sh` | `11_compile_results.py` → table Markdown/CSV + alignment check |
 | `phase_14_export_vl15.sh` | Export JSONL for PaddleOCR-VL-1.5 SFT (`data/paddleocr_vl15_sft/`) |
 | `phase_15_eval_vl15.sh` | VL-1.5 zero-shot eval (off unless `SKIP_VL15_EVAL=0`) |
 | `phase_16_train_vl15_lora.sh` | LoRA fine-tune VL-1.5 on phase-14 export |
+| `phase_20_surya.sh` | Surya v2 zero-shot (Section A) |
+| `phase_22_trocr_zero_shot.sh` | TrOCR zero-shot (Section A) |
+| `phase_26_surya_export.sh` | HF dataset export for Surya Foundation fine-tune |
+| `phase_27_surya_train.sh` | Surya Foundation fine-tune (Section B) |
+| `phase_28_surya_eval.sh` | Surya fine-tuned eval |
 | `phase_12_diagnose.sh` | Data vs eval vs setup diagnostics (`12_diagnose_hypotheses.py`) |
 | `phase_13_verify_eval.sh` | `metrics.csv` ``n`` vs label files (`13_verify_eval_alignment.py`) |
 | `phase_99_backup.sh` | Copy `results/` (+ optional `experiments/`) to `DRIVE_BACKUP_ROOT` |
-| `run_all.sh` | Runs phases in order (override with `PHASES="..."`; supports `12`–`16`) |
+| `run_all.sh` | Runs phases in order (override with `PHASES="..."`; supports `12`–`16`, `20`, `22`) |
 
 ### Default vs paper-complete (why VL phases are not in the default `run_all`)
 
-The **primary supervised result** in the manuscript is PaddleOCR-VL-1.5 LoRA, but **default `PHASES`** in `run_all.sh` is still `01 … 08 09 99` (no **14–16**). That is intentional portability: phase **15** expects a GPU and `SKIP_VL15_EVAL=0`, phase **16** is a long HF job, and many environments only need PP-OCRv4 / Tesseract / compile. So “default run” ≠ “every Table 1 row populated” unless you add VL phases yourself.
+The **primary supervised result** in the manuscript is PaddleOCR-VL-1.5 LoRA, but **default `PHASES`** in `run_all.sh` is still `01 … 08 09 99` (no **14–16**). That is intentional portability: phase **15** expects a GPU and `SKIP_VL15_EVAL=0`, phase **16** is a long HF job, and many environments only need PP-OCRv4 / compile. So “default run” ≠ “every Table 1 row populated” unless you add VL phases yourself.
 
 **Paper-complete Table 1 including VL rows** (after the usual data + PP-OCRv4 path):
 
@@ -33,7 +37,8 @@ The **primary supervised result** in the manuscript is PaddleOCR-VL-1.5 LoRA, bu
 2. `export SKIP_VL15_EVAL=0` and `bash scripts/shell/phase_15_eval_vl15.sh` (zero-shot `paddleocr_vl15_zero_shot`)
 3. `bash scripts/shell/phase_16_train_vl15_lora.sh` (LoRA — long)
 4. `python scripts/15_baseline_paddleocr_vl15.py --adapter-path experiments/paddleocr_vl15_lora/adapter` (main supervised `paddleocr_vl15_lora_finetuned`)
-5. `bash scripts/shell/phase_09_compile.sh`
+5. Section A: `phase_22_trocr_zero_shot.sh`, `phase_05_eval_paddle.sh`, `phase_20_surya.sh`
+6. `bash scripts/shell/phase_09_compile.sh`
 
 You can merge (1) and (2) into a custom `PHASES=...` that includes `14` and `15`, but (3)–(4) stay separate because `run_all` does not run Python eval with `--adapter-path` and 16 is usually scheduled as its own job.
 
@@ -73,7 +78,6 @@ bash scripts/shell/run_all.sh
 | `TRAIN_CPU` | `1` → `--cpu` on `04_train_paddleocr.py` |
 | `TRAIN_GPUS` | e.g. `0` (default) |
 | `EVAL_USE_GPU` | `1` → `--use-gpu` on Paddle eval |
-| `SKIP_TESSERACT` | `1` = skip Tesseract |
 | `SKIP_QWEN` | `0` to run Qwen (default `1`) |
 | `SKIP_VL15_EVAL` | `0` to run PaddleOCR-VL-1.5 eval (default `1`) |
 | `PADDLE_VL15_EXPORT_DIR` | Override export dir for phases 14/16 (default `data/paddleocr_vl15_sft`) |
