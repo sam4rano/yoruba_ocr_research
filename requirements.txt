@@ -4,7 +4,7 @@ paddleocr>=2.7.3,<2.8.0
 
 # Numerics and data
 numpy>=1.24.0,<2.0.0
-pandas>=2.0.0,<2.1.0
+pandas>=2.0.0
 Pillow>=10.0.0,<11.0.0
 scikit-image>=0.22.0,<0.23.0         # skimage — required by PaddleOCR training (ppocr.data)
 
