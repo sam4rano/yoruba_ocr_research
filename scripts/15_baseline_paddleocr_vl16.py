@@ -174,10 +174,10 @@ def load_model_and_processor(
     import torch
 
     try:
-        from transformers import AutoModelForImageTextToText, AutoProcessor
+        from transformers import AutoModel, AutoProcessor
     except ImportError as exc:
         raise ImportError(
-            "Install transformers>=5 for PaddleOCR-VL-1.6: pip install 'transformers>=5'"
+            "Install transformers>=4.46.0: pip install 'transformers>=4.46.0'"
         ) from exc
 
     sys.path.insert(0, str(Path(__file__).parent))
@@ -200,7 +200,7 @@ def load_model_and_processor(
         )
         kwargs["device_map"] = "auto"
 
-    model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
+    model = AutoModel.from_pretrained(model_id, **kwargs)
     processor = AutoProcessor.from_pretrained(
         model_id, trust_remote_code=hf_trust_remote_code_processor()
     )

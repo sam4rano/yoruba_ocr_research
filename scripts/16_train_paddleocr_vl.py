@@ -215,7 +215,7 @@ def main() -> None:
         torch.cuda.manual_seed_all(args.seed)
 
     try:
-        from transformers import AutoModelForImageTextToText, AutoProcessor
+        from transformers import AutoModel, AutoProcessor
     except ImportError as exc:
         raise ImportError(
             "Install: pip install 'transformers>=5' accelerate torch"
@@ -233,7 +233,7 @@ def main() -> None:
     processor = AutoProcessor.from_pretrained(
         args.model_id, trust_remote_code=hf_trust_remote_code_processor()
     )
-    model = AutoModelForImageTextToText.from_pretrained(
+    model = AutoModel.from_pretrained(
         args.model_id,
         dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
         device_map="auto",
@@ -265,7 +265,7 @@ def main() -> None:
     if args.resume and training_state_path.is_file():
         try:
             # Standalone weights are loaded in-place when resuming
-            model = AutoModelForImageTextToText.from_pretrained(
+            model = AutoModel.from_pretrained(
                 args.output_dir,
                 dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
                 device_map="auto",
