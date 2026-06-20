@@ -1,11 +1,23 @@
 {
   "counts": {
-    "ok": 1,
+    "ok": 2,
     "phantom": 0,
     "no_meta": 0,
     "stale": 0
   },
   "rows": [
+    {
+      "model": "baseline_english_pretrained",
+      "split": "test",
+      "status": "ok",
+      "cer": "1.0043",
+      "wer": "1.0609",
+      "der": "1.0",
+      "meta_path": "results/tables/meta/baseline_english_pretrained_test.json",
+      "checkpoint_pdparams": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy.pdparams",
+      "checkpoint_sha256": "ea1aa951d492533d33dd9536265e29a779f1a2b2798e68ebb82d2079e7554e7e",
+      "notes": []
+    },
     {
       "model": "baseline_english_pretrained",
       "split": "test",

@@ -170,6 +170,7 @@ def bootstrap_metrics(
     *,
     n_bootstrap: int,
     seed: int,
+    model_name: str = "",
 ) -> dict[str, np.ndarray]:
     """Line-level bootstrap distributions for CER, WER, and corpus DER."""
     n = len(stats)
@@ -178,7 +179,9 @@ def bootstrap_metrics(
     wer_samples = np.empty(n_bootstrap, dtype=np.float64)
     der_samples = np.empty(n_bootstrap, dtype=np.float64)
 
-    for b in range(n_bootstrap):
+    from tqdm import tqdm
+    desc = f"Bootstrapping {model_name}" if model_name else "Bootstrapping"
+    for b in tqdm(range(n_bootstrap), desc=desc, leave=False):
         idx = rng.integers(0, n, size=n)
         sample = [stats[i] for i in idx]
         cer, wer, der = aggregate_from_stats(sample)
@@ -285,6 +288,7 @@ def main() -> None:
             model_stats[model],
             n_bootstrap=args.n_bootstrap,
             seed=args.seed,
+            model_name=model,
         )
         bootstrap_store[model] = boot
         point_agg = aggregate_metrics(pairs)

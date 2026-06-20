@@ -473,7 +473,8 @@ def copy_images_and_write_labels(
         label_handles[split] = (label_dir / f"{split}.txt").open("w", encoding="utf-8")
 
     try:
-        for stem, entry in sorted(registry.items()):
+        from tqdm import tqdm
+        for stem, entry in tqdm(sorted(registry.items()), desc="Consolidating images", unit="img"):
             split = entry["split"]
             dst = output_dir / "images" / split / stem
             shutil.copy2(entry["src_path"], dst)

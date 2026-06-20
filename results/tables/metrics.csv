@@ -1,2 +1,3 @@
 model,split,n,cer,wer,der,der_n,der_insertion_rate,phantom,meta_path,timestamp
 baseline_english_pretrained,test,326,1.0043,1.0609,1.0,319,0.0,false,tables/meta/baseline_english_pretrained_test.json,2026-06-20T08:53:31.045550+00:00
+baseline_english_pretrained,test,326,1.0043,1.0609,1.0,319,0.0,false,tables/meta/baseline_english_pretrained_test.json,2026-06-20T09:24:23.153669+00:00

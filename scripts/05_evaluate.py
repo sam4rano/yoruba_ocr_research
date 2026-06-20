@@ -314,8 +314,9 @@ def run_inference(
     ops_cfg = [op for op in transforms_cfg if list(op.keys())[0] not in drop_ops]
     ops = create_operators(ops_cfg, config["Global"])
 
+    from tqdm import tqdm
     results: list[tuple[str, str]] = []
-    for img_path, gt in pairs:
+    for img_path, gt in tqdm(pairs, desc="Evaluating PaddleOCR", unit="img"):
         img_bytes = img_path.read_bytes()
         data = {"image": img_bytes}
         batch = transform(data, ops)

@@ -134,7 +134,8 @@ def load_image_dimensions(paths: list[Path]) -> list[tuple[int, int]]:
         return []
 
     dims: list[tuple[int, int]] = []
-    for p in paths:
+    from tqdm import tqdm
+    for p in tqdm(paths, desc="Reading image dimensions", unit="img"):
         try:
             with Image.open(p) as im:
                 dims.append(im.size)  # (w, h)

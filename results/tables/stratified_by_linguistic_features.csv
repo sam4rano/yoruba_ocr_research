@@ -1,0 +1,4 @@
+model,feature,n_lines,cer_pct,wer_pct,der_pct,der_n
+baseline_english_pretrained,Named Entities,307,100.9,106.2,100.0,305
+baseline_english_pretrained,Numerics,117,89.5,100.0,100.0,114
+baseline_english_pretrained,Historical Orthography,0,,,,0

@@ -10,8 +10,11 @@ if [[ -x "${PROJECT_ROOT}/.venv/bin/python" ]]; then
 fi
 
 EXTRA=()
-if [[ -n "${VL16_LORA_MAX_SAMPLES:-}" ]]; then
-  EXTRA+=(--max-samples "$VL16_LORA_MAX_SAMPLES")
+if [[ -n "${VL16_SFT_MAX_SAMPLES:-}" ]]; then
+  EXTRA+=(--max-samples "$VL16_SFT_MAX_SAMPLES")
+fi
+if [[ -n "${VL16_SFT_LR:-}" ]]; then
+  EXTRA+=(--lr "$VL16_SFT_LR")
 fi
 if [[ -n "${VL16_GRAD_ACCUM:-}" ]]; then
   EXTRA+=(--gradient-accumulation-steps "$VL16_GRAD_ACCUM")
@@ -24,5 +27,5 @@ require_python
 run_py scripts/16_train_paddleocr_vl.py \
   --export-dir "${PADDLE_VL16_EXPORT_DIR:-data/paddleocr_vl16_sft}" \
   --output-dir "${PADDLE_VL16_FINETUNED_DIR:-experiments/paddleocr_vl16_finetuned}" \
-  --epochs "${VL16_LORA_EPOCHS:-1}" \
+  --epochs "${VL16_SFT_EPOCHS:-5}" \
   "${EXTRA[@]}"

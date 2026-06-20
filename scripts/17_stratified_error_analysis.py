@@ -212,6 +212,76 @@ def line_has_minimal_pair(text: str, mp_skeletons: set[str]) -> bool:
     return False
 
 
+def check_named_entity(text: str) -> bool:
+    """
+    Check if a line contains capitalized words that are potential Named Entities.
+    Exclude the first word if it doesn't contain diacritics (to ignore sentence-start capitals),
+    but include any capitalized word carrying diacritics.
+    """
+    words = text.split()
+    for idx, w in enumerate(words):
+        if not w:
+            continue
+        clean_word = w.strip(".,;:!?\"'()[]{}«»-–—")
+        if not clean_word:
+            continue
+        if clean_word[0].isupper():
+            has_diac = any(unicodedata.combining(c) for c in unicodedata.normalize("NFD", clean_word))
+            if idx > 0 or has_diac:
+                return True
+    return False
+
+
+def check_numerics(text: str) -> bool:
+    """Check if the text contains digits."""
+    return bool(re.search(r"\d", text))
+
+
+def check_historical_orthography(text: str) -> bool:
+    """
+    Check if the text contains historical Yorùbá orthography indicators
+    like sh, e', o', or apostrophe-adjoined characters.
+    """
+    if re.search(r"\bsh\b|\b[a-zA-Z]+'[a-zA-Z]*", text, re.IGNORECASE):
+        return True
+    return False
+
+
+# Yorùbá-specific diacritic codepoints (combining marks) used for code-mix detection
+_YORUBA_COMBINING = frozenset(
+    "\u0300\u0301\u0302\u0303\u0308\u0323\u0301\u030B\u030C"  # tones + dot-below
+)
+
+
+def check_code_mixed(text: str) -> bool:
+    """
+    Return True if the line contains Yorùbá–English code-mixing.
+
+    Strategy:
+    - Split into word tokens.
+    - A *Yorùbá word* is any token whose NFD form contains a combining
+      diacritic (tone mark or subscript dot).
+    - A *plain-ASCII word* is purely a–z / A–Z, length ≥ 3, carrying
+      NO diacritics.
+    - Code-mixed = line has ≥ 1 Yorùbá word AND ≥ 1 plain-ASCII word.
+
+    This avoids false positives on plain-English or plain-Yorùbá lines.
+    """
+    words = re.findall(r"[\w\u00C0-\u024F\u1E00-\u1EFF]+", text, re.UNICODE)
+    has_yoruba = False
+    has_plain_ascii = False
+    for w in words:
+        nfd = unicodedata.normalize("NFD", w)
+        has_combining = any(unicodedata.combining(c) for c in nfd)
+        if has_combining:
+            has_yoruba = True
+        elif w.isalpha() and w.isascii() and len(w) >= 3:
+            has_plain_ascii = True
+        if has_yoruba and has_plain_ascii:
+            return True
+    return False
+
+
 def classify_diac_error(pred: str, gt: str) -> str:
     """
     Assign a diacritic-centric error category for GT with ≥1 combining mark.
@@ -334,6 +404,24 @@ def analyse_model(
         if extract_gt_diacs(r["gt"])
     )
 
+    # Linguistic feature hard-case subsets:
+    has_named_entities = aggregate_subset(
+        enriched,
+        predicate=lambda r: r.get("has_named_entity", False),
+    )
+    has_numerics = aggregate_subset(
+        enriched,
+        predicate=lambda r: r.get("has_numerics", False),
+    )
+    has_historical = aggregate_subset(
+        enriched,
+        predicate=lambda r: r.get("has_historical", False),
+    )
+    has_code_mixed = aggregate_subset(
+        enriched,
+        predicate=lambda r: r.get("has_code_mixed", False),
+    )
+
     return {
         "model": model_key,
         "full_test": full,
@@ -342,6 +430,14 @@ def analyse_model(
         "by_book_source": by_book,
         "error_taxonomy": dict(taxonomy),
         "n_minimal_pair_lines": sum(1 for r in enriched if r.get("is_minimal_pair_line")),
+        "has_named_entities": has_named_entities,
+        "has_numerics": has_numerics,
+        "has_historical": has_historical,
+        "has_code_mixed": has_code_mixed,
+        "n_named_entity_lines": sum(1 for r in enriched if r.get("has_named_entity", False)),
+        "n_numeric_lines": sum(1 for r in enriched if r.get("has_numerics", False)),
+        "n_historical_lines": sum(1 for r in enriched if r.get("has_historical", False)),
+        "n_code_mixed_lines": sum(1 for r in enriched if r.get("has_code_mixed", False)),
     }
 
 
@@ -434,6 +530,70 @@ def write_minimal_pair_csv(path: Path, results: list[dict]) -> None:
             )
 
 
+def write_features_csv(path: Path, results: list[dict]) -> None:
+    """Write linguistic feature hard-case subsets metrics per model."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(
+            fh,
+            fieldnames=[
+                "model",
+                "feature",
+                "n_lines",
+                "cer_pct",
+                "wer_pct",
+                "der_pct",
+                "der_n"
+            ]
+        )
+        writer.writeheader()
+        for res in results:
+            # 1. Named Entities
+            ne = res["has_named_entities"]
+            writer.writerow({
+                "model": res["model"],
+                "feature": "Named Entities",
+                "n_lines": res["n_named_entity_lines"],
+                "cer_pct": _pct(ne.get("cer")),
+                "wer_pct": _pct(ne.get("wer")),
+                "der_pct": _pct(ne.get("der")),
+                "der_n": ne.get("der_n", 0),
+            })
+            # 2. Numerics
+            num = res["has_numerics"]
+            writer.writerow({
+                "model": res["model"],
+                "feature": "Numerics",
+                "n_lines": res["n_numeric_lines"],
+                "cer_pct": _pct(num.get("cer")),
+                "wer_pct": _pct(num.get("wer")),
+                "der_pct": _pct(num.get("der")),
+                "der_n": num.get("der_n", 0),
+            })
+            # 3. Historical Orthography
+            hist = res["has_historical"]
+            writer.writerow({
+                "model": res["model"],
+                "feature": "Historical Orthography",
+                "n_lines": res["n_historical_lines"],
+                "cer_pct": _pct(hist.get("cer")),
+                "wer_pct": _pct(hist.get("wer")),
+                "der_pct": _pct(hist.get("der")),
+                "der_n": hist.get("der_n", 0),
+            })
+            # 4. Code-Mixed (Yorùbá–English)
+            cm = res["has_code_mixed"]
+            writer.writerow({
+                "model": res["model"],
+                "feature": "Code-Mixed (Yor\u00f9b\u00e1\u2013English)",
+                "n_lines": res["n_code_mixed_lines"],
+                "cer_pct": _pct(cm.get("cer")),
+                "wer_pct": _pct(cm.get("wer")),
+                "der_pct": _pct(cm.get("der")),
+                "der_n": cm.get("der_n", 0),
+            })
+
+
 def _pct(rate: float | None) -> str:
     """Format a rate as a percentage string with one decimal."""
     if rate is None:
@@ -482,6 +642,10 @@ def main() -> None:
                 "diacritic_density": round(density, 4),
                 "density_quartile": density_quartile_label(density, density_edges),
                 "is_minimal_pair_line": line_has_minimal_pair(gt, mp_skeletons),
+                "has_named_entity": check_named_entity(gt),
+                "has_numerics": check_numerics(gt),
+                "has_historical": check_historical_orthography(gt),
+                "has_code_mixed": check_code_mixed(gt),
             }
         )
 
@@ -544,6 +708,7 @@ def main() -> None:
     write_density_csv(args.output_dir / "stratified_der_by_density.csv", model_results)
     write_book_csv(args.output_dir / "stratified_der_by_book.csv", model_results)
     write_taxonomy_csv(args.output_dir / "error_taxonomy.csv", model_results)
+    write_features_csv(args.output_dir / "stratified_by_linguistic_features.csv", model_results)
 
     log.info("Wrote stratified analysis to %s", args.output_dir)
 

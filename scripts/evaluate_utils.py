@@ -416,7 +416,7 @@ def save_results(
     * ``phantom`` — checkpoint-integrity flag:
       ``"true"``  = head weights not restored; the row measures a random head;
       ``"false"`` = clean;
-      ``"n/a"``   = non-Paddle baseline (TrOCR, Qwen, PaddleOCR-VL, Surya);
+      ``"n/a"``   = non-Paddle baseline (Qwen, PaddleOCR-VL, Surya);
       ``"unknown"`` = provenance did not include an integrity report.
 
     Returns the path to the sibling meta file (or ``None`` when no

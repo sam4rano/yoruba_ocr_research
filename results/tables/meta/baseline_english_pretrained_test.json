@@ -1,7 +1,7 @@
 {
   "model": "baseline_english_pretrained",
   "split": "test",
-  "timestamp": "2026-06-20T08:53:31.045550+00:00",
+  "timestamp": "2026-06-20T09:24:23.153669+00:00",
   "phantom": "false",
   "metrics": {
     "n": 326,
@@ -15,7 +15,7 @@
     "micro_cer": 0.9586,
     "micro_wer": 1.0281
   },
-  "git_sha": "b95a933",
+  "git_sha": "7d3d608",
   "env": {
     "cwd": "/Users/mac/Desktop/yoruba_ocr_research"
   },

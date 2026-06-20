@@ -195,11 +195,12 @@ def main() -> None:
         args.keep_server, inference_backend=args.inference_backend
     )
 
+    from tqdm import tqdm
     pred_pairs: list[tuple[str, str]] = []
     failed = 0
     batch_size = max(1, args.batch_size)
     try:
-        for start in range(0, len(pairs), batch_size):
+        for start in tqdm(range(0, len(pairs), batch_size), desc="Evaluating Surya v2", unit="batch"):
             chunk = pairs[start : start + batch_size]
             paths = [img for img, _ in chunk]
             gts = [gt for _, gt in chunk]
@@ -211,8 +212,6 @@ def main() -> None:
                 failed += len(chunk)
             for pred, gt in zip(preds, gts, strict=True):
                 pred_pairs.append((pred, gt))
-            if (start // batch_size) % 25 == 0 and start:
-                log.info("Processed %d / %d", start, len(pairs))
     finally:
         shutdown = getattr(manager, "shutdown", None)
         if callable(shutdown) and not args.keep_server:

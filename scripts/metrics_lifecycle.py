@@ -79,7 +79,7 @@ def checkpoint_status_for_row(
     csv_phantom = (row.get("phantom") or "").strip().lower()
     meta_path = tables_dir / "meta" / f"{model}_{split}.json"
 
-    # Non-Paddle models (Qwen, TrOCR, VL, Surya) have phantom="n/a".
+    # Non-Paddle models (Qwen, VL, Surya) have phantom="n/a".
     # They never produce .pdparams files, so skip checkpoint verification.
     if csv_phantom == "n/a":
         if not meta_path.is_file():

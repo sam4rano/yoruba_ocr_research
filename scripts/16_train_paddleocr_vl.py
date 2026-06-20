@@ -14,8 +14,8 @@ Outputs a fine-tuned model under ``--output-dir``; evaluate with
 
 Usage:
     python scripts/14_export_paddleocr_vl_sft.py
-    python scripts/16_train_paddleocr_vl_lora.py --epochs 1 --max-samples 500
-    python scripts/16_train_paddleocr_vl_lora.py --gradient-accumulation-steps 4
+    python scripts/16_train_paddleocr_vl.py --epochs 5 --max-samples 500
+    python scripts/16_train_paddleocr_vl.py --gradient-accumulation-steps 16
 """
 
 from __future__ import annotations
@@ -59,12 +59,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1,
+        default=5,
     )
     parser.add_argument(
         "--lr",
         type=float,
-        default=2e-4,
+        default=2e-5,
     )
     parser.add_argument(
         "--max-samples",
@@ -80,8 +80,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--gradient-accumulation-steps",
         type=int,
-        default=1,
-        help="Optimizer step every N forward passes (default 1).",
+        default=16,
+        help="Optimizer step every N forward passes (default 16).",
     )
     parser.add_argument(
         "--full-sequence-loss",
@@ -91,7 +91,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--resume",
         action="store_true",
-        help="Resume from adapter + training_state.json under --output-dir.",
+        help="Resume from model weights + training_state.json under --output-dir.",
     )
     return parser.parse_args()
 
@@ -200,7 +200,7 @@ def build_labels_assistant_only(
 
 
 def main() -> None:
-    """Run LoRA fine-tuning and save adapter."""
+    """Run VLM fine-tuning and save model."""
     args = parse_args()
     import random
 
@@ -315,6 +315,8 @@ def main() -> None:
     device = next(model.parameters()).device
     grad_accum = max(1, int(args.gradient_accumulation_steps))
 
+    from tqdm import tqdm
+
     for epoch in range(start_epoch, args.epochs):
         # Shuffle training data each epoch to prevent order memorization
         random.shuffle(samples)
@@ -326,7 +328,14 @@ def main() -> None:
         accum_counter = 0
         opt.zero_grad()
 
-        for rec_idx, rec in enumerate(samples):
+        epoch_iterator = tqdm(
+            samples,
+            desc=f"Epoch {epoch + 1}/{args.epochs}",
+            unit="img",
+            leave=True
+        )
+
+        for rec_idx, rec in enumerate(epoch_iterator):
             msgs = rec["messages"]
             image_path = None
             for part in msgs[0]["content"]:
@@ -428,15 +437,21 @@ def main() -> None:
                 opt.zero_grad()
                 accum_counter = 0
                 opt_steps += 1
+                current_lr = scheduler.get_last_lr()[0]
+                mean_loss = total_loss / max(micro_steps, 1)
+                epoch_iterator.set_postfix(
+                    loss=f"{mean_loss:.4f}",
+                    lr=f"{current_lr:.2e}",
+                    skipped=skipped
+                )
                 if opt_steps % 10 == 0:
-                    current_lr = scheduler.get_last_lr()[0]
                     log.info(
                         "epoch %d step %d/%d micro=%d loss=%.4f lr=%.2e skipped=%d",
                         epoch + 1,
                         opt_steps,
                         total_steps,
                         micro_steps,
-                        total_loss / max(micro_steps, 1),
+                        mean_loss,
                         current_lr,
                         skipped,
                     )

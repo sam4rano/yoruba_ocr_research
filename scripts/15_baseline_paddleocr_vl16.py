@@ -237,8 +237,9 @@ def main() -> None:
     model, processor = load_model_and_processor(args.model_id, args.quantize_4bit)
     device = str(next(model.parameters()).device)
 
+    from tqdm import tqdm
     results: list[tuple[str, str]] = []
-    for i, (img_path, gt) in enumerate(pairs, 1):
+    for img_path, gt in tqdm(pairs, desc="Evaluating PaddleOCR-VL-1.6", unit="img"):
         try:
             pred = transcribe_one(
                 img_path,
@@ -252,8 +253,6 @@ def main() -> None:
             log.warning("Failed on %s: %s", img_path.name, exc)
             pred = ""
         results.append((pred, gt))
-        if i % args.batch_size == 0:
-            log.info("  Processed %d / %d ...", i, len(pairs))
 
     metrics = aggregate_metrics(results)
     log.info(

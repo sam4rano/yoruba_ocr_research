@@ -1,7 +1,7 @@
 # Yorùbá OCR — Research Approach & Run Log
 
-**Generated (UTC):** 2026-06-20T09:10:27Z  
-**Git commit:** `b95a933`  
+**Generated (UTC):** 2026-06-20T10:05:54Z  
+**Git commit:** `7d3d608`  
 **Project root:** `/Users/mac/Desktop/yoruba_ocr_research`  
 
 ## Workflow
