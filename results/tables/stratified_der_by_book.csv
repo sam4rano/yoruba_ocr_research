@@ -1,4 +1,2 @@
 model,book_source,n,cer_pct,wer_pct,der_pct,der_n
-paddleocr_vl15_lora_finetuned,unknown,326,96.5,122.6,66.4,319
-paddleocr_vl15_zero_shot,unknown,326,543.3,840.9,200.9,319
-ablation_data_size_100pct_test,unknown,326,93.2,103.4,91.8,319
+baseline_english_pretrained,unknown,326,100.4,106.1,100.0,319

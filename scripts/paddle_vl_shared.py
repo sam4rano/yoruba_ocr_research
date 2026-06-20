@@ -1,5 +1,5 @@
 """
-Shared helpers for PaddleOCR-VL-1.5 (Hugging Face) export, training, and evaluation.
+Shared helpers for PaddleOCR-VL-1.6 (Hugging Face) zero-shot evaluation.
 
 Does not modify ``data/processed``; only normalises model outputs for metric computation.
 """
@@ -18,30 +18,27 @@ USER_TEXT_OCR_YORUBA = (
 )
 
 
-def hf_trust_remote_code_model() -> bool:
+def hf_trust_remote_code() -> bool:
     """
-    Whether ``AutoModelForImageTextToText`` should run hub custom code.
+    Whether Hugging Face hub custom code should run for PaddleOCR-VL-1.6.
 
-    Default ``False`` avoids a known config mismatch on some transformers builds
-    (PaddleOCR#17666). Set ``HF_TRUST_REMOTE_CODE=1`` to force hub modeling code.
-    """
-    import os
-
-    v = os.environ.get("HF_TRUST_REMOTE_CODE", "0").strip().lower()
-    return v in ("1", "true", "yes", "on")
-
-
-def hf_trust_remote_code_processor() -> bool:
-    """
-    Whether ``AutoProcessor`` should run hub custom code.
-
-    Default ``True``: recent transformers require hub processor code for
-    ``PaddlePaddle/PaddleOCR-VL-1.5`` (Colab fails without it).
+    Default ``True``: ``PaddlePaddle/PaddleOCR-VL-1.6`` requires hub modeling and
+    processor code on current transformers. Set ``HF_TRUST_REMOTE_CODE=0`` to opt out.
     """
     import os
 
     v = os.environ.get("HF_TRUST_REMOTE_CODE", "1").strip().lower()
     return v not in ("0", "false", "no", "off")
+
+
+def hf_trust_remote_code_model() -> bool:
+    """Whether ``AutoModelForImageTextToText`` should run hub custom code."""
+    return hf_trust_remote_code()
+
+
+def hf_trust_remote_code_processor() -> bool:
+    """Whether ``AutoProcessor`` should run hub custom code."""
+    return hf_trust_remote_code()
 
 
 def clean_vl_transcript(raw: str) -> str:

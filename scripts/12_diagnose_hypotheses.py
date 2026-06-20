@@ -16,7 +16,7 @@ Usage:
     python scripts/12_diagnose_hypotheses.py eval
     python scripts/12_diagnose_hypotheses.py identity --data-dir data/processed --split test
     python scripts/12_diagnose_hypotheses.py data --split test --sample 15 --seed 0
-    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/qwen25_vl_zero_shot_test.jsonl
+    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/surya_v2_zero_shot_test.jsonl
     python scripts/12_diagnose_hypotheses.py checkpoints --csv results/tables/metrics.csv
 """
 
@@ -360,19 +360,14 @@ def run_checkpoints_audit(
 
 
 def run_setup_hint() -> None:
-    """Print how to isolate Qwen vs Paddle without conflating eval issues."""
+    """Print how to isolate model vs eval vs data issues."""
     log.info(
-        "setup: If eval + identity + replay pass, poor Qwen scores indicate "
-        "model/prompt/quantisation — not label files or metric code."
+        "setup: If eval + identity + replay pass, poor model scores indicate "
+        "model/prompt configuration — not label files or metric code."
     )
     log.info(
-        "setup: Quick Qwen check: "
-        "SKIP_QWEN=0 bash scripts/shell/phase_07_qwen.sh with "
-        "QWEN_MAX_SAMPLES=5 and inspect results/tables/qwen25_vl_zero_shot_test.jsonl."
-    )
-    log.info(
-        "setup: Ablation: run same --max-samples with and without --quantize "
-        "in scripts/09_baseline_qwen.py."
+        "setup: Quick sanity: run 15_baseline_paddleocr_vl16.py or 20_baseline_surya_v2.py "
+        "with --max-samples 5 and inspect the resulting JSONL."
     )
 
 
@@ -415,7 +410,7 @@ def parse_args() -> argparse.Namespace:
     p_r.add_argument(
         "--jsonl",
         type=Path,
-        default=Path("results/tables/qwen25_vl_zero_shot_test.jsonl"),
+        default=Path("results/tables/surya_v2_zero_shot_test.jsonl"),
     )
     p_r.add_argument(
         "--tolerance",
@@ -447,7 +442,7 @@ def parse_args() -> argparse.Namespace:
         help="Exit non-zero when any row is flagged as phantom (for CI).",
     )
 
-    sub.add_parser("setup-hint", help="Reminders for isolating Qwen/Paddle issues")
+    sub.add_parser("setup-hint", help="Hints for isolating model vs eval vs data issues")
 
     return parser.parse_args()
 

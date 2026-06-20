@@ -7,9 +7,7 @@ source "${SCRIPT_DIR}/lib_common.sh"
 
 require_python
 
-if [[ "${EVAL_USE_GPU:-0}" == "1" ]]; then
-  export SURYA_INFERENCE_BACKEND="${SURYA_INFERENCE_BACKEND:-vllm}"
-fi
+export SURYA_INFERENCE_BACKEND="${SURYA_INFERENCE_BACKEND:-auto}"
 
 run_py scripts/20_baseline_surya_v2.py \
   --data-dir "${PROCESSED_DIR:-data/processed}" \

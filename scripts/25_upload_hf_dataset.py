@@ -117,6 +117,30 @@ def load_metadata_index(raw_dir: Path) -> dict[str, dict[str, str]]:
     consolidation policy in ``01_consolidate_data.py``.
     """
     index: dict[str, dict[str, str]] = {}
+
+    # 1. Fallback to consolidated splits/dataset_metadata.csv if it exists
+    splits_meta = Path("data/splits/dataset_metadata.csv")
+    if splits_meta.is_file():
+        try:
+            with splits_meta.open(encoding="utf-8", newline="") as fh:
+                reader = csv.DictReader(fh)
+                for row in reader:
+                    image = (row.get("image") or "").strip()
+                    if image:
+                        index[image] = {
+                            "source": (row.get("source") or "").strip(),
+                            "year": (row.get("year") or "").strip(),
+                            "dialect": (row.get("dialect") or "").strip(),
+                            "corrected": (row.get("corrected") or "").strip(),
+                            "parent_image": (row.get("parent_image") or "").strip(),
+                            "line_index": (row.get("line_index") or "").strip(),
+                        }
+            log.info("Loaded metadata for %d line images from consolidated splits/dataset_metadata.csv", len(index))
+            return index
+        except Exception as e:
+            log.warning("Failed to load consolidated metadata from %s: %s", splits_meta, e)
+
+    # 2. Fall back to scanning raw exports
     if not raw_dir.is_dir():
         log.warning("Raw dir missing: %s — metadata columns will be empty.", raw_dir)
         return index

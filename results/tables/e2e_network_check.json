@@ -1,0 +1,61 @@
+{
+  "timestamp_utc": "2026-06-20T09:09:58.604821+00:00",
+  "python": "/Users/mac/Desktop/yoruba_ocr_research/.venv/bin/python",
+  "steps": [
+    {
+      "name": "huggingface_hub_api",
+      "status": "ok",
+      "detail": {
+        "model_id": "PaddlePaddle/PaddleOCR-VL-1.6"
+      }
+    },
+    {
+      "name": "paddle_pretrained_url",
+      "status": "ok",
+      "detail": {
+        "url": "https://paddleocr.bj.bcebos.com/PP-OCRv3/english/en_PP-OCRv3_rec_train.tar",
+        "http_status": 200
+      }
+    },
+    {
+      "name": "vl_trust_remote_code_defaults",
+      "status": "ok",
+      "detail": {
+        "model_default": true,
+        "processor_default": true
+      }
+    },
+    {
+      "name": "surya_backend_resolution",
+      "status": "ok",
+      "detail": {
+        "docker": false,
+        "llamacpp": false,
+        "resolved_auto": null,
+        "env_backend": ""
+      }
+    },
+    {
+      "name": "hf_config_paddleocr_vl16",
+      "status": "ok",
+      "detail": {
+        "model_id": "PaddlePaddle/PaddleOCR-VL-1.6",
+        "config_class": "PaddleOCRVLConfig"
+      }
+    },
+    {
+      "name": "hf_config_glm_ocr",
+      "status": "skip",
+      "reason": "Model architecture not recognized by current transformers version: The checkpoint you are trying to load has model type `glm_ocr` but Transformers does not recognize this architecture. This could be because of an issue with the checkpoint, or because your version of Transformers is out of date.\n\nYou can update Transformers with the command `pip install --upgrade transformers`. If this does not work, and the checkpoint is very new, then there may not be a release version that supports this model yet. In this case, you can get the most up-to-date code by installing Transformers from source with the command `pip install git+https://github.com/huggingface/transformers.git`. Upgrade transformers or install from source."
+    },
+    {
+      "name": "transformers_version",
+      "status": "ok",
+      "detail": {
+        "version": "4.57.6",
+        "vl16_live_ready": false
+      }
+    }
+  ],
+  "ok": true
+}

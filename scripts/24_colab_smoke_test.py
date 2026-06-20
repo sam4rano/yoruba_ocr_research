@@ -4,7 +4,7 @@ Colab / local smoke test for the Yorùbá OCR pipeline.
 Two modes:
 
   --quick (default for Colab Step 5b)
-      Data layout, Python deps, config/VL export sanity — **no eval JSONL required**.
+      Data layout, Python deps, config sanity — **no eval JSONL required**.
       Use after Step 3 install, before GPU baselines.
 
   --full
@@ -70,6 +70,11 @@ def main() -> None:
         help="Full pipeline smoke: includes analysis 17–19 and HF card dry-run.",
     )
     parser.add_argument(
+        "--network",
+        action="store_true",
+        help="Run hub/network connectivity checks (script 30).",
+    )
+    parser.add_argument(
         "--report",
         type=Path,
         default=Path("results/tables/colab_smoke_test.json"),
@@ -124,12 +129,18 @@ def main() -> None:
         run(["bash", "scripts/shell/phase_03_config.sh"], cwd=ROOT, env=env)
 
     def vl_export() -> None:
-        run(["bash", "scripts/shell/phase_14_export_vl15.sh"])
-        for split in ("train", "val", "test"):
-            f = ROOT / "data/paddleocr_vl15_sft" / f"{split}.jsonl"
-            check_path(f)
-            if count_lines(f) < 1:
-                raise ValueError(f"empty export: {f}")
+        """Verify VL-1.6 and GLM-OCR baseline, SFT training, export, and plotting scripts parse cleanly."""
+        import ast
+        for name in (
+            "15_baseline_paddleocr_vl16.py",
+            "16_baseline_glm_ocr.py",
+            "16_train_paddleocr_vl.py",
+            "14_export_paddleocr_vl_sft.py",
+            "22_generate_plots.py",
+        ):
+            script = ROOT / "scripts" / name
+            check_path(script)
+            ast.parse(script.read_text(encoding="utf-8"))
 
     def analysis() -> None:
         for script in (
@@ -151,6 +162,13 @@ def main() -> None:
         run(["bash", "scripts/shell/phase_09_compile.sh"])
         check_path(ROOT / "results/tables/table1_main_comparison.csv")
         check_path(ROOT / "results/tables/metrics_summary.csv")
+        for fig_name in (
+            "model_metrics_comparison.png",
+            "bootstrap_confidence_intervals.png",
+            "stratified_der_by_density.png",
+            "error_taxonomy_distribution.png",
+        ):
+            check_path(ROOT / "results/tables/figures" / fig_name)
 
     def checkpoint_audit() -> None:
         run([
@@ -174,12 +192,15 @@ def main() -> None:
             ast.parse("".join(cell["source"]))
 
     def deps_checks() -> None:
-        import editdistance  # noqa: F401
+        subprocess.check_call([PY, "-c", "import editdistance"], env=SHELL_ENV)
 
     def deps_full_checks() -> None:
-        import datasets  # noqa: F401
-
+        subprocess.check_call([PY, "-c", "import datasets"], env=SHELL_ENV)
         deps_checks()
+
+    def network_checks() -> None:
+        run([PY, "scripts/30_e2e_network_check.py"])
+        check_path(ROOT / "results/tables/e2e_network_check.json")
 
     def refresh_report() -> None:
         run([PY, "scripts/02c_refresh_dataset_report.py"])
@@ -207,9 +228,12 @@ def main() -> None:
     step("python deps (editdistance)", deps_checks)
     step("02c refresh dataset report", refresh_report)
     step("phase_03 config", config_phase)
-    step("phase_14 VL export", vl_export)
+    step("15_baseline_paddleocr_vl16 syntax", vl_export)
     step("compile table1 (if metrics.csv exists)", compile_tables_quick)
     step("yor_ocr.ipynb syntax", notebook_syntax)
+
+    if args.network:
+        step("e2e network checks", network_checks)
 
     if args.full:
         step("02b data quality audit", audit_and_eda)

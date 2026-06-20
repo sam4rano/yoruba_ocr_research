@@ -1,15 +1,15 @@
 """
-Export consolidated PaddleOCR-format data to JSONL for PaddleOCR-VL-1.5 SFT / LoRA.
+Export consolidated PaddleOCR-format data to JSONL for PaddleOCR-VL-1.6 SFT.
 
 **Does not read or write ``data/processed`` labels in place** — only creates new files
-under ``--out-dir`` (default ``data/paddleocr_vl15_sft``).
+under ``--out-dir`` (default ``data/paddleocr_vl16_sft``).
 
 Each line is one sample with OpenAI-style messages + image path (repo-relative when
 ``--repo-root`` contains ``data-dir``, else resolved absolute) for portability across machines.
 
 Usage:
     python scripts/14_export_paddleocr_vl_sft.py
-    python scripts/14_export_paddleocr_vl_sft.py --data-dir data/processed --out-dir data/paddleocr_vl15_sft
+    python scripts/14_export_paddleocr_vl_sft.py --data-dir data/processed --out-dir data/paddleocr_vl16_sft
 """
 
 from __future__ import annotations
@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Export Yorùbá line crops to JSONL for PaddleOCR-VL-1.5 fine-tuning."
+        description="Export Yorùbá line crops to JSONL for PaddleOCR-VL-1.6 fine-tuning."
     )
     parser.add_argument(
         "--data-dir",
@@ -41,7 +41,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--out-dir",
         type=Path,
-        default=Path("data/paddleocr_vl15_sft"),
+        default=Path("data/paddleocr_vl16_sft"),
         help="Output directory for JSONL + manifest (created if missing).",
     )
     parser.add_argument(

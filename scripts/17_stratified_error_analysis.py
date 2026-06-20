@@ -12,9 +12,9 @@ density) and reports:
 
 Usage:
     python scripts/17_stratified_error_analysis.py
-    python scripts/17_stratified_error_analysis.py \\
-        --jsonl results/tables/paddleocr_vl15_lora_finetuned_test.jsonl \\
-        --jsonl results/tables/trocr_large_printed_zero_shot_test.jsonl
+    python scripts/17_stratified_error_analysis.py \
+        --jsonl results/tables/paddleocr_vl16_zero_shot_test.jsonl \
+        --jsonl results/tables/glm_ocr_zero_shot_test.jsonl
 """
 
 from __future__ import annotations
@@ -36,13 +36,11 @@ EXPORT_PATTERN = re.compile(r"^yoruba_ocr_(\d+)")
 WORD_SPLIT = re.compile(r"[^\w\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f\u0323]+", re.UNICODE)
 
 DEFAULT_MODEL_JSONLS = [
-    "paddleocr_vl15_lora_finetuned_test.jsonl",
-    "paddleocr_vl15_zero_shot_test.jsonl",
     "baseline_english_pretrained_test.jsonl",
-    "ablation_data_size_100pct_test_test.jsonl",
+    "paddleocr_vl16_zero_shot_test.jsonl",
+    "glm_ocr_zero_shot_test.jsonl",
     "surya_v2_zero_shot_test.jsonl",
-    "surya_finetuned_test.jsonl",
-    "trocr_large_printed_zero_shot_test.jsonl",
+    "paddleocr_vl16_finetuned_test.jsonl",
 ]
 
 DENSITY_LABELS = ("q1_low", "q2", "q3", "q4_high")
@@ -104,6 +102,28 @@ def load_metadata_index(raw_dir: Path) -> dict[str, dict[str, str]]:
     consolidation policy.
     """
     index: dict[str, dict[str, str]] = {}
+
+    # 1. Fallback to consolidated splits/dataset_metadata.csv if it exists
+    splits_meta = Path("data/splits/dataset_metadata.csv")
+    if splits_meta.is_file():
+        try:
+            with splits_meta.open(encoding="utf-8", newline="") as fh:
+                reader = csv.DictReader(fh)
+                for row in reader:
+                    image = (row.get("image") or "").strip()
+                    if image:
+                        index[image] = {
+                            "source": (row.get("source") or "").strip(),
+                            "year": (row.get("year") or "").strip(),
+                            "dialect": (row.get("dialect") or "").strip(),
+                            "parent_image": (row.get("parent_image") or "").strip(),
+                        }
+            log.info("Loaded metadata for %d line images from consolidated splits/dataset_metadata.csv", len(index))
+            return index
+        except Exception as e:
+            log.warning("Failed to load consolidated metadata from %s: %s", splits_meta, e)
+
+    # 2. Fall back to scanning raw exports
     if not raw_dir.exists():
         log.warning("Raw dir missing: %s — book stratification will be empty.", raw_dir)
         return index

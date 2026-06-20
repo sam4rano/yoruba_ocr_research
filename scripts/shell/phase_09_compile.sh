@@ -15,3 +15,8 @@ run_py scripts/13_verify_eval_alignment.py \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --metrics-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
   --output-json "${RESULTS_TABLES:-results/tables}/eval_alignment_report.json"
+
+# Generate SOTA figures from compiled metrics.
+run_py scripts/22_generate_plots.py \
+  --results-dir "${RESULTS_TABLES:-results/tables}"
+

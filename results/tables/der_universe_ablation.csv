@@ -1,13 +1,5 @@
 model,universe_id,description,n,der_pct,der_n,der_insertion_rate,n_zero_diac_gt,total_gt_tokens
-paddleocr_vl15_lora_finetuned,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,66.3,319,0.1111,7,3406
-paddleocr_vl15_lora_finetuned,tone_only,Combining grave and acute only (subdot excluded),326,65.8,316,0.0616,10,2363
-paddleocr_vl15_lora_finetuned,all_combining,All Unicode combining characters in NFD,326,66.4,319,0.1111,7,3406
-paddleocr_vl15_lora_finetuned,marked_grapheme,NFC tonographs with any standard combining mark,326,87.8,319,0.1111,7,3406
-ablation_data_size_100pct_test,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,91.8,319,0.0159,7,3406
-ablation_data_size_100pct_test,tone_only,Combining grave and acute only (subdot excluded),326,95.9,316,0.0205,10,2363
-ablation_data_size_100pct_test,all_combining,All Unicode combining characters in NFD,326,91.8,319,0.0159,7,3406
-ablation_data_size_100pct_test,marked_grapheme,NFC tonographs with any standard combining mark,326,95.4,319,0.0159,7,3406
-paddleocr_vl15_zero_shot,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,140.0,319,0.0079,7,3406
-paddleocr_vl15_zero_shot,tone_only,Combining grave and acute only (subdot excluded),326,148.9,316,0.0068,10,2363
-paddleocr_vl15_zero_shot,all_combining,All Unicode combining characters in NFD,326,200.9,319,0.0079,7,3406
-paddleocr_vl15_zero_shot,marked_grapheme,NFC tonographs with any standard combining mark,326,154.0,319,0.0079,7,3406
+baseline_english_pretrained,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,100.0,319,0.0,7,3406
+baseline_english_pretrained,tone_only,Combining grave and acute only (subdot excluded),326,100.0,316,0.0,10,2363
+baseline_english_pretrained,all_combining,All Unicode combining characters in NFD,326,100.0,319,0.0,7,3406
+baseline_english_pretrained,marked_grapheme,NFC tonographs with any standard combining mark,326,100.0,319,0.0,7,3406

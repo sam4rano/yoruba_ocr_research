@@ -2,7 +2,7 @@
 Shared evaluation utilities: metric computation, data loading, result persistence.
 
 Imported by evaluation and baseline scripts (e.g. 05_evaluate.py, 06_baseline_pretrained.py,
-09_baseline_qwen.py, 15_baseline_paddleocr_vl15.py, 12_diagnose_hypotheses.py,
+15_baseline_paddleocr_vl16.py, 20_baseline_surya_v2.py, 12_diagnose_hypotheses.py,
 13_verify_eval_alignment.py).
 Not intended to be run directly.
 """
@@ -97,7 +97,7 @@ def _detect_existing_fieldnames(csv_path: Path) -> list[str] | None:
 
 
 _NON_PADDLE_MODEL_KINDS = frozenset(
-    {"qwen_vl", "qwen2_vl", "paddleocr_vl", "trocr", "surya_foundation_finetuned"}
+    {"paddleocr_vl", "surya_v2", "glm_ocr"}
 )
 
 
@@ -109,8 +109,8 @@ def _phantom_flag_from_provenance(provenance: dict | None) -> str:
     * ``"true"``  — checkpoint-integrity check found missing / shape-
       mismatched head weights; the row measures a random head.
     * ``"false"`` — integrity check passed.
-    * ``"n/a"``   — ``model_kind`` is a non-Paddle baseline (TrOCR, Qwen,
-      PaddleOCR-VL, Surya) for which the "phantom head" concept does not
+    * ``"n/a"``   — ``model_kind`` is a non-Paddle baseline (PaddleOCR-VL,
+      GLM-OCR, Surya v2) for which the "phantom head" concept does not
       apply.
     * ``"unknown"`` — no integrity data and no recognised ``model_kind``.
     """

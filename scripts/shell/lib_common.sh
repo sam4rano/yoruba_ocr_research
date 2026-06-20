@@ -13,6 +13,11 @@ export PYTHON="${PYTHON:-python3}"
 export HF_HOME="${PROJECT_ROOT}/.hf_cache"
 export HF_HUB_CACHE="${HF_HOME}"
 
+# Disable wandb logging globally
+export WANDB_DISABLED="true"
+export WANDB_MODE="disabled"
+
+
 log() {
   printf '[%s] %s\n' "$(date -u +"%Y-%m-%dT%H:%M:%SZ")" "$*" >&2
 }

@@ -1,0 +1,62 @@
+{
+  "model": "baseline_english_pretrained",
+  "split": "test",
+  "timestamp": "2026-06-20T08:53:31.045550+00:00",
+  "phantom": "false",
+  "metrics": {
+    "n": 326,
+    "cer": 1.0043,
+    "wer": 1.0609,
+    "der": 1.0,
+    "der_n": 319,
+    "der_insertion_rate": 0.0,
+    "median_cer": 1.0,
+    "median_wer": 1.0,
+    "micro_cer": 0.9586,
+    "micro_wer": 1.0281
+  },
+  "git_sha": "b95a933",
+  "env": {
+    "cwd": "/Users/mac/Desktop/yoruba_ocr_research"
+  },
+  "artifacts": {
+    "jsonl": "results/tables/baseline_english_pretrained_test.jsonl",
+    "csv": "results/tables/metrics.csv",
+    "checkpoint_pdparams": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy.pdparams",
+    "checkpoint_sha256": "ea1aa951d492533d33dd9536265e29a779f1a2b2798e68ebb82d2079e7554e7e",
+    "dict_path": "PaddleOCR/ppocr/utils/en_dict.txt",
+    "dict_sha256": "5662df9d2d03f0e8ca0d3b0649d6acbab904b6a14b3d3521463c71c37c668ce3",
+    "dict_size": 95,
+    "rec_config": "PaddleOCR/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml",
+    "rec_config_sha256": "effd58221f98f5c36bd19dc3ed4a12e9bd6e44c8c18bf1e027071671dc68b7e8"
+  },
+  "provenance": {
+    "script": "scripts/05_evaluate.py",
+    "model_dir": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy.pdparams",
+    "dict_path": "PaddleOCR/ppocr/utils/en_dict.txt",
+    "rec_config": "PaddleOCR/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml",
+    "split": "test",
+    "allow_head_reinit": false,
+    "checkpoint_integrity": {
+      "ckpt_prefix": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train/best_accuracy",
+      "n_model_params": 239,
+      "n_ckpt_params": 239,
+      "n_restored": 239,
+      "n_missing": 0,
+      "n_shape_mismatch": 0,
+      "n_extra_in_ckpt": 0,
+      "missing_by_component": {
+        "head": 0,
+        "backbone": 0,
+        "other": 0
+      },
+      "shape_mismatch_by_component": {
+        "head": 0,
+        "backbone": 0,
+        "other": 0
+      },
+      "missing_sample": [],
+      "shape_mismatch_sample": []
+    }
+  }
+}

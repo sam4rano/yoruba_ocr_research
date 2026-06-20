@@ -5,9 +5,8 @@ Reads results/tables/metrics.csv (written by all evaluation scripts)
 and produces:
 
   Table 1 — Main Comparison (test split)
-    Rows are ordered: OCR baselines → zero-shot multimodal models → **primary
-    supervised result (PaddleOCR-VL-1.5 LoRA)** → classical PP-OCRv4 CRNN
-    fine-tune as comparison. Columns: Model | CER ↓ | WER ↓ | DER ↓
+    Rows are ordered: PP-OCR baseline → zero-shot multimodal models.
+    Columns: Model | CER ↓ | WER ↓ | DER ↓
 
   Table 2 — Ablation: Data Size
     Performance at 25/50/75/100% of training data.
@@ -50,64 +49,23 @@ log = logging.getLogger(__name__)
 # Display names for the model labels used across all eval scripts
 MODEL_DISPLAY = {
     "baseline_english_pretrained": "PaddleOCR PP-OCRv4 (EN pretrained)",
-    "paddleocr_vl15_zero_shot": "PaddleOCR-VL-1.5 (zero-shot)",
-    "qwen25_vl3_zero_shot": "Qwen 2.5 VL-3B (zero-shot)",
-    "qwen25_vl_zero_shot": "Qwen 2.5 VL-7B (zero-shot, archived pilot)",
-    "trocr_large_printed_zero_shot": "TrOCR-large-printed (zero-shot)",
+    "paddleocr_vl16_zero_shot": "PaddleOCR-VL-1.6 (zero-shot)",
     "surya_v2_zero_shot": "Surya v2 (zero-shot, recognition-only)",
-    "trocr_large_printed_finetuned": "TrOCR-large-printed (fine-tuned)",
-    "surya_finetuned": "Surya (Foundation fine-tuned)",
-    "finetuned_paddleocr_v1": "PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison)",
-    "paddleocr_vl15_lora_finetuned": "PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised)",
-    # Ablation data size (PP-OCRv4 CRNN — not VL-1.5)
-    "ablation_data_size_025pct_test": "PP-OCRv4 fine-tuned — 25% data",
-    "ablation_data_size_050pct_test": "PP-OCRv4 fine-tuned — 50% data",
-    "ablation_data_size_075pct_test": "PP-OCRv4 fine-tuned — 75% data",
-    "ablation_data_size_100pct_test": "PP-OCRv4 fine-tuned — 100% data",
-    # Ablation dictionary
-    "ablation_dict_yoruba_dict_test": "PP-OCRv4 + Yorùbá dict",
-    "ablation_dict_english_dict_test": "PP-OCRv4 + English dict",
-    # Ablation augmentation
-    "ablation_aug_with_aug_test": "PP-OCRv4 + RecAug",
-    "ablation_aug_no_aug_test": "PP-OCRv4 − RecAug",
+    "glm_ocr_zero_shot": "GLM-OCR (zero-shot)",
+    "paddleocr_vl16_finetuned": "PaddleOCR-VL-1.6 (fine-tuned language model)",
 }
 
-# Ordered model rows for Table 1 (supervised VL LoRA before CRNN fine-tune for narrative)
+# Ordered model rows for Table 1
 TABLE1_ORDER = [
     "baseline_english_pretrained",
-    "trocr_large_printed_zero_shot",
     "surya_v2_zero_shot",
-    "paddleocr_vl15_zero_shot",
-    "qwen25_vl3_zero_shot",
-    "paddleocr_vl15_lora_finetuned",
-    "surya_finetuned",
-    "trocr_large_printed_finetuned",
-    "finetuned_paddleocr_v1",
+    "paddleocr_vl16_zero_shot",
+    "glm_ocr_zero_shot",
+    "paddleocr_vl16_finetuned",
 ]
 
 # When the canonical eval name is absent, borrow from an equivalent run.
-TABLE1_ALIASES: dict[str, str] = {
-    "finetuned_paddleocr_v1": "ablation_data_size_100pct_test",
-    "qwen25_vl3_zero_shot": "qwen25_vl_zero_shot",
-}
-
-# Ablation groupings for Tables 2–4
-ABLATION_GROUPS = {
-    "data_size": [
-        "ablation_data_size_025pct_test",
-        "ablation_data_size_050pct_test",
-        "ablation_data_size_075pct_test",
-        "ablation_data_size_100pct_test",
-    ],
-    "dictionary": [
-        "ablation_dict_english_dict_test",
-        "ablation_dict_yoruba_dict_test",
-    ],
-    "augmentation": [
-        "ablation_aug_no_aug_test",
-        "ablation_aug_with_aug_test",
-    ],
-}
+TABLE1_ALIASES: dict[str, str] = {}
 
 
 # ---------------------------------------------------------------------------
@@ -400,24 +358,6 @@ def main() -> None:
     summary_alias = args.output_dir / "metrics_summary.csv"
     summary_alias.write_text(table1_csv.read_text(encoding="utf-8"), encoding="utf-8")
     log.info("Table 1 written (%s + metrics_summary.csv).", table1_csv.name)
-
-    # --- Tables 2–4: Ablation Studies ---
-    ablation_titles = {
-        "data_size": "Table 2 — Ablation: Training Data Size (test split)",
-        "dictionary": "Table 3 — Ablation: Character Dictionary (test split)",
-        "augmentation": "Table 4 — Ablation: Data Augmentation (test split)",
-    }
-    for abl_id, model_order in ABLATION_GROUPS.items():
-        title = ablation_titles[abl_id]
-        present = [m for m in model_order if m in rows]
-        if not present:
-            log.warning("No results found for ablation '%s'. Skipping.", abl_id)
-            continue
-        md = render_markdown_table(rows, model_order)
-        md_path = args.output_dir / f"ablation_{abl_id}.md"
-        md_path.write_text(f"# {title}\n\n{md}\n", encoding="utf-8")
-        write_csv_table(rows, model_order, args.output_dir / f"ablation_{abl_id}.csv")
-        log.info("Ablation table '%s' written.", abl_id)
 
     log.info("All tables in %s", args.output_dir)
 

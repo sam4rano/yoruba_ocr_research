@@ -21,6 +21,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import csv
 import json
 import logging
 import random
@@ -126,6 +127,77 @@ def _get_image_height(path: Path) -> int | None:
         return None
 
 
+def load_raw_metadata_index(exports: list[tuple[int, Path]]) -> dict[str, dict[str, str]]:
+    """
+    Build a unified metadata index from raw exports.
+
+    Later exports overwrite earlier ones on filename collision, matching
+    consolidation policy.
+    """
+    index: dict[str, dict[str, str]] = {}
+    for export_id, export_dir in exports:
+        meta_path = export_dir / "metadata" / "dataset_metadata.csv"
+        if not meta_path.is_file():
+            alt = export_dir / "metadata" / "dataset_metadata(1).csv"
+            meta_path = alt if alt.is_file() else meta_path
+        if not meta_path.is_file():
+            continue
+        try:
+            with meta_path.open(encoding="utf-8", newline="") as fh:
+                reader = csv.DictReader(fh)
+                for row in reader:
+                    image = (row.get("image") or "").strip()
+                    if image:
+                        index[image] = {
+                            "source": (row.get("source") or "").strip(),
+                            "year": (row.get("year") or "").strip(),
+                            "dialect": (row.get("dialect") or "").strip(),
+                            "corrected": (row.get("corrected") or "").strip(),
+                            "parent_image": (row.get("parent_image") or "").strip(),
+                            "line_index": (row.get("line_index") or "").strip(),
+                        }
+        except Exception as e:
+            log.warning("Failed to parse metadata in %s: %s", meta_path, e)
+    return index
+
+
+def consolidate_metadata(raw_dir: Path, splits_dir: Path) -> None:
+    """Consolidate all raw dataset_metadata.csv files into splits/dataset_metadata.csv."""
+    index: dict[str, dict[str, str]] = {}
+    if not raw_dir.is_dir():
+        log.warning("Raw dir missing: %s — skipping metadata consolidation.", raw_dir)
+        return
+
+    # Find export subdirs just like consolidation
+    exports = []
+    for item in raw_dir.iterdir():
+        if not item.is_dir():
+            continue
+        m = EXPORT_PATTERN.match(item.name)
+        if m:
+            exports.append((int(m.group(1)), item))
+    exports = sorted(exports, key=lambda x: x[0])
+
+    meta_index = load_raw_metadata_index(exports)
+    if not meta_index:
+        log.warning("No metadata found across raw exports.")
+        return
+
+    splits_dir.mkdir(parents=True, exist_ok=True)
+    dst_path = splits_dir / "dataset_metadata.csv"
+    fieldnames = ["image", "source", "year", "dialect", "corrected", "parent_image", "line_index"]
+    try:
+        with dst_path.open("w", encoding="utf-8", newline="") as fh:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
+            writer.writeheader()
+            for image in sorted(meta_index.keys()):
+                row = {"image": image, **meta_index[image]}
+                writer.writerow(row)
+        log.info("Consolidated dataset metadata saved to %s", dst_path)
+    except Exception as e:
+        log.warning("Failed to write consolidated metadata to %s: %s", dst_path, e)
+
+
 def collect_registry(
     exports: list[tuple[int, Path]],
     *,
@@ -166,6 +238,8 @@ def collect_registry(
     # Cache image heights so duplicates across exports don't re-read the file.
     height_cache: dict[Path, int | None] = {}
 
+    meta_index = load_raw_metadata_index(exports)
+
     for export_id, export_dir in exports:
         for split in SPLITS:
             label_file = export_dir / "labels" / f"{split}.txt"
@@ -202,11 +276,18 @@ def collect_registry(
                             continue
 
                 if stem not in registry or export_id > registry[stem]["export_id"]:
+                    meta = meta_index.get(stem, {})
                     registry[stem] = {
                         "text": text,
                         "src_path": src_path,
                         "split": split,
                         "export_id": export_id,
+                        "book_source": meta.get("source", "unknown"),
+                        "year": meta.get("year", ""),
+                        "dialect": meta.get("dialect", ""),
+                        "corrected": meta.get("corrected", ""),
+                        "parent_image": meta.get("parent_image", ""),
+                        "line_index": meta.get("line_index", ""),
                     }
 
     if drops["missing_image"]:
@@ -257,6 +338,97 @@ def assign_line_splits(
         n_train,
         n_val,
         n_test,
+    )
+
+
+def assign_book_splits(
+    registry: dict[str, dict],
+    *,
+    holdout_book: str,
+    train_ratio: float,
+    val_ratio: float,
+    seed: int,
+) -> None:
+    """
+    Assign splits by holding out all lines from a specific book for test.
+
+    The remaining books are split between train and val according to the train_ratio and val_ratio
+    (normalized to sum to 1.0).
+    """
+    holdout_pat = re.compile(re.escape(holdout_book), re.IGNORECASE)
+
+    # Identify test stems (matching the holdout book) and other stems
+    test_stems = []
+    other_stems = []
+
+    for stem, entry in registry.items():
+        book = entry.get("book_source", "unknown")
+        # Match case-insensitive substring or exact match
+        if holdout_pat.search(book) or holdout_book.lower() in book.lower():
+            test_stems.append(stem)
+        else:
+            other_stems.append(stem)
+
+    if not test_stems:
+        # Fallback search: try mapping words like "six" to "6"
+        book_mappings = {
+            "book one": "book 1", "book two": "book 2", "book three": "book 3",
+            "book four": "book 4", "book five": "book 5", "book six": "book 6"
+        }
+        normalized_holdout = holdout_book.lower()
+        for k, v in book_mappings.items():
+            normalized_holdout = normalized_holdout.replace(k, v)
+
+        for stem, entry in registry.items():
+            book = entry.get("book_source", "unknown").lower()
+            for k, v in book_mappings.items():
+                book = book.replace(k, v)
+            if normalized_holdout in book:
+                test_stems.append(stem)
+            else:
+                if stem not in other_stems:
+                    other_stems.append(stem)
+
+    if not test_stems:
+        log.warning(
+            "Holdout book %r did not match any source. Falling back to line-level resplit.",
+            holdout_book
+        )
+        # Re-normalize ratios to sum to 1.0
+        total_ratio = train_ratio + val_ratio + 0.1
+        assign_line_splits(
+            registry,
+            train_ratio=train_ratio / total_ratio,
+            val_ratio=val_ratio / total_ratio,
+            test_ratio=0.1 / total_ratio,
+            seed=seed
+        )
+        return
+
+    # Split the remaining stems between train and val
+    rng = random.Random(seed)
+    rng.shuffle(other_stems)
+
+    total_other = len(other_stems)
+    ratio_sum = train_ratio + val_ratio
+    t_ratio = train_ratio / ratio_sum
+
+    n_train = int(total_other * t_ratio)
+
+    for stem in other_stems[:n_train]:
+        registry[stem]["split"] = "train"
+    for stem in other_stems[n_train:]:
+        registry[stem]["split"] = "val"
+    for stem in test_stems:
+        registry[stem]["split"] = "test"
+
+    log.info(
+        "Reassigned book-level splits (holdout=%s, seed=%d): train=%d val=%d test=%d",
+        holdout_book,
+        seed,
+        n_train,
+        total_other - n_train,
+        len(test_stems),
     )
 
 
@@ -425,6 +597,12 @@ def parse_args() -> argparse.Namespace:
         help="Test fraction when --resplit is set (default: 0.1).",
     )
     parser.add_argument(
+        "--holdout-book",
+        type=str,
+        default=None,
+        help="Volume/Book name to hold out for the test split (e.g. 'Book Six').",
+    )
+    parser.add_argument(
         "--seed",
         type=int,
         default=42,
@@ -463,13 +641,22 @@ def main() -> None:
             log.info("  dropped %s: %d", k, v)
 
     if args.resplit:
-        assign_line_splits(
-            registry,
-            train_ratio=args.train_ratio,
-            val_ratio=args.val_ratio,
-            test_ratio=args.test_ratio,
-            seed=args.seed,
-        )
+        if args.holdout_book:
+            assign_book_splits(
+                registry,
+                holdout_book=args.holdout_book,
+                train_ratio=args.train_ratio,
+                val_ratio=args.val_ratio,
+                seed=args.seed,
+            )
+        else:
+            assign_line_splits(
+                registry,
+                train_ratio=args.train_ratio,
+                val_ratio=args.val_ratio,
+                test_ratio=args.test_ratio,
+                seed=args.seed,
+            )
 
     log.info("Collecting character dictionaries ...")
     chars = collect_char_dicts_from_registry(registry)
@@ -502,7 +689,8 @@ def main() -> None:
             "enabled": args.resplit,
             "train_ratio": args.train_ratio,
             "val_ratio": args.val_ratio,
-            "test_ratio": args.test_ratio,
+            "test_ratio": args.test_ratio if not args.holdout_book else None,
+            "holdout_book": args.holdout_book,
             "seed": args.seed,
         },
     }
@@ -516,6 +704,9 @@ def main() -> None:
         if src.is_file():
             shutil.copy2(src, splits_dir / f"{split}.txt")
     log.info("Split files frozen to %s", splits_dir)
+
+    # Consolidate metadata
+    consolidate_metadata(args.raw_dir, splits_dir)
 
     log.info(
         "Done. Train: %d  Val: %d  Test: %d",

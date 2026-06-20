@@ -40,7 +40,7 @@ All systems received identical line-crop images from the held-out test split (n=
 
 ## Systems Compared
 
-The benchmark spans out-of-the-box recognisers (Section A), fine-tuned vision-language and Foundation models (Section B), and classical PP-OCRv4 CRNN ablations (Section C). On the held-out test split we report at minimum:
+The benchmark spans out-of-the-box recognisers (Section A), fine-tuned VL and encoder–decoder models (Section B: VL-1.5 LoRA + TrOCR), and classical PP-OCRv4 CRNN ablations (Section C). On the held-out test split we report at minimum:
 
 1. **PaddleOCR PP-OCRv4 (English pretrained)** — English recognition weights, Yorùbá character dictionary at decode time
 2. **TrOCR-large-printed (zero-shot)** — Microsoft TrOCR on printed Latin text, no Yorùbá adaptation
@@ -48,8 +48,9 @@ The benchmark spans out-of-the-box recognisers (Section A), fine-tuned vision-la
 4. **PaddleOCR-VL-1.5 (zero-shot)** — Vision-language model, fixed prompt, no adaptation
 5. **Qwen 2.5 VL (zero-shot)** — Multimodal LLM, fixed prompt, temperature 0
 6. **PaddleOCR-VL-1.5 (LoRA fine-tuned)** — LoRA-adapted on training split, primary supervised result
-7. **PaddleOCR PP-OCRv4 (CRNN fine-tuned)** — full training split, 40 epochs (100% data-size ablation checkpoint)
-8. **Surya Foundation (fine-tuned)** — optional; scripts 26–28 on merged train+val export
+7. **TrOCR-large-printed (fine-tuned)** — encoder–decoder fine-tuned on line crops (Section B)
+8. **PaddleOCR PP-OCRv4 (CRNN fine-tuned)** — full training split, 40 epochs (100% data-size ablation checkpoint)
+9. **Surya Foundation (fine-tuned)** — optional extra; scripts 26–28
 
 ## PP-OCRv4 Data Size Ablation
 

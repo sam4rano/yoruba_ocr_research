@@ -274,17 +274,24 @@ def run_inference(
 
     post_process_class = build_post_process(config["PostProcess"], config["Global"])
 
-    # Ensure out_channels matches dict size for CTC head.
+    # Ensure out_channels / out_channels_list matches dict size.
     if hasattr(post_process_class, "character"):
         char_num = len(getattr(post_process_class, "character"))
-        if (
+        head_name = (
             config.get("Architecture", {})
             .get("Head", {})
             .get("name", "")
             .lower()
-            .startswith("ctc")
-        ):
+        )
+        if head_name.startswith("ctc"):
             config["Architecture"]["Head"]["out_channels"] = char_num
+        elif head_name.startswith("multi"):
+            out_channels_list = {
+                "CTCLabelDecode": char_num,
+                "SARLabelDecode": char_num + 2,
+                "NRTRLabelDecode": char_num + 3,
+            }
+            config["Architecture"]["Head"]["out_channels_list"] = out_channels_list
 
     model = build_model(config["Architecture"])
 
@@ -303,7 +310,7 @@ def run_inference(
 
     # Build preprocessing ops from Eval transforms; drop label-only/aug ops.
     transforms_cfg = config["Eval"]["dataset"]["transforms"]
-    drop_ops = {"RecAug", "CTCLabelEncode", "KeepKeys"}
+    drop_ops = {"RecAug", "CTCLabelEncode", "MultiLabelEncode", "KeepKeys"}
     ops_cfg = [op for op in transforms_cfg if list(op.keys())[0] not in drop_ops]
     ops = create_operators(ops_cfg, config["Global"])
 

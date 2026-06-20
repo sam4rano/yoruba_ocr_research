@@ -120,7 +120,7 @@ If `processed` is already final, skip `01`.
 
 ## 6. End-to-end script order (GPU)
 
-**Framing:** the **primary supervised result** in compiled tables is **PaddleOCR-VL-1.5 LoRA** (shell phases **14 → 16 → 15** with adapter; see `docs/vl15_pipeline.md`). Step 3 below is **PP-OCRv4 CRNN** fine-tuning — classical comparison and target of ablations (`10_ablation_study.py`), not the main VL track.
+**Framing:** The active model stack contains 4 main models: Base PaddleOCR (pretrained/fine-tuned PP-OCRv4), PaddleOCR-VL-1.6, GLM-OCR, and Surya v2. Step 3 below is **PP-OCRv4 CRNN** fine-tuning — classical comparison and target of ablations (`10_ablation_study.py`).
 
 Run from `PROJECT_ROOT` with `python` (or `python3` if that is what Colab uses — be consistent).
 
@@ -146,11 +146,11 @@ Do **not** pass `--cpu` on Colab when you want GPU training. Use `--epochs`, `--
 |------|--------|------|
 | 4 | `scripts/05_evaluate.py` | Paddle checkpoints: CER / WER / DER → `results/tables/metrics.csv` + JSONL |
 | 5 | `scripts/06_baseline_pretrained.py` | English pretrained baseline (delegates to `05`) |
-| 6 | `scripts/09_baseline_qwen.py` | Qwen 2.5 VL zero-shot (GPU; optional) |
-| 7 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
-| 8 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
-| — | `scripts/20_baseline_surya_v2.py` | Surya v2 zero-shot (Section A) |
-| — | `scripts/22_evaluate_trocr.py --pretrained-model-id …` | TrOCR zero-shot (Section A) |
+| 6 | `scripts/15_baseline_paddleocr_vl16.py` | PaddleOCR-VL-1.6 zero-shot baseline |
+| 7 | `scripts/16_baseline_glm_ocr.py` | GLM-OCR zero-shot baseline |
+| 8 | `scripts/20_baseline_surya_v2.py` | Surya v2 zero-shot baseline |
+| 9 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
+| 10 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
 
 **Evaluate fine-tuned model** (point `--model-dir` at the directory containing `best_accuracy.pdparams` or the checkpoint prefix your run produced, often under `experiments/finetuned/`):
 
@@ -164,22 +164,37 @@ python scripts/05_evaluate.py \
   --paddle-dir PaddleOCR
 ```
 
-**Qwen on T4:** use `--quantize` if you hit VRAM limits; set `HF_TOKEN` if the model is gated. Prefer a capped run first:
+**Evaluate PaddleOCR-VL-1.6:**
 
 ```bash
-export HF_TOKEN="..."   # if required
-python scripts/09_baseline_qwen.py --split test --max-samples 50 --quantize --batch-size 10
+python scripts/15_baseline_paddleocr_vl16.py \
+  --data-dir data/processed \
+  --split test \
+  --model-name paddleocr_vl16_zero_shot \
+  --results-csv results/tables/metrics.csv \
+  --per-sample-log results/tables/paddleocr_vl16_zero_shot_test.jsonl
 ```
 
-**PaddleOCR-VL-1.5 (Hugging Face) — main supervised track:** install `transformers>=5` and `peft` as in `docs/vl15_pipeline.md`. Export does not touch `data/processed/`:
+**Evaluate GLM-OCR:**
 
 ```bash
-bash scripts/shell/phase_14_export_vl15.sh
-export SKIP_VL15_EVAL=0
-bash scripts/shell/phase_15_eval_vl15.sh
-# LoRA fine-tune (primary supervised model):
-bash scripts/shell/phase_16_train_vl15_lora.sh
-python scripts/15_baseline_paddleocr_vl15.py --adapter-path experiments/paddleocr_vl15_lora/adapter
+python scripts/16_baseline_glm_ocr.py \
+  --data-dir data/processed \
+  --split test \
+  --model-name glm_ocr_zero_shot \
+  --results-csv results/tables/metrics.csv \
+  --per-sample-log results/tables/glm_ocr_zero_shot_test.jsonl
+```
+
+**Evaluate Surya v2:**
+
+```bash
+python scripts/20_baseline_surya_v2.py \
+  --data-dir data/processed \
+  --split test \
+  --model-name surya_v2_zero_shot \
+  --results-csv results/tables/metrics.csv \
+  --per-sample-log results/tables/surya_v2_zero_shot_test.jsonl
 ```
 
 **Compile tables:**

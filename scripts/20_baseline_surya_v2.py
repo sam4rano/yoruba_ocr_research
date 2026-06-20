@@ -122,26 +122,11 @@ def extract_page_text(page_result) -> str:
 
 
 def resolve_inference_backend(explicit: str) -> str | None:
-    """
-    Resolve Surya v2 backend from CLI, env, or host (CUDA → vllm).
+    """Resolve Surya v2 backend (delegates to ``surya_shared``)."""
+    sys.path.insert(0, str(Path(__file__).parent))
+    from surya_shared import resolve_surya_inference_backend  # noqa: E402
 
-    Returns None to let ``SuryaInferenceManager`` pick its default.
-    """
-    import os
-
-    if explicit and explicit != "auto":
-        return explicit
-    env_backend = os.environ.get("SURYA_INFERENCE_BACKEND", "").strip().lower()
-    if env_backend in {"vllm", "llamacpp"}:
-        return env_backend
-    try:
-        import torch
-
-        if torch.cuda.is_available():
-            return "vllm"
-    except ImportError:
-        pass
-    return None
+    return resolve_surya_inference_backend(explicit)
 
 
 def load_surya_predictor(keep_server: bool, inference_backend: str = "auto"):
@@ -152,8 +137,8 @@ def load_surya_predictor(keep_server: bool, inference_backend: str = "auto"):
     except ImportError as exc:
         raise ImportError(
             "Install Surya v2: pip install surya-ocr\n"
-            "On GPU (Colab): pip install vllm and set SURYA_INFERENCE_BACKEND=vllm.\n"
-            "On CPU/MPS: brew install llama.cpp or set SURYA_INFERENCE_BACKEND=llamacpp.\n"
+            "GPU + vllm: Docker must be running (Colab: use auto backend or llamacpp).\n"
+            "CPU/MPS: brew install llama.cpp or set SURYA_INFERENCE_BACKEND=llamacpp.\n"
             "See https://github.com/datalab-to/surya"
         ) from exc
 

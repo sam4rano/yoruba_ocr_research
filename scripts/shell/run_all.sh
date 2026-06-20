@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 # Run the Yorùbá OCR pipeline in order (default: phases 01–09, optional 99).
 #
-# DEFAULT DOES NOT include 14–16 on purpose: phase 15 needs GPU + Hugging Face
-# downloads; phase 16 is long. That avoids failing headless/CPU-only runs. The
-# primary supervised model (VL-1.5 LoRA) still requires running 14 → 15 → 16 →
-# 15(adapter) separately — see scripts/shell/README.md § “Default vs paper-complete”.
+# DEFAULT DOES NOT include 15, 16, 20 on purpose: they require GPU / Hugging Face
+# downloads or heavier dependencies.
 #
 # Usage:
 #   cd /path/to/yoruba_ocr_research
@@ -13,7 +11,7 @@
 #   bash scripts/shell/run_all.sh
 #
 # Subset of phases:
-#   PHASES="02 03 04 05 09 99" bash scripts/shell/run_all.sh
+#   PHASES="01 02 03 04 05 08 09 99" bash scripts/shell/run_all.sh
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -24,11 +22,9 @@ log "PROJECT_ROOT=$PROJECT_ROOT"
 require_python
 check_deps
 
-# Default: core pipeline. For the **primary supervised VL-1.5 LoRA** row, add
-# 14 (export), 15 (set SKIP_VL15_EVAL=0), 16 (LoRA), then 15 again with adapter — or run those phases manually; e.g.
-#   PHASES="01 02 03 04 05 07 08 14 15 09 99" bash scripts/shell/run_all.sh
-# (16 is long; run phase_16_train_vl15_lora.sh separately, then eval 15 with adapter)
-DEFAULT_PHASES="01 02 03 04 05 07 08 09 99"
+# Default: core pipeline (baselines and analysis).
+# For the VLM baselines, run phases 15 (VL-1.6 zero-shot), 16 (GLM-OCR), 20 (Surya v2), and 17 (VL-1.6 fine-tuned).
+DEFAULT_PHASES="01 02 03 05 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
 
 run_phase() {
@@ -38,20 +34,17 @@ run_phase() {
     01) f="${SCRIPT_DIR}/phase_01_consolidate.sh" ;;
     02) f="${SCRIPT_DIR}/phase_02_analyze.sh" ;;
     03) f="${SCRIPT_DIR}/phase_03_config.sh" ;;
-    04) f="${SCRIPT_DIR}/phase_04_train.sh" ;;
     05) f="${SCRIPT_DIR}/phase_05_eval_paddle.sh" ;;
-    07) f="${SCRIPT_DIR}/phase_07_qwen.sh" ;;
+    14) f="${SCRIPT_DIR}/phase_14_export_vl16.sh" ;;
+    15) f="${SCRIPT_DIR}/phase_15_eval_vl16.sh" ;;
+    16) f="${SCRIPT_DIR}/phase_glm_ocr.sh" ;;
+    17) f="${SCRIPT_DIR}/phase_17_eval_vl16_finetuned.sh" ;;
     20) f="${SCRIPT_DIR}/phase_20_surya.sh" ;;
-    22) f="${SCRIPT_DIR}/phase_22_trocr_zero_shot.sh" ;;
-    08) f="${SCRIPT_DIR}/phase_08_ablation.sh" ;;
     09) f="${SCRIPT_DIR}/phase_09_compile.sh" ;;
     12) f="${SCRIPT_DIR}/phase_12_diagnose.sh" ;;
     13) f="${SCRIPT_DIR}/phase_13_verify_eval.sh" ;;
-    14) f="${SCRIPT_DIR}/phase_14_export_vl15.sh" ;;
-    15) f="${SCRIPT_DIR}/phase_15_eval_vl15.sh" ;;
-    16) f="${SCRIPT_DIR}/phase_16_train_vl15_lora.sh" ;;
     99) f="${SCRIPT_DIR}/phase_99_backup.sh" ;;
-    *) die "unknown phase id: $id (use 01–09, 12–16, or 99)" ;;
+    *) die "unknown phase id: $id (use 01-03, 05, 09, 12, 13, 14, 15, 16, 17, 20, or 99)" ;;
   esac
   [[ -f "$f" ]] || die "missing $f"
   log "========== Phase $id: $(basename "$f") =========="

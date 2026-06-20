@@ -38,7 +38,7 @@ scripted ablations. The researcher built a custom annotation platform
 9. **PaddleOCR-VL-1.5 (HF) — main supervised track:** scripts/14–16 + adapter eval (15)
 10. scripts/17–19 — stratified DER, DER-universe, bootstrap CIs
 11. **OOTB baselines (Section A):** `22_evaluate_trocr.py` (zero-shot), `20_baseline_surya_v2.py`
-12. **Fine-tuned (Section B):** VL-1.5 LoRA (16); Surya Foundation (`26–28`)
+12. **Fine-tuned (Section B):** VL-1.5 LoRA (16); TrOCR (`21–22` via `phase_21_trocr.sh`); optional Surya Foundation (`26–28`)
 13. **Hub release:** `25_upload_hf_dataset.py`, `29_upload_hf_models.py`
 14. **Run hygiene:** scripts/metrics_lifecycle.py, scripts/02c_refresh_dataset_report.py
 
@@ -46,8 +46,8 @@ scripted ablations. The researcher built a custom annotation platform
 1. PaddleOCR-VL-1.5 (Hugging Face) — zero-shot + **LoRA fine-tuned (primary supervised)**; scripts 14–16
 2. PaddleOCR PP-OCRv4 English pretrained — baseline (`05_evaluate.py`)
 3. PaddleOCR PP-OCRv4 CRNN fine-tuned — classical comparison + ablation target (`04`, `10`)
-4. TrOCR-large-printed — **zero-shot** (`22` + `--pretrained-model-id`); optional fine-tune (`21–22`)
-5. Surya v2 — zero-shot recognition on line crops (`20`); Surya Foundation fine-tune (`26–28`)
+4. TrOCR-large-printed — zero-shot (`22` + `--pretrained-model-id`); **fine-tuned in Section B** (`21–22`)
+5. Surya v2 — zero-shot recognition on line crops (`20`); optional Surya Foundation fine-tune (`26–28`)
 6. Qwen 2.5 VL — zero-shot multimodal (`09`, optional)
 
 ## Metrics

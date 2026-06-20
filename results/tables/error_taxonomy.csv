@@ -1,15 +1,2 @@
 model,category,count
-paddleocr_vl15_lora_finetuned,deletion_heavy,161
-paddleocr_vl15_lora_finetuned,exact_diacritics,32
-paddleocr_vl15_lora_finetuned,insertion_heavy,95
-paddleocr_vl15_lora_finetuned,substitution,22
-paddleocr_vl15_lora_finetuned,total_tone_drop,9
-paddleocr_vl15_zero_shot,deletion_heavy,133
-paddleocr_vl15_zero_shot,exact_diacritics,1
-paddleocr_vl15_zero_shot,insertion_heavy,49
-paddleocr_vl15_zero_shot,substitution,13
-paddleocr_vl15_zero_shot,total_tone_drop,123
-ablation_data_size_100pct_test,deletion_heavy,188
-ablation_data_size_100pct_test,insertion_heavy,2
-ablation_data_size_100pct_test,substitution,1
-ablation_data_size_100pct_test,total_tone_drop,128
+baseline_english_pretrained,total_tone_drop,319

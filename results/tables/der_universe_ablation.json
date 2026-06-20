@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-06-10T07:12:32.714916+00:00",
+  "timestamp": "2026-06-20T09:10:15.640296+00:00",
   "universes": [
     {
       "universe_id": "combining_marks",
@@ -23,118 +23,42 @@
     }
   ],
   "models": {
-    "paddleocr_vl15_lora_finetuned": {
+    "baseline_english_pretrained": {
       "combining_marks": {
         "n": 326,
-        "der": 0.6635,
+        "der": 1.0,
         "der_n": 319,
-        "der_insertion_rate": 0.1111,
+        "der_insertion_rate": 0.0,
         "n_zero_diac_gt": 7,
         "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 14
+        "total_pred_tokens_on_zero_gt": 0
       },
       "tone_only": {
         "n": 326,
-        "der": 0.6576,
+        "der": 1.0,
         "der_n": 316,
-        "der_insertion_rate": 0.0616,
+        "der_insertion_rate": 0.0,
         "n_zero_diac_gt": 10,
         "total_gt_tokens": 2363,
-        "total_pred_tokens_on_zero_gt": 9
+        "total_pred_tokens_on_zero_gt": 0
       },
       "all_combining": {
         "n": 326,
-        "der": 0.6644,
+        "der": 1.0,
         "der_n": 319,
-        "der_insertion_rate": 0.1111,
+        "der_insertion_rate": 0.0,
         "n_zero_diac_gt": 7,
         "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 14
+        "total_pred_tokens_on_zero_gt": 0
       },
       "marked_grapheme": {
         "n": 326,
-        "der": 0.8782,
+        "der": 1.0,
         "der_n": 319,
-        "der_insertion_rate": 0.1111,
+        "der_insertion_rate": 0.0,
         "n_zero_diac_gt": 7,
         "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 14
-      }
-    },
-    "ablation_data_size_100pct_test": {
-      "combining_marks": {
-        "n": 326,
-        "der": 0.9178,
-        "der_n": 319,
-        "der_insertion_rate": 0.0159,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 2
-      },
-      "tone_only": {
-        "n": 326,
-        "der": 0.959,
-        "der_n": 316,
-        "der_insertion_rate": 0.0205,
-        "n_zero_diac_gt": 10,
-        "total_gt_tokens": 2363,
-        "total_pred_tokens_on_zero_gt": 3
-      },
-      "all_combining": {
-        "n": 326,
-        "der": 0.9178,
-        "der_n": 319,
-        "der_insertion_rate": 0.0159,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 2
-      },
-      "marked_grapheme": {
-        "n": 326,
-        "der": 0.9536,
-        "der_n": 319,
-        "der_insertion_rate": 0.0159,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 2
-      }
-    },
-    "paddleocr_vl15_zero_shot": {
-      "combining_marks": {
-        "n": 326,
-        "der": 1.4002,
-        "der_n": 319,
-        "der_insertion_rate": 0.0079,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 1
-      },
-      "tone_only": {
-        "n": 326,
-        "der": 1.4888,
-        "der_n": 316,
-        "der_insertion_rate": 0.0068,
-        "n_zero_diac_gt": 10,
-        "total_gt_tokens": 2363,
-        "total_pred_tokens_on_zero_gt": 1
-      },
-      "all_combining": {
-        "n": 326,
-        "der": 2.0091,
-        "der_n": 319,
-        "der_insertion_rate": 0.0079,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 1
-      },
-      "marked_grapheme": {
-        "n": 326,
-        "der": 1.5402,
-        "der_n": 319,
-        "der_insertion_rate": 0.0079,
-        "n_zero_diac_gt": 7,
-        "total_gt_tokens": 3406,
-        "total_pred_tokens_on_zero_gt": 1
+        "total_pred_tokens_on_zero_gt": 0
       }
     }
   }

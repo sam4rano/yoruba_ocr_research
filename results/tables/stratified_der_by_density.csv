@@ -1,13 +1,5 @@
 model,density_quartile,n,cer_pct,wer_pct,der_pct,der_n
-paddleocr_vl15_lora_finetuned,q1_low,88,91.5,114.9,79.4,81
-paddleocr_vl15_lora_finetuned,q2,80,79.8,96.4,61.4,80
-paddleocr_vl15_lora_finetuned,q3,79,104.1,126.8,68.5,79
-paddleocr_vl15_lora_finetuned,q4_high,79,111.5,153.6,56.7,79
-paddleocr_vl15_zero_shot,q1_low,88,218.9,360.5,188.8,81
-paddleocr_vl15_zero_shot,q2,80,171.6,184.1,135.4,80
-paddleocr_vl15_zero_shot,q3,79,452.2,587.5,164.2,79
-paddleocr_vl15_zero_shot,q4_high,79,1372.1,2294.4,363.6,79
-ablation_data_size_100pct_test,q1_low,88,93.1,99.6,91.8,81
-ablation_data_size_100pct_test,q2,80,91.8,97.8,90.6,80
-ablation_data_size_100pct_test,q3,79,93.6,101.5,92.8,79
-ablation_data_size_100pct_test,q4_high,79,94.2,115.2,91.9,79
+baseline_english_pretrained,q1_low,88,92.2,101.1,100.0,81
+baseline_english_pretrained,q2,80,97.5,103.7,100.0,80
+baseline_english_pretrained,q3,79,98.1,106.2,100.0,79
+baseline_english_pretrained,q4_high,79,114.9,113.9,100.0,79

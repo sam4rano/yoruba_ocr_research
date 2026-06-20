@@ -1,7 +1,7 @@
 # Yorùbá OCR — Research Approach & Run Log
 
-**Generated (UTC):** 2026-06-10T10:02:06Z  
-**Git commit:** `422b9e0`  
+**Generated (UTC):** 2026-06-20T09:10:27Z  
+**Git commit:** `b95a933`  
 **Project root:** `/Users/mac/Desktop/yoruba_ocr_research`  
 
 ## Workflow
@@ -9,7 +9,7 @@
 1. Code synced from GitHub into the Drive repo folder (`git fetch` + `reset --hard`).
 2. `data/` on Drive is **not** in git — uploads persist across pulls.
 3. Models evaluated on `data/processed/` test split; metrics append to `results/tables/metrics.csv`.
-4. `scripts/11_compile_results.py` builds Table 1 (+ ablation tables 2–4 when Phase 04/08 ran).
+4. `scripts/11_compile_results.py` builds Table 1 (containing zero-shot models and fine-tuned PaddleOCR-VL-1.6).
 5. Analysis scripts 17–19 add bootstrap CIs, stratified DER, DER-universe ablation.
 6. Timestamped backup under `My Drive/yoruba_ocr_backups/` (Phase 99).
 
@@ -24,9 +24,9 @@
 
 - (no toggle env vars recorded)
 
-## Primary supervised model
+## Benchmark Architecture
 
-PaddleOCR-VL-1.5 LoRA (`paddleocr_vl15_lora_finetuned`): export (14) → zero-shot eval (15) → LoRA train (16) → adapter eval (15). Classical comparison: PP-OCRv4 CRNN when Phase 04 enabled.
+The benchmark evaluates OCR on Yorùbá line crops across a 4-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, SuryaOCR v2, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.
 
 ## Table 1 — headline metrics (test split)
 
@@ -34,10 +34,7 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 
 | display_name | cer_pct | wer_pct | der_pct | n |
 | --- | --- | --- | --- | --- |
-| PaddleOCR-VL-1.5 (zero-shot) | 543.3 | 840.9 | 200.9 | 326 |
-| Qwen 2.5 VL-3B (zero-shot) | 253.5 | 329.5 | 119.6 | 326 |
-| PaddleOCR-VL-1.5 (LoRA fine-tuned — main supervised) | 96.5 | 122.6 | 66.4 | 326 |
-| PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison) | 91.5 | 103.4 | 91.8 | 326 |
+| PaddleOCR PP-OCRv4 (EN pretrained) | 100.4 | 106.1 | 100.0 | 326 |
 
 ## Paper artifacts on disk
 
@@ -53,9 +50,10 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 - **Error taxonomy:** `results/tables/error_taxonomy.csv` (yes)
 - **DER universe ablation:** `results/tables/der_universe_ablation.csv` (yes)
 - **DER zero-diac insertion:** `results/tables/der_zero_diac_insertion.csv` (yes)
-- **Ablation data size:** `results/tables/ablation_data_size.csv` (yes)
-- **Ablation dictionary:** `results/tables/ablation_dictionary.csv` (missing)
-- **Ablation augmentation:** `results/tables/ablation_augmentation.csv` (missing)
+- **Figure 1 — main comparison plot:** `results/tables/figures/model_metrics_comparison.png` (yes)
+- **Figure 2 — bootstrap intervals plot:** `results/tables/figures/bootstrap_confidence_intervals.png` (yes)
+- **Figure 3 — stratified density plot:** `results/tables/figures/stratified_der_by_density.png` (yes)
+- **Figure 4 — error taxonomy plot:** `results/tables/figures/error_taxonomy_distribution.png` (yes)
 - **Eval alignment report:** `results/tables/eval_alignment_report.json` (yes)
 - **Checkpoint audit:** `results/tables/checkpoint_audit.json` (yes)
 - **HF dataset upload manifest:** `results/tables/hf_dataset_upload.json` (yes)
@@ -72,12 +70,9 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 
 | Model key | Script |
 | --- | --- |
-| TrOCR-large-printed (zero-shot) | `22_evaluate_trocr.py --pretrained-model-id` |
 | PaddleOCR EN pretrained | `05_evaluate.py` |
-| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` / ablation 100% |
-| PaddleOCR-VL-1.5 zero-shot / LoRA | `15_baseline_paddleocr_vl15.py`, `16_train_paddleocr_vl_lora.py` |
-| Qwen 2.5-VL zero-shot | `09_baseline_qwen.py` |
-| TrOCR-large-printed (fine-tuned) | `21_train_trocr.py`, `22_evaluate_trocr.py` |
+| PaddleOCR-VL-1.6 zero-shot | `15_baseline_paddleocr_vl16.py` |
+| GLM-OCR zero-shot | `16_baseline_glm_ocr.py` |
 | Surya v2 (zero-shot) | `20_baseline_surya_v2.py` |
-| Surya Foundation (fine-tuned) | `26–28` export / train / eval |
+| PaddleOCR-VL-1.6 fine-tuned | `scripts/16_train_paddleocr_vl.py` (train), `scripts/15_baseline_paddleocr_vl16.py` (eval) |
 

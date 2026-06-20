@@ -31,9 +31,10 @@ TABLE_ARTIFACTS = [
     ("Error taxonomy", "error_taxonomy.csv"),
     ("DER universe ablation", "der_universe_ablation.csv"),
     ("DER zero-diac insertion", "der_zero_diac_insertion.csv"),
-    ("Ablation data size", "ablation_data_size.csv"),
-    ("Ablation dictionary", "ablation_dictionary.csv"),
-    ("Ablation augmentation", "ablation_augmentation.csv"),
+    ("Figure 1 — main comparison plot", "figures/model_metrics_comparison.png"),
+    ("Figure 2 — bootstrap intervals plot", "figures/bootstrap_confidence_intervals.png"),
+    ("Figure 3 — stratified density plot", "figures/stratified_der_by_density.png"),
+    ("Figure 4 — error taxonomy plot", "figures/error_taxonomy_distribution.png"),
     ("Eval alignment report", "eval_alignment_report.json"),
     ("Checkpoint audit", "checkpoint_audit.json"),
     ("HF dataset upload manifest", "hf_dataset_upload.json"),
@@ -81,7 +82,7 @@ def toggle_lines() -> list[str]:
     """Collect pipeline toggle env vars set for this run."""
     keys = sorted(
         k for k in os.environ
-        if k.startswith(("SKIP_", "RUN_", "RESET_", "VL15_", "TROCR_", "QWEN_", "USE_EXISTING"))
+        if k.startswith(("SKIP_", "RUN_", "RESET_", "VL16_", "GLM_", "SURYA_", "USE_EXISTING"))
     )
     lines = []
     for key in keys:
@@ -148,7 +149,7 @@ def main() -> None:
         "1. Code synced from GitHub into the Drive repo folder (`git fetch` + `reset --hard`).",
         "2. `data/` on Drive is **not** in git — uploads persist across pulls.",
         "3. Models evaluated on `data/processed/` test split; metrics append to `results/tables/metrics.csv`.",
-        "4. `scripts/11_compile_results.py` builds Table 1 (+ ablation tables 2–4 when Phase 04/08 ran).",
+        "4. `scripts/11_compile_results.py` builds Table 1 (containing zero-shot models and fine-tuned PaddleOCR-VL-1.6).",
         "5. Analysis scripts 17–19 add bootstrap CIs, stratified DER, DER-universe ablation.",
         "6. Timestamped backup under `My Drive/yoruba_ocr_backups/` (Phase 99).",
         "",
@@ -164,10 +165,9 @@ def main() -> None:
         "",
         *toggle_lines(),
         "",
-        "## Primary supervised model",
+        "## Benchmark Architecture",
         "",
-        "PaddleOCR-VL-1.5 LoRA (`paddleocr_vl15_lora_finetuned`): export (14) → zero-shot eval (15) → "
-        "LoRA train (16) → adapter eval (15). Classical comparison: PP-OCRv4 CRNN when Phase 04 enabled.",
+        "The benchmark evaluates OCR on Yorùbá line crops across a 4-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, SuryaOCR v2, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.",
         "",
         "## Table 1 — headline metrics (test split)",
         "",
@@ -189,14 +189,11 @@ def main() -> None:
         "",
         "| Model key | Script |",
         "| --- | --- |",
-        "| TrOCR-large-printed (zero-shot) | `22_evaluate_trocr.py --pretrained-model-id` |",
         "| PaddleOCR EN pretrained | `05_evaluate.py` |",
-        "| PP-OCRv4 CRNN fine-tuned | `04_train` + `05_evaluate.py` / ablation 100% |",
-        "| PaddleOCR-VL-1.5 zero-shot / LoRA | `15_baseline_paddleocr_vl15.py`, `16_train_paddleocr_vl_lora.py` |",
-        "| Qwen 2.5-VL zero-shot | `09_baseline_qwen.py` |",
-        "| TrOCR-large-printed (fine-tuned) | `21_train_trocr.py`, `22_evaluate_trocr.py` |",
+        "| PaddleOCR-VL-1.6 zero-shot | `15_baseline_paddleocr_vl16.py` |",
+        "| GLM-OCR zero-shot | `16_baseline_glm_ocr.py` |",
         "| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` |",
-        "| Surya Foundation (fine-tuned) | `26–28` export / train / eval |",
+        "| PaddleOCR-VL-1.6 fine-tuned | `scripts/16_train_paddleocr_vl.py` (train), `scripts/15_baseline_paddleocr_vl16.py` (eval) |",
         "",
     ]
 
