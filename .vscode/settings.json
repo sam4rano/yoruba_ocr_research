@@ -6,5 +6,11 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode",
     "editor.wordWrap": "on"
   },
-  "cursor.chat.defaultModel": "claude-sonnet-4-5"
+  "cursor.chat.defaultModel": "claude-sonnet-4-5",
+  "python.analysis.extraPaths": [
+    "./scripts"
+  ],
+  "python.autoComplete.extraPaths": [
+    "./scripts"
+  ]
 }
