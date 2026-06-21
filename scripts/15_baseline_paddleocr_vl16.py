@@ -135,12 +135,14 @@ def transcribe_one(
         tokenize=True,
         return_dict=True,
         return_tensors="pt",
-        images_kwargs={
-            "size": {
-                "shortest_edge": getattr(
-                    processor.image_processor, "min_pixels", 28 * 28 * 4
-                ),
-                "longest_edge": max_pixels,
+        processor_kwargs={
+            "images_kwargs": {
+                "size": {
+                    "shortest_edge": getattr(
+                        processor.image_processor, "min_pixels", 28 * 28 * 4
+                    ),
+                    "longest_edge": max_pixels,
+                }
             }
         },
     )

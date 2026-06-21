@@ -11,5 +11,5 @@
   "image_width": 960,
   "pretrained_model_dir": "experiments/baseline/pretrained/en_PP-OCRv3_rec_train",
   "use_gpu": false,
-  "timestamp": "2026-06-21T14:13:30.467526+00:00"
+  "timestamp": "2026-06-21T22:52:48.045438+00:00"
 }
