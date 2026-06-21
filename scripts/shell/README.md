@@ -2,7 +2,7 @@
 
 Phased bash drivers live here so you can run one stage at a time (reproducibility, HPC, Colab) or the full chain.
 
-**Benchmark Architecture:** We evaluate zero-shot OCR on Yorùbá line crops across four main model classes: Base PaddleOCR (PP-OCRv4 EN pretrained + CRNN fine-tune ablations), PaddleOCR-VL-1.6, GLM-OCR, and SuryaOCR v2.
+**Benchmark Architecture:** We evaluate zero-shot OCR on Yorùbá line crops across three main model classes: Base PaddleOCR (PP-OCRv4 EN pretrained + CRNN fine-tune ablations), PaddleOCR-VL-1.6, and GLM-OCR.
 
 | Script | Phase |
 |--------|--------|
@@ -13,7 +13,6 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 | `phase_05_eval_paddle.sh` | English pretrained + fine-tuned Paddle eval |
 | `phase_15_eval_vl16.sh` | PaddleOCR-VL-1.6 zero-shot eval |
 | `phase_glm_ocr.sh` | GLM-OCR zero-shot eval |
-| `phase_20_surya.sh` | Surya v2 zero-shot eval |
 | `phase_08_ablation.sh` | Ablation study (off unless `SKIP_ABLATION=0`) |
 | `phase_09_compile.sh` | `11_compile_results.py` → table Markdown/CSV |
 | `phase_12_diagnose.sh` | Data vs eval vs setup diagnostics (`12_diagnose_hypotheses.py`) |
@@ -23,7 +22,7 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 
 ### Default vs VLM baselines
 
-The baseline VLM/recognition models (VL-1.6, GLM-OCR, Surya v2) require GPU or specialized inference environments. Therefore, they are not enabled by default in `run_all.sh` to avoid CPU-only run failures.
+The baseline VLM/recognition models (VL-1.6, GLM-OCR) require GPU or specialized inference environments. Therefore, they are not enabled by default in `run_all.sh` to avoid CPU-only run failures.
 
 To run the complete benchmark:
 1. Standard pipeline (Consolidate + Pretrained Paddle + Ablations + Compile):
@@ -34,7 +33,6 @@ To run the complete benchmark:
    ```bash
    bash scripts/shell/phase_15_eval_vl16.sh
    bash scripts/shell/phase_glm_ocr.sh
-   bash scripts/shell/phase_20_surya.sh
    ```
 3. Re-run compile:
    ```bash
@@ -64,7 +62,6 @@ bash scripts/shell/phase_02_analyze.sh
 | `EVAL_USE_GPU` | `1` → `--use-gpu` on Paddle eval |
 | `SKIP_VL16_ZERO_SHOT`| `1` to skip VL-1.6 (default `0` when phase_15 run) |
 | `SKIP_GLM_ZERO_SHOT` | `1` to skip GLM-OCR (default `0` when phase_glm run) |
-| `SKIP_SURYA`         | `1` to skip Surya v2 (default `0` when phase_20 run) |
 | `SKIP_ABLATION` | `0` to run ablations (default `1`) |
 | `DRIVE_BACKUP_ROOT` | Parent directory for timestamped backup (phase 99) |
 | `BACKUP_EXPERIMENTS` | `1` (default) includes `experiments/` in backup |

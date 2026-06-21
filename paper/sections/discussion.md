@@ -26,7 +26,7 @@ The high error rates across all systems underscore the scale of the challenge fo
 
 **Annotation protocol.** Initial hypotheses came from PaddleOCR-VL-1.5; two annotators corrected every line, but exports lack per-annotator fields so κ cannot be recomputed. Bootstrap 95% CIs on n=326 test lines quantify sampling uncertainty instead (`bootstrap_metric_cis.csv`).
 
-**Model coverage.** Surya v2 (recognition-only, zero-shot) and TrOCR-large-printed (fine-tuned on all 2,945 lines) are now scripted (`20`–`22`); Nougat-style document OCR remains excluded. LoRA used one epoch on a T4 GPU without validation early stopping.
+**Model coverage.** TrOCR-large-printed (fine-tuned on all 2,945 lines) is scripted (`21`–`22`); Nougat-style document OCR remains excluded. LoRA used one epoch on a T4 GPU without validation early stopping.
 
 **Metrics.** Corpus DER uses combining marks U+0300/U+0301/U+0323 by default; four 𝒰 definitions are ablated in `der_universe_ablation.csv`. Zero-diacritic GT lines (n=7) summarised in `der_zero_diac_insertion.csv`. MLLM scores are prompt-sensitive.
 

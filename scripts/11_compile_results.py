@@ -46,11 +46,9 @@ from metrics_lifecycle import checkpoint_status_for_row  # noqa: E402
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-# Display names for the model labels used across all eval scripts
 MODEL_DISPLAY = {
     "baseline_english_pretrained": "PaddleOCR PP-OCRv4 (EN pretrained)",
     "paddleocr_vl16_zero_shot": "PaddleOCR-VL-1.6 (zero-shot)",
-    "surya_v2_zero_shot": "Surya v2 (zero-shot, recognition-only)",
     "glm_ocr_zero_shot": "GLM-OCR (zero-shot)",
     "paddleocr_vl16_finetuned": "PaddleOCR-VL-1.6 (fine-tuned language model)",
 }
@@ -58,13 +56,11 @@ MODEL_DISPLAY = {
 # Ordered model rows for Table 1
 TABLE1_ORDER = [
     "baseline_english_pretrained",
-    "surya_v2_zero_shot",
     "paddleocr_vl16_zero_shot",
     "glm_ocr_zero_shot",
     "paddleocr_vl16_finetuned",
 ]
 
-# When the canonical eval name is absent, borrow from an equivalent run.
 TABLE1_ALIASES: dict[str, str] = {}
 
 

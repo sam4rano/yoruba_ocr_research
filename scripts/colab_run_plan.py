@@ -3,16 +3,15 @@ Colab notebook run plan → pipeline ``SKIP_*`` environment variables.
 
 Edit ``RUN_PLAN`` in ``yor_ocr.ipynb`` Step 1, then call ``apply_run_plan()``.
 
-Active model stack (4 models zero-shot + 1 fine-tuned):
+Active model stack (3 models zero-shot + 1 fine-tuned):
   - Base PaddleOCR (PP-OCRv4 English pretrained) [zero-shot]
   - PaddleOCR-VL-1.6 [zero-shot]
   - GLM-OCR [zero-shot]
-  - SuryaOCR v2 [zero-shot]
   - PaddleOCR-VL-1.6 fine-tuned [fine-tuned LM]
 
 Sections
 --------
-A  Out-of-the-box zero-shot: PP-OCR EN pretrained, PaddleOCR-VL-1.6, GLM-OCR, Surya v2
+A  Out-of-the-box zero-shot: PP-OCR EN pretrained, PaddleOCR-VL-1.6, GLM-OCR
 B  PaddleOCR-VL-1.6 LM fine-tuning
 D  Analysis + compile Table 1
 Appendix  HF dataset upload
@@ -37,7 +36,6 @@ DATA_DEFAULTS: dict[str, str] = {
     "RUN_RESPLIT": "0",
     "RESET_PROCESSED": "0",
     "HF_TRUST_REMOTE_CODE": "1",
-    "SURYA_INFERENCE_BACKEND": "auto",
     "SKIP_HF_UPLOAD": "1",
     "SKIP_HF_DATASET_UPLOAD": "1",
 }
@@ -59,7 +57,6 @@ def apply_run_plan(plan: Mapping[str, bool] | None = None) -> dict[str, str]:
     env["SKIP_PPOCR_PRETRAINED"] = "0" if p["A_baselines_ootb"] else "1"
     env["SKIP_VL16_ZERO_SHOT"] = "0" if p["A_baselines_ootb"] else "1"
     env["SKIP_GLM_ZERO_SHOT"] = "0" if p["A_baselines_ootb"] else "1"
-    env["SKIP_SURYA"] = "0" if p["A_baselines_ootb"] else "1"
 
     # Section B — PaddleOCR-VL-1.6 fine-tuning
     env["SKIP_VL16_EXPORT"] = "0" if p["B_vl16_finetune"] else "1"
@@ -84,7 +81,7 @@ def print_run_summary(plan: Mapping[str, bool] | None = None) -> None:
         "",
         "═══ Run plan ═══",
         f"  A  OOTB zero-shot baselines   : {'ON' if p['A_baselines_ootb'] else 'OFF'}",
-        "       → PP-OCR EN pretrained, PaddleOCR-VL-1.6, GLM-OCR, Surya v2",
+        "       → PP-OCR EN pretrained, PaddleOCR-VL-1.6, GLM-OCR",
         f"  B  PaddleOCR-VL-1.6 fine-tune : {'ON' if p['B_vl16_finetune'] else 'OFF'}",
         "       → export SFT data + full LM fine-tuning (long GPU run)",
         f"  D  Analysis + compile         : {'ON' if p['D_analysis_compile'] else 'OFF'}",
@@ -92,7 +89,6 @@ def print_run_summary(plan: Mapping[str, bool] | None = None) -> None:
         f"  + HF dataset upload           : {'ON' if p.get('appendix_hf_dataset') else 'off'}",
         "",
         "Order after setup: A → B → D → Appendix",
-        "Surya v2 on Colab: auto backend skips vllm when Docker is missing.",
         "",
     ]
     print("\n".join(lines))

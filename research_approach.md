@@ -26,7 +26,7 @@
 
 ## Benchmark Architecture
 
-The benchmark evaluates OCR on Yorùbá line crops across a 4-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, SuryaOCR v2, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.
+The benchmark evaluates OCR on Yorùbá line crops across a 3-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.
 
 ## Table 1 — headline metrics (test split)
 
@@ -73,6 +73,5 @@ _Test lines n=326 (from consolidation_report; Table 1 uses eval-time n in metric
 | PaddleOCR EN pretrained | `05_evaluate.py` |
 | PaddleOCR-VL-1.6 zero-shot | `15_baseline_paddleocr_vl16.py` |
 | GLM-OCR zero-shot | `16_baseline_glm_ocr.py` |
-| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` |
 | PaddleOCR-VL-1.6 fine-tuned | `scripts/16_train_paddleocr_vl.py` (train), `scripts/15_baseline_paddleocr_vl16.py` (eval) |
 

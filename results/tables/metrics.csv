@@ -1,3 +1,6 @@
 model,split,n,cer,wer,der,der_n,der_insertion_rate,phantom,meta_path,timestamp
 baseline_english_pretrained,test,326,1.0043,1.0609,1.0,319,0.0,false,tables/meta/baseline_english_pretrained_test.json,2026-06-20T08:53:31.045550+00:00
 baseline_english_pretrained,test,326,1.0043,1.0609,1.0,319,0.0,false,tables/meta/baseline_english_pretrained_test.json,2026-06-20T09:24:23.153669+00:00
+paddleocr_vl16_zero_shot,test,1,1.0,1.0,1.0,1,,n/a,tables/meta/paddleocr_vl16_zero_shot_test.json,2026-06-21T14:48:53.471202+00:00
+paddleocr_vl16_zero_shot,test,1,1.0,1.0,1.0,1,,n/a,tables/meta/paddleocr_vl16_zero_shot_test.json,2026-06-21T15:04:29.849218+00:00
+paddleocr_vl16_zero_shot,test,1,0.9,1.0,1.0,1,,n/a,tables/meta/paddleocr_vl16_zero_shot_test.json,2026-06-21T15:27:31.784287+00:00

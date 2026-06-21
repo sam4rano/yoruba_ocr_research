@@ -16,7 +16,7 @@ Usage:
     python scripts/12_diagnose_hypotheses.py eval
     python scripts/12_diagnose_hypotheses.py identity --data-dir data/processed --split test
     python scripts/12_diagnose_hypotheses.py data --split test --sample 15 --seed 0
-    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/surya_v2_zero_shot_test.jsonl
+    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/paddleocr_vl16_zero_shot_test.jsonl
     python scripts/12_diagnose_hypotheses.py checkpoints --csv results/tables/metrics.csv
 """
 
@@ -366,7 +366,7 @@ def run_setup_hint() -> None:
         "model/prompt configuration — not label files or metric code."
     )
     log.info(
-        "setup: Quick sanity: run 15_baseline_paddleocr_vl16.py or 20_baseline_surya_v2.py "
+        "setup: Quick sanity: run 15_baseline_paddleocr_vl16.py "
         "with --max-samples 5 and inspect the resulting JSONL."
     )
 
@@ -410,7 +410,7 @@ def parse_args() -> argparse.Namespace:
     p_r.add_argument(
         "--jsonl",
         type=Path,
-        default=Path("results/tables/surya_v2_zero_shot_test.jsonl"),
+        default=Path("results/tables/paddleocr_vl16_zero_shot_test.jsonl"),
     )
     p_r.add_argument(
         "--tolerance",

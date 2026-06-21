@@ -35,11 +35,11 @@ log = logging.getLogger(__name__)
 EXPORT_PATTERN = re.compile(r"^yoruba_ocr_(\d+)")
 WORD_SPLIT = re.compile(r"[^\w\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f\u0323]+", re.UNICODE)
 
+
 DEFAULT_MODEL_JSONLS = [
     "baseline_english_pretrained_test.jsonl",
     "paddleocr_vl16_zero_shot_test.jsonl",
     "glm_ocr_zero_shot_test.jsonl",
-    "surya_v2_zero_shot_test.jsonl",
     "paddleocr_vl16_finetuned_test.jsonl",
 ]
 

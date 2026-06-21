@@ -13,7 +13,7 @@ The LoRA fine-tuned PaddleOCR-VL-1.5 achieves the lowest corpus DER across all s
 | **PaddleOCR-VL-1.5 (LoRA fine-tuned)** | 96.5 | **88.8** | **84.9** | 122.6 | **66.4** |
 | PaddleOCR PP-OCRv4 (CRNN fine-tuned — comparison) | **91.5** | 96.3 | 93.9 | **103.4** | 91.8 |
 
-TrOCR-large-printed (zero-shot), Surya v2 (zero-shot), and English-pretrained PP-OCRv4 rows are populated after Section A baseline runs; see `results/tables/metrics.csv`.
+TrOCR-large-printed (zero-shot) and English-pretrained PP-OCRv4 rows are populated after Section A baseline runs; see `results/tables/metrics.csv`.
 
 Error rates exceeding 100% are characteristic of systems that hallucinate text beyond the reference length—particularly the zero-shot vision-language models, which often generate verbose outputs including formatting artifacts, repeated text, or entirely fabricated content. PaddleOCR-VL-1.5 zero-shot is the most extreme case (CER 543.3%), suggesting the model's default behaviour without adaptation is to generate extended document-level predictions from single-line inputs.
 

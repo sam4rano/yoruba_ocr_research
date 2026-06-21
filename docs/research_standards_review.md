@@ -4,13 +4,12 @@ This document contrasts the repository’s OCR research pipeline with typical **
 
 ---
 
-## 1. Active 4-Model OCR Stack
+## 1. Active 3-Model OCR Stack
 
-The benchmark contains exactly 4 models:
+The benchmark contains exactly 3 models:
 1. **Base PaddleOCR** (PP-OCRv4 English pretrained + CRNN fine-tune ablations)
 2. **PaddleOCR-VL-1.6** (zero-shot multimodal vision-language model)
 3. **GLM-OCR** (zero-shot multimodal vision-language model)
-4. **Surya v2** (zero-shot recognition model)
 
 All fine-tuning on VLMs (LoRA, PEFT) has been completely removed to avoid instability and focus on robust, out-of-the-box multimodal zero-shot capabilities alongside classical CRNN supervised fine-tuning.
 
@@ -26,7 +25,7 @@ All fine-tuning on VLMs (LoRA, PEFT) has been completely removed to avoid instab
 
 ### Gaps vs "production" VLM benchmarks
 
-- **Throughput:** Zero-shot VLM evaluation scripts run single-image loops. While simple and reliable, it does not leverage large batch inference or vLLM engines (except for Surya v2 where supported).
+- **Throughput:** Zero-shot VLM evaluation scripts run single-image loops. While simple and reliable, it does not leverage large batch inference or vLLM engines.
 - **Quantization:** Standard model parameters are loaded in float16/bfloat16. High-resource environments may run in 8-bit/4-bit quantization, which is supported but optional here.
 
 ---

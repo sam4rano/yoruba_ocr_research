@@ -23,7 +23,7 @@ require_python
 check_deps
 
 # Default: core pipeline (baselines and analysis).
-# For the VLM baselines, run phases 15 (VL-1.6 zero-shot), 16 (GLM-OCR), 20 (Surya v2), and 17 (VL-1.6 fine-tuned).
+# For the VLM baselines, run phases 15 (VL-1.6 zero-shot), 16 (GLM-OCR), and 17 (VL-1.6 fine-tuned).
 DEFAULT_PHASES="01 02 03 05 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
 
@@ -39,12 +39,11 @@ run_phase() {
     15) f="${SCRIPT_DIR}/phase_15_eval_vl16.sh" ;;
     16) f="${SCRIPT_DIR}/phase_glm_ocr.sh" ;;
     17) f="${SCRIPT_DIR}/phase_17_eval_vl16_finetuned.sh" ;;
-    20) f="${SCRIPT_DIR}/phase_20_surya.sh" ;;
     09) f="${SCRIPT_DIR}/phase_09_compile.sh" ;;
     12) f="${SCRIPT_DIR}/phase_12_diagnose.sh" ;;
     13) f="${SCRIPT_DIR}/phase_13_verify_eval.sh" ;;
     99) f="${SCRIPT_DIR}/phase_99_backup.sh" ;;
-    *) die "unknown phase id: $id (use 01-03, 05, 09, 12, 13, 14, 15, 16, 17, 20, or 99)" ;;
+    *) die "unknown phase id: $id (use 01-03, 05, 09, 12, 13, 14, 15, 16, 17, or 99)" ;;
   esac
   [[ -f "$f" ]] || die "missing $f"
   log "========== Phase $id: $(basename "$f") =========="

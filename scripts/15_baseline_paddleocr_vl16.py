@@ -117,12 +117,6 @@ def transcribe_one(
 
     image = Image.open(img_path).convert("RGB")
 
-    # Cap resolution to prevent OOM on T4 (matches eval spec).
-    try:
-        resample_filter = Image.Resampling.LANCZOS
-    except AttributeError:
-        resample_filter = Image.LANCZOS
-    image.thumbnail((800, 800), resample_filter)
 
     messages = [
         {
@@ -220,10 +214,65 @@ def load_model_and_processor(
         kwargs["torch_dtype"] = (
             torch.bfloat16 if torch.cuda.is_available() else torch.float32
         )
-        kwargs["device_map"] = "auto"
+        if torch.cuda.is_available():
+            kwargs["device_map"] = "auto"
 
     try:
+        import transformers.modeling_rope_utils
+        if "default" not in transformers.modeling_rope_utils.ROPE_INIT_FUNCTIONS:
+            def compute_default_rope_parameters(config, device=None, seq_len=None, layer_type=None):
+                import torch
+                config.standardize_rope_params()
+                rope_parameters_dict = config.rope_parameters[layer_type] if layer_type is not None else config.rope_parameters
+                base = rope_parameters_dict.get("rope_theta", 10000.0)
+                partial_rotary_factor = rope_parameters_dict.get("partial_rotary_factor", 1.0)
+                head_dim = getattr(config, "head_dim", None) or config.hidden_size // config.num_attention_heads
+                dim = int(head_dim * partial_rotary_factor)
+                inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2, dtype=torch.int64).to(device=device, dtype=torch.float) / dim))
+                return inv_freq, 1.0
+            transformers.modeling_rope_utils.ROPE_INIT_FUNCTIONS["default"] = compute_default_rope_parameters
+
+        # Monkeypatch PreTrainedModel._init_weights to attach compute_default_rope_parameters dynamically
+        from transformers import PreTrainedModel
+        orig_init_weights = PreTrainedModel._init_weights
+        def patched_init_weights(self, module):
+            if "RotaryEmbedding" in module.__class__.__name__ and not hasattr(module, "compute_default_rope_parameters"):
+                default_fn = transformers.modeling_rope_utils.ROPE_INIT_FUNCTIONS.get("default")
+                if default_fn:
+                    module.compute_default_rope_parameters = default_fn
+            return orig_init_weights(self, module)
+        PreTrainedModel._init_weights = patched_init_weights
+
+        import transformers.masking_utils
+        if not hasattr(transformers.masking_utils, "_is_patched_causal_mask"):
+            orig_create_causal_mask = transformers.masking_utils.create_causal_mask
+            def patched_create_causal_mask(*args, **kwargs):
+                kwargs.pop("cache_position", None)
+                return orig_create_causal_mask(*args, **kwargs)
+            transformers.masking_utils.create_causal_mask = patched_create_causal_mask
+            transformers.masking_utils._is_patched_causal_mask = True
+
         model = AutoModel.from_pretrained(model_id, **kwargs)
+
+        # Monkeypatch prepare_inputs_for_generation to handle cache_position=None (transformers 5 compatibility)
+        if not hasattr(model.__class__, "_is_patched_prep"):
+            orig_prep = model.__class__.prepare_inputs_for_generation
+            def patched_prep(self, *args, **kwargs):
+                cache_position = kwargs.get("cache_position")
+                if cache_position is None and len(args) >= 5:
+                    cache_position = args[4]
+                if cache_position is None:
+                    device = next(self.parameters()).device
+                    cache_position = torch.tensor([0], device=device)
+                    kwargs["cache_position"] = cache_position
+                    if len(args) >= 5:
+                        args = list(args)
+                        args[4] = cache_position
+                        args = tuple(args)
+                return orig_prep(self, *args, **kwargs)
+            model.__class__.prepare_inputs_for_generation = patched_prep
+            model.__class__._is_patched_prep = True
+
         processor = AutoProcessor.from_pretrained(
             model_id, trust_remote_code=hf_trust_remote_code_processor()
         )

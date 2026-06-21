@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-06-20T10:05:37.592344+00:00",
+  "timestamp_utc": "2026-06-21T15:01:53.529563+00:00",
   "python": "/Users/mac/Desktop/yoruba_ocr_research/.venv/bin/python",
   "steps": [
     {
@@ -26,16 +26,6 @@
       }
     },
     {
-      "name": "surya_backend_resolution",
-      "status": "ok",
-      "detail": {
-        "docker": false,
-        "llamacpp": false,
-        "resolved_auto": null,
-        "env_backend": ""
-      }
-    },
-    {
       "name": "hf_config_paddleocr_vl16",
       "status": "ok",
       "detail": {
@@ -45,15 +35,18 @@
     },
     {
       "name": "hf_config_glm_ocr",
-      "status": "skip",
-      "reason": "Model architecture not recognized by current transformers version: The checkpoint you are trying to load has model type `glm_ocr` but Transformers does not recognize this architecture. This could be because of an issue with the checkpoint, or because your version of Transformers is out of date.\n\nYou can update Transformers with the command `pip install --upgrade transformers`. If this does not work, and the checkpoint is very new, then there may not be a release version that supports this model yet. In this case, you can get the most up-to-date code by installing Transformers from source with the command `pip install git+https://github.com/huggingface/transformers.git`. Upgrade transformers or install from source."
+      "status": "ok",
+      "detail": {
+        "model_id": "zai-org/GLM-OCR",
+        "config_class": "GlmOcrConfig"
+      }
     },
     {
       "name": "transformers_version",
       "status": "ok",
       "detail": {
-        "version": "4.57.6",
-        "vl16_live_ready": false
+        "version": "5.12.1",
+        "vl16_live_ready": true
       }
     }
   ],

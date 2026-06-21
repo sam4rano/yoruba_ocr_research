@@ -82,7 +82,7 @@ def toggle_lines() -> list[str]:
     """Collect pipeline toggle env vars set for this run."""
     keys = sorted(
         k for k in os.environ
-        if k.startswith(("SKIP_", "RUN_", "RESET_", "VL16_", "GLM_", "SURYA_", "USE_EXISTING"))
+        if k.startswith(("SKIP_", "RUN_", "RESET_", "VL16_", "GLM_", "USE_EXISTING"))
     )
     lines = []
     for key in keys:
@@ -167,7 +167,7 @@ def main() -> None:
         "",
         "## Benchmark Architecture",
         "",
-        "The benchmark evaluates OCR on Yorùbá line crops across a 4-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, SuryaOCR v2, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.",
+        "The benchmark evaluates OCR on Yorùbá line crops across a 3-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.",
         "",
         "## Table 1 — headline metrics (test split)",
         "",
@@ -192,7 +192,6 @@ def main() -> None:
         "| PaddleOCR EN pretrained | `05_evaluate.py` |",
         "| PaddleOCR-VL-1.6 zero-shot | `15_baseline_paddleocr_vl16.py` |",
         "| GLM-OCR zero-shot | `16_baseline_glm_ocr.py` |",
-        "| Surya v2 (zero-shot) | `20_baseline_surya_v2.py` |",
         "| PaddleOCR-VL-1.6 fine-tuned | `scripts/16_train_paddleocr_vl.py` (train), `scripts/15_baseline_paddleocr_vl16.py` (eval) |",
         "",
     ]

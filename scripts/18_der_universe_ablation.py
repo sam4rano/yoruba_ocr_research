@@ -41,11 +41,12 @@ log = logging.getLogger(__name__)
 U_STANDARD = frozenset({"\u0300", "\u0301", "\u0323"})
 U_TONE_ONLY = frozenset({"\u0300", "\u0301"})
 
+
+
 DEFAULT_MODEL_JSONLS = [
     "baseline_english_pretrained_test.jsonl",
     "paddleocr_vl16_zero_shot_test.jsonl",
     "glm_ocr_zero_shot_test.jsonl",
-    "surya_v2_zero_shot_test.jsonl",
     "paddleocr_vl16_finetuned_test.jsonl",
 ]
 

@@ -1,5 +1,5 @@
 {
-  "timestamp_utc": "2026-06-20T10:05:37.307344+00:00",
+  "timestamp_utc": "2026-06-21T14:13:21.391181+00:00",
   "steps": [
     {
       "name": "data/processed layout",
@@ -28,41 +28,9 @@
     {
       "name": "yor_ocr.ipynb syntax",
       "status": "ok"
-    },
-    {
-      "name": "e2e network checks",
-      "status": "ok"
-    },
-    {
-      "name": "02b data quality audit",
-      "status": "ok"
-    },
-    {
-      "name": "analysis 17-19",
-      "status": "ok"
-    },
-    {
-      "name": "phase_09 compile + alignment",
-      "status": "ok"
-    },
-    {
-      "name": "checkpoint audit",
-      "status": "ok"
-    },
-    {
-      "name": "research_approach.md",
-      "status": "ok"
-    },
-    {
-      "name": "python deps (datasets)",
-      "status": "ok"
-    },
-    {
-      "name": "HF dataset card dry-run",
-      "status": "ok"
     }
   ],
   "ok": true,
-  "mode": "full",
+  "mode": "quick",
   "python": "/Users/mac/Desktop/yoruba_ocr_research/.venv/bin/python"
 }

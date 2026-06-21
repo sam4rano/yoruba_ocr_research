@@ -1,2 +1,3 @@
 model_label,display_name,cer_pct,median_cer_pct,micro_cer_pct,wer_pct,der_pct,n,der_n
 baseline_english_pretrained,PaddleOCR PP-OCRv4 (EN pretrained),100.4,100.0,95.9,106.1,100.0,326,319
+paddleocr_vl16_zero_shot,PaddleOCR-VL-1.6 (zero-shot),100.0,100.0,100.0,100.0,100.0,1,1

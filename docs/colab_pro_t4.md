@@ -120,7 +120,7 @@ If `processed` is already final, skip `01`.
 
 ## 6. End-to-end script order (GPU)
 
-**Framing:** The active model stack contains 4 main models: Base PaddleOCR (pretrained/fine-tuned PP-OCRv4), PaddleOCR-VL-1.6, GLM-OCR, and Surya v2. Step 3 below is **PP-OCRv4 CRNN** fine-tuning — classical comparison and target of ablations (`10_ablation_study.py`).
+**Framing:** The active model stack contains 3 main models: Base PaddleOCR (pretrained/fine-tuned PP-OCRv4), PaddleOCR-VL-1.6, and GLM-OCR. Step 3 below is **PP-OCRv4 CRNN** fine-tuning — classical comparison and target of ablations (`10_ablation_study.py`).
 
 Run from `PROJECT_ROOT` with `python` (or `python3` if that is what Colab uses — be consistent).
 
@@ -148,9 +148,8 @@ Do **not** pass `--cpu` on Colab when you want GPU training. Use `--epochs`, `--
 | 5 | `scripts/06_baseline_pretrained.py` | English pretrained baseline (delegates to `05`) |
 | 6 | `scripts/15_baseline_paddleocr_vl16.py` | PaddleOCR-VL-1.6 zero-shot baseline |
 | 7 | `scripts/16_baseline_glm_ocr.py` | GLM-OCR zero-shot baseline |
-| 8 | `scripts/20_baseline_surya_v2.py` | Surya v2 zero-shot baseline |
-| 9 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
-| 10 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
+| 8 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
+| 9 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
 
 **Evaluate fine-tuned model** (point `--model-dir` at the directory containing `best_accuracy.pdparams` or the checkpoint prefix your run produced, often under `experiments/finetuned/`):
 
@@ -186,16 +185,6 @@ python scripts/16_baseline_glm_ocr.py \
   --per-sample-log results/tables/glm_ocr_zero_shot_test.jsonl
 ```
 
-**Evaluate Surya v2:**
-
-```bash
-python scripts/20_baseline_surya_v2.py \
-  --data-dir data/processed \
-  --split test \
-  --model-name surya_v2_zero_shot \
-  --results-csv results/tables/metrics.csv \
-  --per-sample-log results/tables/surya_v2_zero_shot_test.jsonl
-```
 
 **Compile tables:**
 

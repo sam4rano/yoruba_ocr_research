@@ -118,12 +118,6 @@ def transcribe_one(
 
     image = Image.open(img_path).convert("RGB")
 
-    # Cap resolution to prevent OOM on T4 (matches eval spec).
-    try:
-        resample_filter = Image.Resampling.LANCZOS
-    except AttributeError:
-        resample_filter = Image.LANCZOS
-    image.thumbnail((800, 800), resample_filter)
 
     messages = [
         {

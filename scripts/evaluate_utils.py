@@ -2,7 +2,7 @@
 Shared evaluation utilities: metric computation, data loading, result persistence.
 
 Imported by evaluation and baseline scripts (e.g. 05_evaluate.py, 06_baseline_pretrained.py,
-15_baseline_paddleocr_vl16.py, 20_baseline_surya_v2.py, 12_diagnose_hypotheses.py,
+15_baseline_paddleocr_vl16.py, 12_diagnose_hypotheses.py,
 13_verify_eval_alignment.py).
 Not intended to be run directly.
 """
@@ -97,7 +97,7 @@ def _detect_existing_fieldnames(csv_path: Path) -> list[str] | None:
 
 
 _NON_PADDLE_MODEL_KINDS = frozenset(
-    {"paddleocr_vl", "surya_v2", "glm_ocr"}
+    {"paddleocr_vl", "glm_ocr"}
 )
 
 
@@ -110,7 +110,7 @@ def _phantom_flag_from_provenance(provenance: dict | None) -> str:
       mismatched head weights; the row measures a random head.
     * ``"false"`` — integrity check passed.
     * ``"n/a"``   — ``model_kind`` is a non-Paddle baseline (PaddleOCR-VL,
-      GLM-OCR, Surya v2) for which the "phantom head" concept does not
+      GLM-OCR) for which the "phantom head" concept does not
       apply.
     * ``"unknown"`` — no integrity data and no recognised ``model_kind``.
     """
@@ -173,11 +173,17 @@ def compute_wer(pred: str, gt: str) -> float:
     """
     Word Error Rate.
 
-    edit_distance over NFC-normalised word sequences,
-    divided by ground-truth word count.
+    edit_distance over NFC-normalised word sequences (with punctuation removed
+    to avoid boundary formatting inflation), divided by ground-truth word count.
     """
-    pred_words = nfc(pred).split()
-    gt_words = nfc(gt).split()
+    # Replace punctuation with spaces so they split off cleanly, keeping apostrophes
+    # for Yoruba contractions.
+    punct_pattern = re.compile(r"[.,;:!?\"()\[\]{}_-]")
+    p_clean = punct_pattern.sub(" ", nfc(pred))
+    g_clean = punct_pattern.sub(" ", nfc(gt))
+    
+    pred_words = p_clean.split()
+    gt_words = g_clean.split()
     if not gt_words:
         return 0.0 if not pred_words else 1.0
     return editdistance.eval(pred_words, gt_words) / len(gt_words)
@@ -416,7 +422,7 @@ def save_results(
     * ``phantom`` — checkpoint-integrity flag:
       ``"true"``  = head weights not restored; the row measures a random head;
       ``"false"`` = clean;
-      ``"n/a"``   = non-Paddle baseline (Qwen, PaddleOCR-VL, Surya);
+      ``"n/a"``   = non-Paddle baseline (Qwen, PaddleOCR-VL);
       ``"unknown"`` = provenance did not include an integrity report.
 
     Returns the path to the sibling meta file (or ``None`` when no

@@ -44,13 +44,11 @@ The benchmark spans out-of-the-box recognisers (Section A), fine-tuned VL and en
 
 1. **PaddleOCR PP-OCRv4 (English pretrained)** — English recognition weights, Yorùbá character dictionary at decode time
 2. **TrOCR-large-printed (zero-shot)** — Microsoft TrOCR on printed Latin text, no Yorùbá adaptation
-3. **Surya v2 (zero-shot, recognition-only)** — VikParuchuri/surya recognition stack without detection
-4. **PaddleOCR-VL-1.5 (zero-shot)** — Vision-language model, fixed prompt, no adaptation
-5. **Qwen 2.5 VL (zero-shot)** — Multimodal LLM, fixed prompt, temperature 0
-6. **PaddleOCR-VL-1.5 (LoRA fine-tuned)** — LoRA-adapted on training split, primary supervised result
-7. **TrOCR-large-printed (fine-tuned)** — encoder–decoder fine-tuned on line crops (Section B)
-8. **PaddleOCR PP-OCRv4 (CRNN fine-tuned)** — full training split, 40 epochs (100% data-size ablation checkpoint)
-9. **Surya Foundation (fine-tuned)** — optional extra; scripts 26–28
+3. **PaddleOCR-VL-1.5 (zero-shot)** — Vision-language model, fixed prompt, no adaptation
+4. **Qwen 2.5 VL (zero-shot)** — Multimodal LLM, fixed prompt, temperature 0
+5. **PaddleOCR-VL-1.5 (LoRA fine-tuned)** — LoRA-adapted on training split, primary supervised result
+6. **TrOCR-large-printed (fine-tuned)** — encoder–decoder fine-tuned on line crops (Section B)
+7. **PaddleOCR PP-OCRv4 (CRNN fine-tuned)** — full training split, 40 epochs (100% data-size ablation checkpoint)
 
 ## PP-OCRv4 Data Size Ablation
 

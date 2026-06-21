@@ -1,9 +1,10 @@
 """
 End-to-end network and hub connectivity checks for the Yorùbá OCR pipeline.
 
-Validates reachability and config fetch for Hugging Face models, Paddle
-pretrained weights, and Surya backend resolution — without running full GPU
-eval unless ``--live`` is set.
+
+Validates reachability and config fetch for Hugging Face models and Paddle
+pretrained weights — without running full GPU eval unless ``--live`` is set.
+
 
 Usage:
     python scripts/30_e2e_network_check.py
@@ -112,21 +113,6 @@ def check_vl_trust_remote_defaults() -> dict:
     return {"model_default": model_ok, "processor_default": proc_ok}
 
 
-def check_surya_backend_resolution() -> dict:
-    """Report Surya backend resolution under current host."""
-    sys.path.insert(0, str(ROOT / "scripts"))
-    from surya_shared import (  # noqa: E402
-        docker_available,
-        llamacpp_available,
-        resolve_surya_inference_backend,
-    )
-
-    return {
-        "docker": docker_available(),
-        "llamacpp": llamacpp_available(),
-        "resolved_auto": resolve_surya_inference_backend("auto"),
-        "env_backend": os.environ.get("SURYA_INFERENCE_BACKEND", ""),
-    }
 
 
 def _require_transformers_min(min_major: int = 5) -> None:
@@ -173,32 +159,6 @@ def check_live_vl16_load(max_samples: int) -> dict:
     return {"max_samples": max_samples, "metrics_csv": "results/tables/metrics_e2e_scratch.csv"}
 
 
-def check_live_surya(max_samples: int) -> dict:
-    """Run capped Surya v2 eval."""
-    sys.path.insert(0, str(ROOT / "scripts"))
-    from surya_shared import resolve_surya_inference_backend  # noqa: E402
-
-    backend = resolve_surya_inference_backend("auto")
-    if backend is None:
-        raise SkipCheck(
-            "No Surya backend (need Docker+vllm on GPU, or llamacpp on CPU/MPS)"
-        )
-    cmd = [
-        PY,
-        "scripts/20_baseline_surya_v2.py",
-        "--split",
-        "test",
-        "--max-samples",
-        str(max_samples),
-        "--results-csv",
-        "results/tables/metrics_e2e_scratch.csv",
-        "--per-sample-log",
-        "results/tables/surya_v2_e2e_scratch.jsonl",
-        "--inference-backend",
-        "auto",
-    ]
-    subprocess.check_call(cmd, cwd=ROOT, env=SHELL_ENV)
-    return {"max_samples": max_samples}
 
 
 def check_live_glm_ocr(max_samples: int) -> dict:
@@ -246,11 +206,6 @@ def main() -> None:
         default=1,
         help="Sample cap for --live evals.",
     )
-    parser.add_argument(
-        "--skip-surya-live",
-        action="store_true",
-        help="Skip live Surya even with --live.",
-    )
     args = parser.parse_args()
 
     results: dict = {
@@ -264,7 +219,6 @@ def main() -> None:
         ("huggingface_hub_api", check_hf_hub_api),
         ("paddle_pretrained_url", check_paddle_pretrained_url),
         ("vl_trust_remote_code_defaults", check_vl_trust_remote_defaults),
-        ("surya_backend_resolution", check_surya_backend_resolution),
     ]
     for label, model_id, trust in HF_MODELS:
         checks.append(
@@ -296,10 +250,6 @@ def main() -> None:
             ("live_vl16", lambda: check_live_vl16_load(args.max_samples)),
             ("live_glm_ocr", lambda: check_live_glm_ocr(args.max_samples)),
         ]
-        if not args.skip_surya_live:
-            live_checks.append(
-                ("live_surya", lambda: check_live_surya(args.max_samples))
-            )
         for name, fn in live_checks:
             row = step_result(name, fn)
             results["steps"].append(row)

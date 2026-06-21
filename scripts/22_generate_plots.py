@@ -26,7 +26,6 @@ log = logging.getLogger(__name__)
 # Model display name mapping
 MODEL_DISPLAY = {
     "baseline_english_pretrained": "PaddleOCR PP-OCRv4 (EN)",
-    "surya_v2_zero_shot": "Surya v2 (Zero-Shot)",
     "paddleocr_vl16_zero_shot": "PaddleOCR-VL-1.6 (Zero-Shot)",
     "glm_ocr_zero_shot": "GLM-OCR (Zero-Shot)",
     "paddleocr_vl16_finetuned": "PaddleOCR-VL-1.6 (Fine-Tuned)",
@@ -34,7 +33,6 @@ MODEL_DISPLAY = {
 
 MODEL_ORDER = [
     "baseline_english_pretrained",
-    "surya_v2_zero_shot",
     "paddleocr_vl16_zero_shot",
     "glm_ocr_zero_shot",
     "paddleocr_vl16_finetuned",
@@ -43,7 +41,6 @@ MODEL_ORDER = [
 # Harmonious HSL-derived color palette
 COLORS = {
     "baseline_english_pretrained": "#7f8c8d",  # Slate Gray
-    "surya_v2_zero_shot": "#e74c3c",          # Coral Red
     "paddleocr_vl16_zero_shot": "#9b59b6",     # Muted Purple
     "glm_ocr_zero_shot": "#34495e",            # Indigo
     "paddleocr_vl16_finetuned": "#16a085",     # Vibrant Teal
@@ -110,7 +107,6 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
         log.info("Generating illustrative placeholder data for Fig 1.")
         plot_df = pd.DataFrame([
             {"Model": MODEL_DISPLAY["baseline_english_pretrained"], "CER": 62.4, "WER": 84.1, "DER": 95.3},
-            {"Model": MODEL_DISPLAY["surya_v2_zero_shot"], "CER": 35.8, "WER": 58.6, "DER": 48.2},
             {"Model": MODEL_DISPLAY["paddleocr_vl16_zero_shot"], "CER": 24.1, "WER": 42.5, "DER": 35.1},
             {"Model": MODEL_DISPLAY["glm_ocr_zero_shot"], "CER": 19.5, "WER": 36.2, "DER": 28.6},
             {"Model": MODEL_DISPLAY["paddleocr_vl16_finetuned"], "CER": 9.2, "WER": 18.4, "DER": 11.3},
@@ -155,10 +151,8 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     fig, axes = plt.subplots(1, 3, figsize=(12, 5), sharey=False)
     metrics = ["CER", "WER", "DER"]
     
-    # Sample illustrative data if missing
     illustrative_data = {
         "baseline_english_pretrained": {"CER": (62.4, 58.1, 66.8), "WER": (84.1, 79.5, 88.6), "DER": (95.3, 91.2, 98.4)},
-        "surya_v2_zero_shot": {"CER": (35.8, 31.4, 40.2), "WER": (58.6, 53.2, 63.8), "DER": (48.2, 43.1, 53.4)},
         "paddleocr_vl16_zero_shot": {"CER": (24.1, 20.2, 28.1), "WER": (42.5, 37.8, 47.1), "DER": (35.1, 30.2, 39.8)},
         "glm_ocr_zero_shot": {"CER": (19.5, 16.1, 23.0), "WER": (36.2, 31.5, 40.8), "DER": (28.6, 24.1, 33.0)},
         "paddleocr_vl16_finetuned": {"CER": (9.2, 6.8, 11.6), "WER": (18.4, 14.2, 22.5), "DER": (11.3, 8.5, 14.1)},
@@ -223,10 +217,8 @@ def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     quartiles = ["q1", "q2", "q3", "q4"]
     q_labels = ["Q1 (Low)", "Q2 (Med-Low)", "Q3 (Med-High)", "Q4 (High)"]
     
-    # Sample illustrative data if missing
     illustrative_data = {
         "baseline_english_pretrained": [98.1, 95.4, 94.2, 95.8],
-        "surya_v2_zero_shot": [40.2, 45.6, 50.1, 55.4],
         "paddleocr_vl16_zero_shot": [30.1, 33.4, 36.2, 40.8],
         "glm_ocr_zero_shot": [22.4, 26.1, 29.8, 35.2],
         "paddleocr_vl16_finetuned": [7.8, 9.5, 12.1, 15.6],
@@ -276,10 +268,8 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
         "total_tone_drop": "Total Tone Drop"
     }
     
-    # Illustrative categories distribution if empty
     illustrative_data = {
         "baseline_english_pretrained": [1.2, 5.4, 2.1, 0.5, 90.8],
-        "surya_v2_zero_shot": [48.6, 20.4, 15.2, 10.3, 5.5],
         "paddleocr_vl16_zero_shot": [62.4, 15.8, 12.1, 7.3, 2.4],
         "glm_ocr_zero_shot": [69.5, 12.4, 10.2, 6.1, 1.8],
         "paddleocr_vl16_finetuned": [88.2, 5.3, 4.1, 2.1, 0.3]
