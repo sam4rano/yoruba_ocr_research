@@ -216,20 +216,29 @@ def main() -> None:
 
     try:
         import transformers
+        import accelerate
         from transformers import AutoModel, AutoProcessor
         tf_major = int(transformers.__version__.split(".")[0])
         if tf_major < 5:
             raise ImportError(
                 f"transformers>=5.0.0 is required for PaddleOCR-VL (found {transformers.__version__})."
             )
+
+        # transformers>=5 requires accelerate>=1.1.0 for device_map="auto" loading.
+        acc_major = int(accelerate.__version__.split(".")[0])
+        acc_minor = int(accelerate.__version__.split(".")[1])
+        if acc_major < 1 or (acc_major == 1 and acc_minor < 1):
+            raise ImportError(
+                f"accelerate>=1.1.0 is required for device mapping in transformers 5 (found {accelerate.__version__})."
+            )
     except ImportError as exc:
         log.error("=" * 80)
-        log.error("CRITICAL: transformers>=5.0.0 is required to load and fine-tune PaddleOCR-VL.")
-        log.error("Please run: pip install -U 'transformers>=5' 'huggingface_hub>=1.5.0'")
+        log.error("CRITICAL: transformers>=5.0.0 and accelerate>=1.1.0 are required to load and fine-tune PaddleOCR-VL.")
+        log.error("Please run: pip install -U 'transformers>=5' 'accelerate>=1.1.0' 'huggingface_hub>=1.5.0'")
         log.error("And RESTART the Colab runtime session (Runtime > Restart session).")
         log.error("=" * 80)
         raise ImportError(
-            "Install: pip install 'transformers>=5' accelerate torch"
+            "Install: pip install 'transformers>=5' 'accelerate>=1.1.0' torch"
         ) from exc
 
     samples = load_train_samples(args.export_dir, args.max_samples)
@@ -255,12 +264,12 @@ def main() -> None:
         log.error("=" * 80)
         log.error("CRITICAL ERROR: Failed to load PaddleOCR-VL model for SFT training.")
         log.error("This is usually because the active python environment has an outdated transformers")
-        log.error("version loaded in memory. To fix this:")
+        log.error("or accelerate version loaded in memory. To fix this:")
         log.error("1. Run the dependencies installation cell.")
         log.error("2. Restart the Colab session (Runtime > Restart session).")
         log.error("=" * 80)
         raise RuntimeError(
-            "PaddleOCR-VL architecture loading failed. Please install transformers>=5.0.0 and restart your kernel."
+            "PaddleOCR-VL architecture loading failed. Please install transformers>=5.0.0 and accelerate>=1.1.0 and restart your kernel."
         ) from exc
 
     # Freeze the vision tower to save VRAM and avoid overfitting to scan artefacts.
