@@ -125,7 +125,23 @@ def transcribe_one(
         resample_filter = Image.LANCZOS
     image.thumbnail((800, 800), resample_filter)
 
-    inputs = processor(text=prompt, images=image, return_tensors="pt")
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "image": image},
+                {"type": "text", "text": prompt},
+            ],
+        }
+    ]
+
+    inputs = processor.apply_chat_template(
+        messages,
+        tokenize=True,
+        add_generation_prompt=True,
+        return_dict=True,
+        return_tensors="pt",
+    )
     if hasattr(inputs, "to"):
         inputs = inputs.to(device)
     else:
