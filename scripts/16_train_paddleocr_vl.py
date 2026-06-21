@@ -215,8 +215,19 @@ def main() -> None:
         torch.cuda.manual_seed_all(args.seed)
 
     try:
+        import transformers
         from transformers import AutoModel, AutoProcessor
+        tf_major = int(transformers.__version__.split(".")[0])
+        if tf_major < 5:
+            raise ImportError(
+                f"transformers>=5.0.0 is required for PaddleOCR-VL (found {transformers.__version__})."
+            )
     except ImportError as exc:
+        log.error("=" * 80)
+        log.error("CRITICAL: transformers>=5.0.0 is required to load and fine-tune PaddleOCR-VL.")
+        log.error("Please run: pip install -U 'transformers>=5' 'huggingface_hub>=1.5.0'")
+        log.error("And RESTART the Colab runtime session (Runtime > Restart session).")
+        log.error("=" * 80)
         raise ImportError(
             "Install: pip install 'transformers>=5' accelerate torch"
         ) from exc
@@ -230,15 +241,27 @@ def main() -> None:
         hf_trust_remote_code_processor,
     )
 
-    processor = AutoProcessor.from_pretrained(
-        args.model_id, trust_remote_code=hf_trust_remote_code_processor()
-    )
-    model = AutoModel.from_pretrained(
-        args.model_id,
-        dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
-        device_map="auto",
-        trust_remote_code=hf_trust_remote_code_model(),
-    )
+    try:
+        processor = AutoProcessor.from_pretrained(
+            args.model_id, trust_remote_code=hf_trust_remote_code_processor()
+        )
+        model = AutoModel.from_pretrained(
+            args.model_id,
+            dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+            device_map="auto",
+            trust_remote_code=hf_trust_remote_code_model(),
+        )
+    except (KeyError, ValueError) as exc:
+        log.error("=" * 80)
+        log.error("CRITICAL ERROR: Failed to load PaddleOCR-VL model for SFT training.")
+        log.error("This is usually because the active python environment has an outdated transformers")
+        log.error("version loaded in memory. To fix this:")
+        log.error("1. Run the dependencies installation cell.")
+        log.error("2. Restart the Colab session (Runtime > Restart session).")
+        log.error("=" * 80)
+        raise RuntimeError(
+            "PaddleOCR-VL architecture loading failed. Please install transformers>=5.0.0 and restart your kernel."
+        ) from exc
 
     # Freeze the vision tower to save VRAM and avoid overfitting to scan artefacts.
     for name, param in model.named_parameters():

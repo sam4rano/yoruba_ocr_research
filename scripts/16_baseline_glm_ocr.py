@@ -164,10 +164,23 @@ def load_model_and_processor(
     import torch
 
     try:
+        import transformers
         from transformers import AutoModel, AutoProcessor
+        
+        # GLM-OCR requires transformers>=5.0.0. Ensure the version is correct.
+        tf_major = int(transformers.__version__.split(".")[0])
+        if tf_major < 5:
+            raise ImportError(
+                f"transformers>=5.0.0 is required for GLM-OCR (found {transformers.__version__})."
+            )
     except ImportError as exc:
+        log.error("=" * 80)
+        log.error("CRITICAL: transformers>=5.0.0 is required to recognize and load GLM-OCR.")
+        log.error("Please run: pip install -U 'transformers>=5' 'huggingface_hub>=1.5.0'")
+        log.error("And RESTART the Colab runtime session (Runtime > Restart session).")
+        log.error("=" * 80)
         raise ImportError(
-            "Install transformers>=4.46.0: pip install 'transformers>=4.46.0'"
+            f"Install transformers>=5.0.0: pip install -U 'transformers>=5'"
         ) from exc
 
     sys.path.insert(0, str(Path(__file__).parent))
@@ -190,10 +203,24 @@ def load_model_and_processor(
         )
         kwargs["device_map"] = "auto"
 
-    model = AutoModel.from_pretrained(model_id, **kwargs)
-    processor = AutoProcessor.from_pretrained(
-        model_id, trust_remote_code=hf_trust_remote_code_processor()
-    )
+    try:
+        model = AutoModel.from_pretrained(model_id, **kwargs)
+        processor = AutoProcessor.from_pretrained(
+            model_id, trust_remote_code=hf_trust_remote_code_processor()
+        )
+    except (KeyError, ValueError) as exc:
+        log.error("=" * 80)
+        log.error("CRITICAL ERROR: Failed to load GLM-OCR model checkpoints.")
+        log.error("This is usually because the active python environment has an outdated transformers")
+        log.error("version loaded in memory (KeyError 'glm_ocr' or ValueError unrecognized architecture).")
+        log.error("To fix this:")
+        log.error("1. Run the dependencies installation cell.")
+        log.error("2. Restart the Colab session (Runtime > Restart session).")
+        log.error("=" * 80)
+        raise RuntimeError(
+            "GLM-OCR architecture not recognized. Please install transformers>=5.0.0 and restart your kernel."
+        ) from exc
+
     model.eval()
     return model, processor
 
