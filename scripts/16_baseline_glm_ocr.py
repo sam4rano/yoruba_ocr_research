@@ -176,7 +176,7 @@ def load_model_and_processor(
     try:
         import transformers
         import accelerate
-        from transformers import AutoModel, AutoProcessor
+        from transformers import AutoModelForImageTextToText, AutoProcessor
         
         # GLM-OCR requires transformers>=5.0.0. Ensure the version is correct.
         tf_major = int(transformers.__version__.split(".")[0])
@@ -223,7 +223,7 @@ def load_model_and_processor(
         kwargs["device_map"] = "auto"
 
     try:
-        model = AutoModel.from_pretrained(model_id, **kwargs)
+        model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
         processor = AutoProcessor.from_pretrained(
             model_id, trust_remote_code=hf_trust_remote_code_processor()
         )
