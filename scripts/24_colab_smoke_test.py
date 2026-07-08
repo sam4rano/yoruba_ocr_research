@@ -132,10 +132,10 @@ def main() -> None:
         """Verify VL-1.6 and GLM-OCR baseline, SFT training, export, and plotting scripts parse cleanly."""
         import ast
         for name in (
-            "15_baseline_paddleocr_vl16.py",
-            "16_baseline_glm_ocr.py",
-            "16_train_paddleocr_vl.py",
-            "14_export_paddleocr_vl_sft.py",
+            "eval_paddleocrvl16.py",
+            "eval_glm_ocr.py",
+            "train_paddleocrvl16_sft.py",
+            "export_paddleocrvl16_sft.py",
             "22_generate_plots.py",
         ):
             script = ROOT / "scripts" / name
@@ -210,6 +210,9 @@ def main() -> None:
         if not metrics.is_file():
             print("metrics.csv missing — skipping compile (run baselines first)")
             return
+        if count_lines(metrics) <= 1:
+            print("metrics.csv has no model rows — skipping compile (run baselines first)")
+            return
         run([
             PY, "scripts/11_compile_results.py",
             "--results-csv", "results/tables/metrics.csv",
@@ -228,7 +231,7 @@ def main() -> None:
     step("python deps (editdistance)", deps_checks)
     step("02c refresh dataset report", refresh_report)
     step("phase_03 config", config_phase)
-    step("15_baseline_paddleocr_vl16 syntax", vl_export)
+    step("VLM/SFT script syntax", vl_export)
     step("compile table1 (if metrics.csv exists)", compile_tables_quick)
     step("yor_ocr.ipynb syntax", notebook_syntax)
 

@@ -64,12 +64,13 @@ Colab ships one Python per runtime. Install dependencies **into the current inte
 # python -m pip install paddlepaddle-gpu==... -f https://www.paddlepaddle.org.cn/whl/linux/mkl/avx/stable.html
 ```
 
-Then install project requirements from the repo root:
+Then install project requirements from the repo root. The VLM stack must end at `transformers>=5`, so install/upgrade it **after** Paddle/PaddleOCR requirements:
 
 ```bash
 cd /content/drive/MyDrive/yoruba_ocr_research
 python -m pip install -U pip
 python -m pip install -r requirements.txt
+python -m pip install -U "transformers>=5.0.0" "accelerate>=1.1.0" "huggingface_hub>=1.5.0" einops torchvision bitsandbytes
 ```
 
 If `requirements.txt` pulls a CPU `paddlepaddle` wheel and conflicts with your GPU install, install **`paddlepaddle-gpu`** first per Paddle docs, then:
@@ -82,9 +83,13 @@ python -m pip install $(grep -v '^#' requirements.txt | grep -v paddle)
 Verify GPU is visible to Paddle:
 
 ```python
-import paddle
+import paddle, torch, transformers, accelerate
 paddle.device.cuda.device_count()  # expect >= 1 on T4
+torch.cuda.is_available()          # expect True
+transformers.__version__           # expect major version >= 5
 ```
+
+If `transformers.__version__` still shows `<5` after installation, restart the Colab runtime and rerun setup cells. Python often keeps the already-imported package in memory.
 
 ---
 
@@ -95,7 +100,10 @@ From `PROJECT_ROOT`:
 ```bash
 git clone https://github.com/PaddlePaddle/PaddleOCR.git PaddleOCR
 python -m pip install -r PaddleOCR/requirements.txt
+python -m pip install -U "transformers>=5.0.0" "accelerate>=1.1.0" "huggingface_hub>=1.5.0" einops torchvision bitsandbytes
 ```
+
+That last line is deliberate: PaddleOCR dependencies can alter transitive packages, so the VLM stack is reasserted afterward.
 
 ---
 
@@ -120,7 +128,7 @@ If `processed` is already final, skip `01`.
 
 ## 6. End-to-end script order (GPU)
 
-**Framing:** The active model stack contains 3 main models: Base PaddleOCR (pretrained/fine-tuned PP-OCRv4), PaddleOCR-VL-1.6, and GLM-OCR. Step 3 below is **PP-OCRv4 CRNN** fine-tuning — classical comparison and target of ablations (`10_ablation_study.py`).
+**Framing:** The active model stack is Base PaddleOCR English-pretrained recognition, PaddleOCR-VL-1.6 zero-shot, GLM-OCR zero-shot, and PaddleOCR-VL-1.6 SFT. Classical PaddleOCR fine-tuning is available as an optional comparison phase, not a default paper result. See `docs/model_matrix.md` for the exact row definitions.
 
 Run from `PROJECT_ROOT` with `python` (or `python3` if that is what Colab uses — be consistent).
 
@@ -128,12 +136,12 @@ Run from `PROJECT_ROOT` with `python` (or `python3` if that is what Colab uses �
 |------|--------|------|
 | 1 | `scripts/02_analyze_dataset.py` | EDA; updates local JSON under `results/tables/` |
 | 2 | `scripts/03_generate_config.py` | Downloads pretrained weights (if configured) + writes YAML |
-| 3 | `scripts/04_train_paddleocr.py` | PP-OCRv4 CRNN fine-tuning via `PaddleOCR/tools/train.py` (comparison + ablations) |
+| 3 | `scripts/train_paddleocr_recognition.py` | Optional PaddleOCR recognition fine-tuning via `PaddleOCR/tools/train.py` |
 
 **Training on T4 (single GPU):**
 
 ```bash
-python scripts/04_train_paddleocr.py \
+python scripts/train_paddleocr_recognition.py \
   --config configs/paddleocr_yoruba_rec.yml \
   --paddle-dir PaddleOCR \
   --gpus 0 \
@@ -146,19 +154,19 @@ Do **not** pass `--cpu` on Colab when you want GPU training. Use `--epochs`, `--
 |------|--------|------|
 | 4 | `scripts/05_evaluate.py` | Paddle checkpoints: CER / WER / DER → `results/tables/metrics.csv` + JSONL |
 | 5 | `scripts/06_baseline_pretrained.py` | English pretrained baseline (delegates to `05`) |
-| 6 | `scripts/15_baseline_paddleocr_vl16.py` | PaddleOCR-VL-1.6 zero-shot baseline |
-| 7 | `scripts/16_baseline_glm_ocr.py` | GLM-OCR zero-shot baseline |
-| 8 | `scripts/10_ablation_study.py` | Ablations (trains multiple runs; long) |
+| 6 | `scripts/eval_paddleocrvl16.py` | PaddleOCR-VL-1.6 zero-shot baseline |
+| 7 | `scripts/eval_glm_ocr.py` | GLM-OCR zero-shot baseline |
+| 8 | `scripts/export_paddleocrvl16_sft.py` + `scripts/train_paddleocrvl16_sft.py` | Optional PaddleOCR-VL-1.6 SFT |
 | 9 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
 
-**Evaluate fine-tuned model** (point `--model-dir` at the directory containing `best_accuracy.pdparams` or the checkpoint prefix your run produced, often under `experiments/finetuned/`):
+**Evaluate optional PaddleOCR recognition fine-tune** (point `--model-dir` at the directory containing `best_accuracy.pdparams` or the checkpoint prefix your run produced, often under `experiments/finetuned/`):
 
 ```bash
 python scripts/05_evaluate.py \
   --model-dir experiments/finetuned \
   --data-dir data/processed \
   --split test \
-  --model-name finetuned_paddleocr_v1 \
+  --model-name paddleocr_recognition_finetuned \
   --use-gpu \
   --paddle-dir PaddleOCR
 ```
@@ -166,23 +174,44 @@ python scripts/05_evaluate.py \
 **Evaluate PaddleOCR-VL-1.6:**
 
 ```bash
-python scripts/15_baseline_paddleocr_vl16.py \
+python scripts/eval_paddleocrvl16.py \
   --data-dir data/processed \
   --split test \
-  --model-name paddleocr_vl16_zero_shot \
+  --model-name paddleocrvl16_zero_shot \
   --results-csv results/tables/metrics.csv \
-  --per-sample-log results/tables/paddleocr_vl16_zero_shot_test.jsonl
+  --per-sample-log results/tables/paddleocrvl16_zero_shot_test.jsonl
 ```
 
 **Evaluate GLM-OCR:**
 
 ```bash
-python scripts/16_baseline_glm_ocr.py \
+python scripts/eval_glm_ocr.py \
   --data-dir data/processed \
   --split test \
   --model-name glm_ocr_zero_shot \
   --results-csv results/tables/metrics.csv \
   --per-sample-log results/tables/glm_ocr_zero_shot_test.jsonl
+```
+
+**Fine-tune and evaluate PaddleOCR-VL-1.6 SFT:**
+
+```bash
+python scripts/export_paddleocrvl16_sft.py \
+  --data-dir data/processed \
+  --out-dir data/paddleocrvl16_sft
+
+python scripts/train_paddleocrvl16_sft.py \
+  --export-dir data/paddleocrvl16_sft \
+  --output-dir experiments/paddleocrvl16_sft \
+  --epochs 5
+
+python scripts/eval_paddleocrvl16.py \
+  --model-id experiments/paddleocrvl16_sft \
+  --model-name paddleocrvl16_sft \
+  --data-dir data/processed \
+  --split test \
+  --results-csv results/tables/metrics.csv \
+  --per-sample-log results/tables/paddleocrvl16_sft_test.jsonl
 ```
 
 
@@ -200,7 +229,7 @@ All metrics that belong in the paper should trace to:
 
 - `results/tables/metrics.csv` — master table (append-only across runs)  
 - `results/tables/*_test.jsonl` / `*_val.jsonl` — per-sample logs  
-- `results/tables/train_run.json` — last training invocation metadata (`04_train_paddleocr.py`)  
+- `results/tables/train_run.json` — last optional PaddleOCR recognition training invocation metadata (`train_paddleocr_recognition.py`)  
 - `results/tables/table1_main_comparison.md` (and related) — after `11_compile_results.py`  
 - `experiments/` — checkpoints and ablation configs  
 
@@ -259,6 +288,9 @@ Drive holds files; **git history** lives where you push (GitHub/GitLab).
 
 - **Session timeout:** long training may need Colab Pro+ or manual keep-alive; save to Drive often.  
 - **Disk:** clone PaddleOCR + HF models fills space; monitor `!df -h`.  
+- **Model downloads:** PaddleOCR-VL-1.6 and GLM-OCR are large Hugging Face downloads. Set `HF_HOME`/`HF_HUB_CACHE` to a Drive or project-local cache if you need persistence across sessions.
+- **Runtime restart:** after upgrading `transformers`, `accelerate`, `torch`, or Paddle, restart the runtime before loading PaddleOCR-VL-1.6 or GLM-OCR.
+- **T4 memory:** T4 uses float16 by default because it does not support native bfloat16. Use `PADDLEOCRVL16_QUANTIZE_4BIT=1` or `GLM_QUANTIZE_4BIT=1` only when VRAM is tight; do not mix 4-bit and non-4-bit results in the same comparison without recording it.
 - **Reproducibility:** record `pip freeze > results/tables/pip_freeze_colab.txt` once per successful run.  
 - **Secrets:** never commit `HF_TOKEN`; use Colab secrets or env vars.
 
@@ -271,14 +303,13 @@ The repo includes `scripts/shell/` with one script per phase plus `run_all.sh`. 
 ## 12. Minimal “smoke test” before a full train
 
 ```bash
-python scripts/05_evaluate.py \
-  --model-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
+python scripts/06_baseline_pretrained.py \
+  --pretrained-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
   --data-dir data/processed \
   --split test \
-  --model-name baseline_english_pretrained \
   --rec-config configs/paddleocr_yoruba_rec.yml \
   --use-gpu \
   --paddle-dir PaddleOCR
 ```
 
-Always pass the same `--rec-config` for baseline and fine-tuned eval. The repo's default pipeline is `configs/paddleocr_yoruba_rec.yml` with the `en_PP-OCRv3_rec_train` pretrained checkpoint. If this completes and appends a row to `metrics.csv`, your Colab env, data paths, and PaddleOCR clone are aligned for full training.
+Always pass the same `--rec-config` family for baseline and fine-tuned eval. The English pretrained baseline wrapper uses PaddleOCR's English dictionary so the pretrained CTC head loads; do not replace it with the Yorùbá dictionary unless you are deliberately reproducing the rejected phantom-head control. If this completes and appends a row to `metrics.csv`, your Colab env, data paths, and PaddleOCR clone are aligned for full training.

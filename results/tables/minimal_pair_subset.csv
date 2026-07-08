@@ -1,2 +1,0 @@
-model,n_mp_lines,cer_pct,wer_pct,der_pct,der_n
-baseline_english_pretrained,279,99.6,106.2,100.0,279

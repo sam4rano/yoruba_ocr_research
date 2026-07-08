@@ -13,7 +13,7 @@ density) and reports:
 Usage:
     python scripts/17_stratified_error_analysis.py
     python scripts/17_stratified_error_analysis.py \
-        --jsonl results/tables/paddleocr_vl16_zero_shot_test.jsonl \
+        --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl \
         --jsonl results/tables/glm_ocr_zero_shot_test.jsonl
 """
 
@@ -37,10 +37,10 @@ WORD_SPLIT = re.compile(r"[^\w\u00C0-\u024F\u1E00-\u1EFF\u0300-\u036f\u0323]+", 
 
 
 DEFAULT_MODEL_JSONLS = [
-    "baseline_english_pretrained_test.jsonl",
-    "paddleocr_vl16_zero_shot_test.jsonl",
+    "paddleocr_en_pretrained_test.jsonl",
+    "paddleocrvl16_zero_shot_test.jsonl",
     "glm_ocr_zero_shot_test.jsonl",
-    "paddleocr_vl16_finetuned_test.jsonl",
+    "paddleocrvl16_sft_test.jsonl",
 ]
 
 DENSITY_LABELS = ("q1_low", "q2", "q3", "q4_high")

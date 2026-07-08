@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from typing import Any
 
 # Matches HF model card task prompt key "ocr" but specialised for Yorùbá verbatim transcription.
 OCR_TASK_TAG = "ocr"
@@ -39,6 +40,24 @@ def hf_trust_remote_code_model() -> bool:
 def hf_trust_remote_code_processor() -> bool:
     """Whether ``AutoProcessor`` should run hub custom code."""
     return hf_trust_remote_code()
+
+
+def select_torch_dtype() -> tuple[Any, str]:
+    """
+    Select a GPU-safe dtype for VLM loading.
+
+    T4 GPUs do not support native bfloat16, while L4/A100-class GPUs do. Use
+    bfloat16 only when PyTorch reports support; otherwise fall back to float16
+    on CUDA and float32 on CPU.
+    """
+    import torch
+
+    if not torch.cuda.is_available():
+        return torch.float32, "float32"
+    is_bf16_supported = getattr(torch.cuda, "is_bf16_supported", None)
+    if callable(is_bf16_supported) and is_bf16_supported():
+        return torch.bfloat16, "bfloat16"
+    return torch.float16, "float16"
 
 
 def clean_vl_transcript(raw: str) -> str:

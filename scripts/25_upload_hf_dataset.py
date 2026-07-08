@@ -355,7 +355,7 @@ line of text plus a human-corrected UTF-8 NFC transcription.
 - **Printed material:** *Yorùbá di Wúrà* graded reader series (Books 1–6, 2021)
   by Moses Oyedele and Damilare Oyedele.
 - **Annotation & release:** Benchmark curated by Samuel Oyerinde via the
-  [Yorùbá OCR Hub](https://yoruba-ocr.vercel.app); PaddleOCR-VL-1.5 hypotheses
+  [Yorùbá OCR Hub](https://yoruba-ocr.vercel.app); OCR-assisted hypotheses
   reviewed and corrected by fluent annotators.
 - **Consolidation:** {n_exports} independent export batches merged and deduplicated
   (see project script ``01_consolidate_data.py``).

@@ -82,7 +82,16 @@ def toggle_lines() -> list[str]:
     """Collect pipeline toggle env vars set for this run."""
     keys = sorted(
         k for k in os.environ
-        if k.startswith(("SKIP_", "RUN_", "RESET_", "VL16_", "GLM_", "USE_EXISTING"))
+        if k.startswith(
+            (
+                "SKIP_",
+                "RUN_",
+                "RESET_",
+                "PADDLEOCRVL16_",
+                "GLM_",
+                "USE_EXISTING",
+            )
+        )
     )
     lines = []
     for key in keys:
@@ -167,7 +176,7 @@ def main() -> None:
         "",
         "## Benchmark Architecture",
         "",
-        "The benchmark evaluates OCR on Yorùbá line crops across a 3-model zero-shot stack (Base PaddleOCR PP-OCRv4 EN pretrained, GLM-OCR, and PaddleOCR-VL-1.6) alongside direct fine-tuning of PaddleOCR-VL-1.6.",
+        "The benchmark evaluates OCR on Yorùbá line crops with PaddleOCR English-pretrained recognition, PaddleOCR-VL-1.6 zero-shot, GLM-OCR zero-shot, and optional PaddleOCR-VL-1.6 SFT.",
         "",
         "## Table 1 — headline metrics (test split)",
         "",
@@ -189,10 +198,10 @@ def main() -> None:
         "",
         "| Model key | Script |",
         "| --- | --- |",
-        "| PaddleOCR EN pretrained | `05_evaluate.py` |",
-        "| PaddleOCR-VL-1.6 zero-shot | `15_baseline_paddleocr_vl16.py` |",
-        "| GLM-OCR zero-shot | `16_baseline_glm_ocr.py` |",
-        "| PaddleOCR-VL-1.6 fine-tuned | `scripts/16_train_paddleocr_vl.py` (train), `scripts/15_baseline_paddleocr_vl16.py` (eval) |",
+        "| PaddleOCR EN pretrained | `scripts/06_baseline_pretrained.py` |",
+        "| PaddleOCR-VL-1.6 zero-shot | `eval_paddleocrvl16.py` |",
+        "| GLM-OCR zero-shot | `eval_glm_ocr.py` |",
+        "| PaddleOCR-VL-1.6 SFT | `scripts/train_paddleocrvl16_sft.py` (train), `scripts/eval_paddleocrvl16.py` (eval) |",
         "",
     ]
 

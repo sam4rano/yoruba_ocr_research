@@ -5,17 +5,8 @@ Reads results/tables/metrics.csv (written by all evaluation scripts)
 and produces:
 
   Table 1 — Main Comparison (test split)
-    Rows are ordered: PP-OCR baseline → zero-shot multimodal models.
+    Rows are ordered: PaddleOCR baseline → zero-shot multimodal models → optional SFT.
     Columns: Model | CER ↓ | WER ↓ | DER ↓
-
-  Table 2 — Ablation: Data Size
-    Performance at 25/50/75/100% of training data.
-
-  Table 3 — Ablation: Character Dictionary
-    Yorùbá dict vs English dict.
-
-  Table 4 — Ablation: Data Augmentation
-    With RecAug vs without.
 
 Each table is written as a Markdown file (for copy-paste into the paper
 sections) and a CSV (for the results/ archive). Numbers are rounded to
@@ -47,18 +38,18 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
 MODEL_DISPLAY = {
-    "baseline_english_pretrained": "PaddleOCR PP-OCRv4 (EN pretrained)",
-    "paddleocr_vl16_zero_shot": "PaddleOCR-VL-1.6 (zero-shot)",
+    "paddleocr_en_pretrained": "PaddleOCR PP-OCR (EN pretrained)",
+    "paddleocrvl16_zero_shot": "PaddleOCR-VL-1.6 (zero-shot)",
     "glm_ocr_zero_shot": "GLM-OCR (zero-shot)",
-    "paddleocr_vl16_finetuned": "PaddleOCR-VL-1.6 (fine-tuned language model)",
+    "paddleocrvl16_sft": "PaddleOCR-VL-1.6 (fine-tuned language model)",
 }
 
 # Ordered model rows for Table 1
 TABLE1_ORDER = [
-    "baseline_english_pretrained",
-    "paddleocr_vl16_zero_shot",
+    "paddleocr_en_pretrained",
+    "paddleocrvl16_zero_shot",
     "glm_ocr_zero_shot",
-    "paddleocr_vl16_finetuned",
+    "paddleocrvl16_sft",
 ]
 
 TABLE1_ALIASES: dict[str, str] = {}

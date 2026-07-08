@@ -1,2 +1,0 @@
-model,book_source,n,cer_pct,wer_pct,der_pct,der_n
-baseline_english_pretrained,unknown,326,100.4,106.1,100.0,319

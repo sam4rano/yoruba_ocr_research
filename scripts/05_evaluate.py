@@ -15,14 +15,13 @@ Usage:
         --model-dir experiments/finetuned/best_accuracy \
         --data-dir data/processed \
         --split test \
-        --model-name finetuned_paddleocr
+        --model-name paddleocr_recognition_finetuned
 
-    # Pretrained English baseline evaluation
-    python scripts/05_evaluate.py \
-        --model-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
+    # Pretrained English baseline evaluation (preferred wrapper)
+    python scripts/06_baseline_pretrained.py \
+        --pretrained-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
         --data-dir data/processed \
-        --split test \
-        --model-name baseline_english_pretrained
+        --split test
 """
 
 from __future__ import annotations
@@ -419,7 +418,7 @@ def parse_args() -> argparse.Namespace:
             "PaddleOCR YAML config used for training (must match checkpoint family). "
             "Defaults to experiments/finetuned/config.yml if present, else "
             "configs/paddleocr_yoruba_rec.yml (same as scripts/03_generate_config.py and "
-            "04_train_paddleocr.py). Override only if you trained with a custom YAML; "
+            "train_paddleocr_recognition.py). Override only if you trained with a custom YAML; "
             "the baseline and fine-tuned runs MUST use the same --rec-config."
         ),
     )
@@ -490,11 +489,14 @@ def main() -> None:
     )
 
     metrics = aggregate_metrics(pred_pairs)
+    cer_pct = f"{metrics['cer'] * 100:.2f}%" if metrics["cer"] is not None else "—"
+    wer_pct = f"{metrics['wer'] * 100:.2f}%" if metrics["wer"] is not None else "—"
+    der_pct = f"{metrics['der'] * 100:.2f}%" if metrics["der"] is not None else "—"
     log.info(
-        "Results — CER: %.4f  WER: %.4f  DER: %.4f  (n=%d)",
-        metrics["cer"],
-        metrics["wer"],
-        metrics["der"],
+        "Results — CER: %s  WER: %s  DER: %s  (n=%d)",
+        cer_pct,
+        wer_pct,
+        der_pct,
         metrics["n"],
     )
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Run the Yorùbá OCR pipeline in order (default: phases 01–09, optional 99).
 #
-# DEFAULT DOES NOT include 15, 16, 20 on purpose: they require GPU / Hugging Face
+# DEFAULT DOES NOT include 15, 16, 17, 18 on purpose: they require GPU / Hugging Face
 # downloads or heavier dependencies.
 #
 # Usage:
@@ -11,7 +11,7 @@
 #   bash scripts/shell/run_all.sh
 #
 # Subset of phases:
-#   PHASES="01 02 03 04 05 08 09 99" bash scripts/shell/run_all.sh
+#   PHASES="01 02 03 04 05 09 99" SKIP_PADDLE_TRAIN=0 bash scripts/shell/run_all.sh
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -22,8 +22,8 @@ log "PROJECT_ROOT=$PROJECT_ROOT"
 require_python
 check_deps
 
-# Default: core pipeline (baselines and analysis).
-# For the VLM baselines, run phases 15 (VL-1.6 zero-shot), 16 (GLM-OCR), and 17 (VL-1.6 fine-tuned).
+# Default: core pipeline without long training.
+# For VLM/SFT runs, include phases 14, 15, 16, 17, and 18 explicitly.
 DEFAULT_PHASES="01 02 03 05 09 99"
 PHASES="${PHASES:-$DEFAULT_PHASES}"
 
@@ -34,16 +34,18 @@ run_phase() {
     01) f="${SCRIPT_DIR}/phase_01_consolidate.sh" ;;
     02) f="${SCRIPT_DIR}/phase_02_analyze.sh" ;;
     03) f="${SCRIPT_DIR}/phase_03_config.sh" ;;
-    05) f="${SCRIPT_DIR}/phase_05_eval_paddle.sh" ;;
-    14) f="${SCRIPT_DIR}/phase_14_export_vl16.sh" ;;
-    15) f="${SCRIPT_DIR}/phase_15_eval_vl16.sh" ;;
-    16) f="${SCRIPT_DIR}/phase_glm_ocr.sh" ;;
-    17) f="${SCRIPT_DIR}/phase_17_eval_vl16_finetuned.sh" ;;
+    04) f="${SCRIPT_DIR}/phase_04_train_paddleocr_recognition.sh" ;;
+    05) f="${SCRIPT_DIR}/phase_05_eval_paddleocr_recognition.sh" ;;
+    14) f="${SCRIPT_DIR}/phase_14_export_paddleocrvl16_sft.sh" ;;
+    15) f="${SCRIPT_DIR}/phase_15_eval_paddleocrvl16_zero_shot.sh" ;;
+    16) f="${SCRIPT_DIR}/phase_16_train_paddleocrvl16_sft.sh" ;;
+    17) f="${SCRIPT_DIR}/phase_17_eval_paddleocrvl16_sft.sh" ;;
+    18) f="${SCRIPT_DIR}/phase_18_eval_glm_ocr_zero_shot.sh" ;;
     09) f="${SCRIPT_DIR}/phase_09_compile.sh" ;;
     12) f="${SCRIPT_DIR}/phase_12_diagnose.sh" ;;
     13) f="${SCRIPT_DIR}/phase_13_verify_eval.sh" ;;
     99) f="${SCRIPT_DIR}/phase_99_backup.sh" ;;
-    *) die "unknown phase id: $id (use 01-03, 05, 09, 12, 13, 14, 15, 16, 17, or 99)" ;;
+    *) die "unknown phase id: $id (use 01-05, 09, 12, 13, 14, 15, 16, 17, 18, or 99)" ;;
   esac
   [[ -f "$f" ]] || die "missing $f"
   log "========== Phase $id: $(basename "$f") =========="

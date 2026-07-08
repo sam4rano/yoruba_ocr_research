@@ -17,22 +17,22 @@ fi
 
 REC_CONFIG="${PADDLE_REC_CONFIG:-configs/paddleocr_yoruba_rec.yml}"
 
-run_py scripts/05_evaluate.py \
-  --model-dir "$BASE_PRE" \
+run_py scripts/06_baseline_pretrained.py \
+  --pretrained-dir "$BASE_PRE" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "$SPLIT" \
-  --model-name baseline_english_pretrained \
   --rec-config "$REC_CONFIG" \
+  --results-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
+  --per-sample-log "results/tables/paddleocr_en_pretrained_${SPLIT}.jsonl" \
   "${GPU[@]}" \
-  --allow-head-reinit \
   --paddle-dir "${PADDLE_DIR:-PaddleOCR}"
 
-# PP-OCRv4 fine-tuned checkpoint is OPTIONAL (classical CRNN comparison).
+# PaddleOCR recognition fine-tuned checkpoint is OPTIONAL (classical comparison).
 # Skip automatically when:
 #   - SKIP_PADDLE_FINETUNE=1 is set explicitly (recommended if phase 04 was not run), or
 #   - the checkpoint directory does not exist.
 if [[ "${SKIP_PADDLE_FINETUNE:-0}" == "1" ]]; then
-  log "SKIP_PADDLE_FINETUNE=1 — skipping fine-tuned PP-OCRv4 evaluation"
+  log "SKIP_PADDLE_FINETUNE=1 — skipping fine-tuned PaddleOCR recognition evaluation"
   exit 0
 fi
 if [[ ! -d "$FINETUNE_DIR" ]]; then
@@ -44,7 +44,9 @@ run_py scripts/05_evaluate.py \
   --model-dir "$FINETUNE_DIR" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "$SPLIT" \
-  --model-name finetuned_paddleocr_v1 \
+  --model-name paddleocr_recognition_finetuned \
   --rec-config "$REC_CONFIG" \
+  --results-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
+  --per-sample-log "results/tables/paddleocr_recognition_finetuned_${SPLIT}.jsonl" \
   "${GPU[@]}" \
   --paddle-dir "${PADDLE_DIR:-PaddleOCR}"

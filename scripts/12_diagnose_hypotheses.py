@@ -9,14 +9,14 @@ Run from repo root in this order:
 4. replay      — Recompute metrics from a per-sample JSONL log (must match saved rows).
 5. checkpoints — Flag rows in metrics.csv that came from phantom / unverifiable checkpoints.
 
-Setup (Qwen, Paddle, etc.) is validated indirectly: if (1)–(3) pass, bad model scores
+Setup (VLMs, Paddle, etc.) is validated indirectly: if (1)–(3) pass, bad model scores
 reflect the recogniser or prompt, not the dataset or eval code.
 
 Usage:
     python scripts/12_diagnose_hypotheses.py eval
     python scripts/12_diagnose_hypotheses.py identity --data-dir data/processed --split test
     python scripts/12_diagnose_hypotheses.py data --split test --sample 15 --seed 0
-    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/paddleocr_vl16_zero_shot_test.jsonl
+    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl
     python scripts/12_diagnose_hypotheses.py checkpoints --csv results/tables/metrics.csv
 """
 
@@ -366,7 +366,7 @@ def run_setup_hint() -> None:
         "model/prompt configuration — not label files or metric code."
     )
     log.info(
-        "setup: Quick sanity: run 15_baseline_paddleocr_vl16.py "
+        "setup: Quick sanity: run eval_paddleocrvl16.py "
         "with --max-samples 5 and inspect the resulting JSONL."
     )
 
@@ -410,7 +410,7 @@ def parse_args() -> argparse.Namespace:
     p_r.add_argument(
         "--jsonl",
         type=Path,
-        default=Path("results/tables/paddleocr_vl16_zero_shot_test.jsonl"),
+        default=Path("results/tables/paddleocrvl16_zero_shot_test.jsonl"),
     )
     p_r.add_argument(
         "--tolerance",

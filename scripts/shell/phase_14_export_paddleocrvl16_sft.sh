@@ -9,7 +9,12 @@ if [[ -x "${PROJECT_ROOT}/.venv/bin/python" ]]; then
   export PYTHON="${PROJECT_ROOT}/.venv/bin/python"
 fi
 
+if [[ "${SKIP_PADDLEOCRVL16_SFT_EXPORT:-0}" == "1" ]]; then
+  log "SKIP_PADDLEOCRVL16_SFT_EXPORT=1 — skipping phase 14"
+  exit 0
+fi
+
 require_python
-run_py scripts/14_export_paddleocr_vl_sft.py \
+run_py scripts/export_paddleocrvl16_sft.py \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
-  --out-dir "${PADDLE_VL16_EXPORT_DIR:-data/paddleocr_vl16_sft}"
+  --out-dir "${PADDLEOCRVL16_SFT_EXPORT_DIR:-data/paddleocrvl16_sft}"

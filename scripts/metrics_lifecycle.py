@@ -8,6 +8,7 @@ so partial re-runs cannot mix stale and fresh inference logs.
 
 Usage:
     python scripts/metrics_lifecycle.py archive
+    python scripts/metrics_lifecycle.py reset
     python scripts/metrics_lifecycle.py archive --tables-dir results/tables
 """
 
@@ -33,6 +34,10 @@ METRICS_HEADER = [
     "der",
     "der_n",
     "der_insertion_rate",
+    "median_cer",
+    "median_wer",
+    "micro_cer",
+    "micro_wer",
     "phantom",
     "meta_path",
     "timestamp",
@@ -40,6 +45,9 @@ METRICS_HEADER = [
 
 TABLE_SNAPSHOTS = (
     "metrics.csv",
+    "bootstrap_metric_cis.json",
+    "consolidation_report.json",
+    "data_quality.json",
     "metrics_summary.csv",
     "table1_main_comparison.csv",
     "table1_main_comparison.md",
@@ -50,6 +58,26 @@ TABLE_SNAPSHOTS = (
     "der_universe_ablation.csv",
     "eval_alignment_report.json",
     "checkpoint_audit.json",
+)
+
+GENERATED_ARTIFACTS = (
+    *TABLE_SNAPSHOTS,
+    "paddleocr_en_pretrained_test.jsonl",
+    "paddleocrvl16_zero_shot_test.jsonl",
+    "glm_ocr_zero_shot_test.jsonl",
+    "paddleocrvl16_sft_test.jsonl",
+    "minimal_pair_subset.csv",
+    "minimal_pair_vocabulary.json",
+    "stratified_by_linguistic_features.csv",
+    "stratified_error_analysis.json",
+    "error_taxonomy.csv",
+    "der_universe_ablation.json",
+    "der_zero_diac_insertion.csv",
+    "colab_smoke_test.json",
+    "config_generation.json",
+    "e2e_network_check.json",
+    "hf_dataset_upload.json",
+    ".DS_Store",
 )
 
 
@@ -79,7 +107,7 @@ def checkpoint_status_for_row(
     csv_phantom = (row.get("phantom") or "").strip().lower()
     meta_path = tables_dir / "meta" / f"{model}_{split}.json"
 
-    # Non-Paddle models (Qwen, VL, etc.) have phantom="n/a".
+    # Non-Paddle/PyTorch VLM models have phantom="n/a".
     # They never produce .pdparams files, so skip checkpoint verification.
     if csv_phantom == "n/a":
         if not meta_path.is_file():
@@ -181,13 +209,65 @@ def archive_eval_artifacts(tables_dir: Path) -> Path:
     return dest
 
 
+def reset_generated_artifacts(tables_dir: Path) -> None:
+    """
+    Remove generated reports/logs and reset metrics.csv to a schema-only file.
+
+    This is intentionally destructive and is meant for the "fresh paper run"
+    case where stale metrics should not survive into regenerated outputs.
+    Source data, raw exports, configs, and scripts are not touched.
+    """
+    tables_dir = tables_dir.resolve()
+    tables_dir.mkdir(parents=True, exist_ok=True)
+
+    removed = 0
+    for name in GENERATED_ARTIFACTS:
+        path = tables_dir / name
+        if path.is_file() and name != "metrics.csv":
+            path.unlink()
+            removed += 1
+
+    for pattern in ("*_test.jsonl", "*_val.jsonl", "*_train.jsonl"):
+        for path in tables_dir.glob(pattern):
+            path.unlink()
+            removed += 1
+
+    metrics = tables_dir / "metrics.csv"
+    with metrics.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=METRICS_HEADER)
+        writer.writeheader()
+
+    meta_dir = tables_dir / "meta"
+    if meta_dir.is_dir():
+        for path in meta_dir.glob("*.json"):
+            path.unlink()
+            removed += 1
+
+    fig_dir = tables_dir / "figures"
+    if fig_dir.is_dir():
+        for path in fig_dir.glob("*.png"):
+            path.unlink()
+            removed += 1
+
+    for path in (tables_dir.parent / ".DS_Store", tables_dir / ".DS_Store"):
+        if path.is_file():
+            path.unlink()
+            removed += 1
+
+    marker = tables_dir / ".last_metrics_archive.txt"
+    if marker.is_file():
+        marker.unlink()
+
+    log.info("Reset %s to header-only and removed %d generated artifact(s).", metrics, removed)
+
+
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(description="Archive and reset metrics between runs.")
     parser.add_argument(
         "command",
-        choices=("archive",),
-        help="Currently supported: archive.",
+        choices=("archive", "reset"),
+        help="archive copies current outputs first; reset removes stale outputs in place.",
     )
     parser.add_argument(
         "--tables-dir",
@@ -204,6 +284,8 @@ def main() -> None:
     if args.command == "archive":
         dest = archive_eval_artifacts(args.tables_dir)
         print(dest)
+    elif args.command == "reset":
+        reset_generated_artifacts(args.tables_dir)
 
 
 if __name__ == "__main__":

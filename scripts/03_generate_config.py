@@ -464,7 +464,7 @@ def main() -> None:
     print("\n" + "=" * 60)
     print("Next step — run fine-tuning from the PaddleOCR repo root:")
     print(f"  python tools/train.py -c {args.output_config.resolve()}")
-    print("Or use scripts/04_train_paddleocr.py for automated logging.")
+    print("Or use scripts/train_paddleocr_recognition.py for automated logging.")
     print("=" * 60 + "\n")
 
 

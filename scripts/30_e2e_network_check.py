@@ -28,7 +28,7 @@ PY = os.environ.get("PYTHON", sys.executable)
 SHELL_ENV = {**os.environ, "PYTHON": PY, "PROJECT_ROOT": str(ROOT)}
 
 HF_MODELS = (
-    ("paddleocr_vl16", "PaddlePaddle/PaddleOCR-VL-1.6", True),
+    ("paddleocrvl16", "PaddlePaddle/PaddleOCR-VL-1.6", True),
     ("glm_ocr", "zai-org/GLM-OCR", True),
 )
 
@@ -144,7 +144,7 @@ def check_live_vl16_load(max_samples: int) -> dict:
     _require_cuda_for_live()
     cmd = [
         PY,
-        "scripts/15_baseline_paddleocr_vl16.py",
+        "scripts/eval_paddleocrvl16.py",
         "--split",
         "test",
         "--max-samples",
@@ -153,7 +153,7 @@ def check_live_vl16_load(max_samples: int) -> dict:
         "--results-csv",
         "results/tables/metrics_e2e_scratch.csv",
         "--per-sample-log",
-        "results/tables/paddleocr_vl16_e2e_scratch.jsonl",
+        "results/tables/paddleocrvl16_e2e_scratch.jsonl",
     ]
     subprocess.check_call(cmd, cwd=ROOT, env={**SHELL_ENV, "HF_TRUST_REMOTE_CODE": "1"})
     return {"max_samples": max_samples, "metrics_csv": "results/tables/metrics_e2e_scratch.csv"}
@@ -172,7 +172,7 @@ def check_live_glm_ocr(max_samples: int) -> dict:
 
     cmd = [
         PY,
-        "scripts/16_baseline_glm_ocr.py",
+        "scripts/eval_glm_ocr.py",
         "--split",
         "test",
         "--max-samples",

@@ -2,18 +2,20 @@
 
 Phased bash drivers live here so you can run one stage at a time (reproducibility, HPC, Colab) or the full chain.
 
-**Benchmark Architecture:** We evaluate zero-shot OCR on Yorùbá line crops across three main model classes: Base PaddleOCR (PP-OCRv4 EN pretrained + CRNN fine-tune ablations), PaddleOCR-VL-1.6, and GLM-OCR.
+**Benchmark Architecture:** We evaluate Yorùbá line crops with Base PaddleOCR English-pretrained recognition, PaddleOCR-VL-1.6 zero-shot, GLM-OCR zero-shot, and PaddleOCR-VL-1.6 SFT. Optional PaddleOCR recognition fine-tuning is a classical comparison, not part of the default run.
 
 | Script | Phase |
 |--------|--------|
 | `phase_01_consolidate.sh` | Merge `data/raw` → `data/processed` |
 | `phase_02_analyze.sh` | EDA + plots → `results/tables/figures/` |
 | `phase_03_config.sh` | `03_generate_config.py` + pretrained download |
-| `phase_04_train.sh` | `04_train_paddleocr.py` |
-| `phase_05_eval_paddle.sh` | English pretrained + fine-tuned Paddle eval |
-| `phase_15_eval_vl16.sh` | PaddleOCR-VL-1.6 zero-shot eval |
-| `phase_glm_ocr.sh` | GLM-OCR zero-shot eval |
-| `phase_08_ablation.sh` | Ablation study (off unless `SKIP_ABLATION=0`) |
+| `phase_04_train_paddleocr_recognition.sh` | optional PaddleOCR recognition fine-tuning via `train_paddleocr_recognition.py` |
+| `phase_05_eval_paddleocr_recognition.sh` | PaddleOCR EN pretrained + optional recognition fine-tune eval |
+| `phase_15_eval_paddleocrvl16_zero_shot.sh` | PaddleOCR-VL-1.6 zero-shot eval |
+| `phase_18_eval_glm_ocr_zero_shot.sh` | GLM-OCR zero-shot eval |
+| `phase_14_export_paddleocrvl16_sft.sh` | Export SFT JSONL for PaddleOCR-VL-1.6 |
+| `phase_16_train_paddleocrvl16_sft.sh` | Fine-tune PaddleOCR-VL-1.6 language model |
+| `phase_17_eval_paddleocrvl16_sft.sh` | Evaluate PaddleOCR-VL-1.6 SFT checkpoint |
 | `phase_09_compile.sh` | `11_compile_results.py` → table Markdown/CSV |
 | `phase_12_diagnose.sh` | Data vs eval vs setup diagnostics (`12_diagnose_hypotheses.py`) |
 | `phase_13_verify_eval.sh` | `metrics.csv` ``n`` vs label files (`13_verify_eval_alignment.py`) |
@@ -22,20 +24,27 @@ Phased bash drivers live here so you can run one stage at a time (reproducibilit
 
 ### Default vs VLM baselines
 
-The baseline VLM/recognition models (VL-1.6, GLM-OCR) require GPU or specialized inference environments. Therefore, they are not enabled by default in `run_all.sh` to avoid CPU-only run failures.
+The VLM/SFT phases require GPU and Hugging Face downloads. They are not enabled by default in `run_all.sh` to avoid CPU-only failures and accidental long jobs.
 
 To run the complete benchmark:
-1. Standard pipeline (Consolidate + Pretrained Paddle + Ablations + Compile):
+1. Standard pipeline (Consolidate + Pretrained Paddle + Compile):
    ```bash
    bash scripts/shell/run_all.sh
    ```
-2. Run VLM / zero-shot recognition baselines:
+2. Run VLM zero-shot baselines:
    ```bash
-   bash scripts/shell/phase_15_eval_vl16.sh
-   bash scripts/shell/phase_glm_ocr.sh
+   bash scripts/shell/phase_15_eval_paddleocrvl16_zero_shot.sh
+   bash scripts/shell/phase_18_eval_glm_ocr_zero_shot.sh
    ```
 3. Re-run compile:
    ```bash
+   bash scripts/shell/phase_09_compile.sh
+   ```
+4. Optional PaddleOCR-VL-1.6 SFT:
+   ```bash
+   bash scripts/shell/phase_14_export_paddleocrvl16_sft.sh
+   bash scripts/shell/phase_16_train_paddleocrvl16_sft.sh
+   bash scripts/shell/phase_17_eval_paddleocrvl16_sft.sh
    bash scripts/shell/phase_09_compile.sh
    ```
 
@@ -57,12 +66,16 @@ bash scripts/shell/phase_02_analyze.sh
 | `SKIP_CONSOLIDATE` | `1` = skip phase 01 |
 | `CONFIG_FORCE_GPU` | `1` → `--force-gpu` in config generation |
 | `CONFIG_CPU` | `1` → `--cpu` in config generation (macOS CPU Paddle) |
-| `TRAIN_CPU` | `1` → `--cpu` on `04_train_paddleocr.py` |
+| `SKIP_PADDLE_TRAIN` | `0` enables optional phase 04 training (default `1`) |
+| `TRAIN_CPU` | `1` → `--cpu` on `train_paddleocr_recognition.py` |
 | `TRAIN_GPUS` | e.g. `0` (default) |
 | `EVAL_USE_GPU` | `1` → `--use-gpu` on Paddle eval |
-| `SKIP_VL16_ZERO_SHOT`| `1` to skip VL-1.6 (default `0` when phase_15 run) |
-| `SKIP_GLM_ZERO_SHOT` | `1` to skip GLM-OCR (default `0` when phase_glm run) |
-| `SKIP_ABLATION` | `0` to run ablations (default `1`) |
+| `SKIP_PADDLEOCRVL16_ZERO_SHOT`| `1` to skip PaddleOCR-VL-1.6 zero-shot (default `0` when phase 15 runs) |
+| `SKIP_GLM_ZERO_SHOT` | `1` to skip GLM-OCR (default `0` when phase 18 runs) |
+| `SKIP_PADDLEOCRVL16_SFT_EXPORT` | `1` to skip phase 14 SFT export |
+| `SKIP_PADDLEOCRVL16_SFT_TRAIN` | `1` to skip phase 16 SFT training |
+| `SKIP_PADDLEOCRVL16_SFT_EVAL` | `1` to skip phase 17 SFT eval |
+| `PADDLEOCRVL16_SFT_EPOCHS` | Epochs for phase 16 SFT (default `5`) |
 | `DRIVE_BACKUP_ROOT` | Parent directory for timestamped backup (phase 99) |
 | `BACKUP_EXPERIMENTS` | `1` (default) includes `experiments/` in backup |
 | `GIT_SNAPSHOT` | `1` + phase 99 runs optional `git commit` on `results/tables` |

@@ -8,13 +8,17 @@ Figures generated:
 3. Figure 3: Stratified DER by Text Density (line plot over quartiles)
 4. Figure 4: Error Taxonomy Distribution (stacked bar chart of error categories)
 
-Handles missing or empty results by generating clean placeholder illustrative plots.
+By default, missing inputs are skipped rather than replaced with illustrative
+data. Use ``--allow-placeholder`` only for slide/layout mockups; never for
+paper figures.
 """
 
 from __future__ import annotations
 
 import argparse
 import logging
+import os
+import tempfile
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -25,25 +29,25 @@ log = logging.getLogger(__name__)
 
 # Model display name mapping
 MODEL_DISPLAY = {
-    "baseline_english_pretrained": "PaddleOCR PP-OCRv4 (EN)",
-    "paddleocr_vl16_zero_shot": "PaddleOCR-VL-1.6 (Zero-Shot)",
+    "paddleocr_en_pretrained": "PaddleOCR PP-OCR (EN)",
+    "paddleocrvl16_zero_shot": "PaddleOCR-VL-1.6 (Zero-Shot)",
     "glm_ocr_zero_shot": "GLM-OCR (Zero-Shot)",
-    "paddleocr_vl16_finetuned": "PaddleOCR-VL-1.6 (Fine-Tuned)",
+    "paddleocrvl16_sft": "PaddleOCR-VL-1.6 (Fine-Tuned)",
 }
 
 MODEL_ORDER = [
-    "baseline_english_pretrained",
-    "paddleocr_vl16_zero_shot",
+    "paddleocr_en_pretrained",
+    "paddleocrvl16_zero_shot",
     "glm_ocr_zero_shot",
-    "paddleocr_vl16_finetuned",
+    "paddleocrvl16_sft",
 ]
 
 # Harmonious HSL-derived color palette
 COLORS = {
-    "baseline_english_pretrained": "#7f8c8d",  # Slate Gray
-    "paddleocr_vl16_zero_shot": "#9b59b6",     # Muted Purple
+    "paddleocr_en_pretrained": "#7f8c8d",  # Slate Gray
+    "paddleocrvl16_zero_shot": "#9b59b6",     # Muted Purple
     "glm_ocr_zero_shot": "#34495e",            # Indigo
-    "paddleocr_vl16_finetuned": "#16a085",     # Vibrant Teal
+    "paddleocrvl16_sft": "#16a085",     # Vibrant Teal
 }
 
 
@@ -61,7 +65,13 @@ def load_csv_safe(path: Path) -> pd.DataFrame | None:
 
 def setup_matplotlib():
     """Import and configure matplotlib style settings."""
+    cache_root = Path(tempfile.gettempdir()) / "yoruba_ocr_matplotlib"
+    cache_root.mkdir(parents=True, exist_ok=True)
+    os.environ.setdefault("MPLCONFIGDIR", str(cache_root / "mpl"))
+    os.environ.setdefault("XDG_CACHE_HOME", str(cache_root / "xdg"))
     try:
+        import matplotlib
+        matplotlib.use("Agg", force=True)
         import matplotlib.pyplot as plt
         import seaborn as sns
         sns.set_theme(style="whitegrid")
@@ -83,7 +93,7 @@ def setup_matplotlib():
         raise
 
 
-def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
+def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
     """Plot Figure 1: Grouped bar chart of CER, WER, and DER across models."""
     fig, ax = plt.subplots(figsize=(8, 5))
     
@@ -103,13 +113,17 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
                 })
         plot_df = pd.DataFrame(plot_data)
     else:
+        if not allow_placeholder:
+            log.warning("Skipping Fig 1: metrics_summary.csv missing or malformed.")
+            plt.close(fig)
+            return
         # Generate clean illustrative placeholder data
         log.info("Generating illustrative placeholder data for Fig 1.")
         plot_df = pd.DataFrame([
-            {"Model": MODEL_DISPLAY["baseline_english_pretrained"], "CER": 62.4, "WER": 84.1, "DER": 95.3},
-            {"Model": MODEL_DISPLAY["paddleocr_vl16_zero_shot"], "CER": 24.1, "WER": 42.5, "DER": 35.1},
+            {"Model": MODEL_DISPLAY["paddleocr_en_pretrained"], "CER": 62.4, "WER": 84.1, "DER": 95.3},
+            {"Model": MODEL_DISPLAY["paddleocrvl16_zero_shot"], "CER": 24.1, "WER": 42.5, "DER": 35.1},
             {"Model": MODEL_DISPLAY["glm_ocr_zero_shot"], "CER": 19.5, "WER": 36.2, "DER": 28.6},
-            {"Model": MODEL_DISPLAY["paddleocr_vl16_finetuned"], "CER": 9.2, "WER": 18.4, "DER": 11.3},
+            {"Model": MODEL_DISPLAY["paddleocrvl16_sft"], "CER": 9.2, "WER": 18.4, "DER": 11.3},
         ])
         
     if plot_df.empty:
@@ -146,16 +160,17 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     log.info("Saved model_metrics_comparison.png")
 
 
-def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
+def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
     """Plot Figure 2: Mean and 95% Confidence Intervals for CER, WER, DER."""
     fig, axes = plt.subplots(1, 3, figsize=(12, 5), sharey=False)
     metrics = ["CER", "WER", "DER"]
+    any_panel = False
     
     illustrative_data = {
-        "baseline_english_pretrained": {"CER": (62.4, 58.1, 66.8), "WER": (84.1, 79.5, 88.6), "DER": (95.3, 91.2, 98.4)},
-        "paddleocr_vl16_zero_shot": {"CER": (24.1, 20.2, 28.1), "WER": (42.5, 37.8, 47.1), "DER": (35.1, 30.2, 39.8)},
+        "paddleocr_en_pretrained": {"CER": (62.4, 58.1, 66.8), "WER": (84.1, 79.5, 88.6), "DER": (95.3, 91.2, 98.4)},
+        "paddleocrvl16_zero_shot": {"CER": (24.1, 20.2, 28.1), "WER": (42.5, 37.8, 47.1), "DER": (35.1, 30.2, 39.8)},
         "glm_ocr_zero_shot": {"CER": (19.5, 16.1, 23.0), "WER": (36.2, 31.5, 40.8), "DER": (28.6, 24.1, 33.0)},
-        "paddleocr_vl16_finetuned": {"CER": (9.2, 6.8, 11.6), "WER": (18.4, 14.2, 22.5), "DER": (11.3, 8.5, 14.1)},
+        "paddleocrvl16_sft": {"CER": (9.2, 6.8, 11.6), "WER": (18.4, 14.2, 22.5), "DER": (11.3, 8.5, 14.1)},
     }
     
     for i, metric in enumerate(metrics):
@@ -178,9 +193,11 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
                     high = float(row["ci_upper_pct"])
                     val_found = True
             
-            if not val_found:
+            if not val_found and allow_placeholder:
                 # Use illustrative mock data
                 point, low, high = illustrative_data[model][metric]
+            elif not val_found:
+                continue
                 
             plot_x.append(MODEL_DISPLAY[model].replace("PaddleOCR-VL-1.6", "VL-1.6").replace(" (Zero-Shot)", " (ZS)").replace(" (Fine-Tuned)", " (FT)"))
             plot_y.append(point)
@@ -188,6 +205,10 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
             errors_upper.append(high - point)
             colors_list.append(COLORS[model])
             
+        if not plot_x:
+            log.warning("Skipping %s bootstrap panel: no CI rows available.", metric)
+            continue
+
         y_err = [errors_lower, errors_upper]
         
         # Plot point + error bars
@@ -195,6 +216,7 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
         for idx in range(len(plot_x)):
             ax.errorbar(x_pos[idx], plot_y[idx], yerr=[[errors_lower[idx]], [errors_upper[idx]]], 
                         fmt='o', color=colors_list[idx], capsize=5, elinewidth=2, markeredgewidth=2, markersize=8)
+        any_panel = True
             
         ax.set_xticks(x_pos)
         ax.set_xticklabels(plot_x, rotation=25, ha="right")
@@ -203,6 +225,11 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
         ax.set_xlim(-0.5, len(plot_x) - 0.5)
         ax.set_ylim(0, max(plot_y) * 1.25)
         
+    if not any_panel:
+        log.warning("Skipping Fig 2: no bootstrap CI rows available.")
+        plt.close(fig)
+        return
+
     plt.suptitle("Figure 2: Bootstrap Resampling Metric Confidence Intervals")
     plt.tight_layout()
     fig.savefig(fig_dir / "bootstrap_confidence_intervals.png", dpi=150)
@@ -210,7 +237,7 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     log.info("Saved bootstrap_confidence_intervals.png")
 
 
-def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
+def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
     """Plot Figure 3: Line plot showing DER across text density quartiles."""
     fig, ax = plt.subplots(figsize=(8, 5))
     
@@ -218,10 +245,10 @@ def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     q_labels = ["Q1 (Low)", "Q2 (Med-Low)", "Q3 (Med-High)", "Q4 (High)"]
     
     illustrative_data = {
-        "baseline_english_pretrained": [98.1, 95.4, 94.2, 95.8],
-        "paddleocr_vl16_zero_shot": [30.1, 33.4, 36.2, 40.8],
+        "paddleocr_en_pretrained": [98.1, 95.4, 94.2, 95.8],
+        "paddleocrvl16_zero_shot": [30.1, 33.4, 36.2, 40.8],
         "glm_ocr_zero_shot": [22.4, 26.1, 29.8, 35.2],
-        "paddleocr_vl16_finetuned": [7.8, 9.5, 12.1, 15.6],
+        "paddleocrvl16_sft": [7.8, 9.5, 12.1, 15.6],
     }
     
     for model in MODEL_ORDER:
@@ -238,10 +265,17 @@ def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
                     vals = [q_vals[q] for q in quartiles]
                     data_found = True
         
-        if not data_found:
+        if not data_found and allow_placeholder:
             vals = illustrative_data[model]
+        elif not data_found:
+            continue
             
         ax.plot(q_labels, vals, marker='o', linewidth=2, color=COLORS[model], label=MODEL_DISPLAY[model])
+
+    if not ax.lines:
+        log.warning("Skipping Fig 3: no complete stratified DER quartile rows available.")
+        plt.close(fig)
+        return
         
     ax.set_title("Figure 3: Stratified Diacritic Error Rate (DER) by Character Density")
     ax.set_ylabel("Diacritic Error Rate (DER %)")
@@ -255,7 +289,7 @@ def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     log.info("Saved stratified_der_by_density.png")
 
 
-def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
+def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
     """Plot Figure 4: Stacked bar chart showing character error distribution per model."""
     fig, ax = plt.subplots(figsize=(9, 5))
     
@@ -269,10 +303,10 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     }
     
     illustrative_data = {
-        "baseline_english_pretrained": [1.2, 5.4, 2.1, 0.5, 90.8],
-        "paddleocr_vl16_zero_shot": [62.4, 15.8, 12.1, 7.3, 2.4],
+        "paddleocr_en_pretrained": [1.2, 5.4, 2.1, 0.5, 90.8],
+        "paddleocrvl16_zero_shot": [62.4, 15.8, 12.1, 7.3, 2.4],
         "glm_ocr_zero_shot": [69.5, 12.4, 10.2, 6.1, 1.8],
-        "paddleocr_vl16_finetuned": [88.2, 5.3, 4.1, 2.1, 0.3]
+        "paddleocrvl16_sft": [88.2, 5.3, 4.1, 2.1, 0.3]
     }
     
     plot_data = []
@@ -291,9 +325,11 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
                         vals[cat] = (count / total) * 100
                     data_found = True
                     
-        if not data_found:
+        if not data_found and allow_placeholder:
             for idx, cat in enumerate(categories):
                 vals[cat] = illustrative_data[model][idx]
+        elif not data_found:
+            continue
                 
         plot_data.append({
             "Model": MODEL_DISPLAY[model],
@@ -301,6 +337,10 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
         })
         
     plot_df = pd.DataFrame(plot_data)
+    if plot_df.empty:
+        log.warning("Skipping Fig 4: no error taxonomy rows available.")
+        plt.close(fig)
+        return
     
     # Set display columns
     display_cols = [cat_display[c] for c in categories]
@@ -322,7 +362,7 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
     log.info("Saved error_taxonomy_distribution.png")
 
 
-def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
+def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
     """Plot Figure 5: Grouped bar chart of CER across linguistic hard-case categories."""
     FEATURES = [
         "Named Entities",
@@ -365,10 +405,15 @@ def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
                         val = float(raw)
                     except (TypeError, ValueError):
                         val = None
-            if val is None:
+            if val is None and allow_placeholder:
                 feat_idx = FEATURES.index(feat)
                 val = ILLUS[feat][m_idx]
+            elif val is None:
+                continue
             cer_vals.append(val)
+
+        if len(cer_vals) != n_features:
+            continue
 
         positions = [xi + offsets[m_idx] for xi in x]
         bars = ax.bar(
@@ -391,6 +436,11 @@ def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns):
                     fontsize=6.5,
                     rotation=90,
                 )
+
+    if not ax.patches:
+        log.warning("Skipping Fig 5: no complete hard-case rows available.")
+        plt.close(fig)
+        return
 
     ax.set_xticks(list(x))
     ax.set_xticklabels([FEATURE_SHORT[f] for f in FEATURES], fontsize=10)
@@ -416,6 +466,11 @@ def main():
         default=Path("results/tables"),
         help="Directory containing metrics and CSV reports.",
     )
+    parser.add_argument(
+        "--allow-placeholder",
+        action="store_true",
+        help="Generate illustrative placeholder figures when inputs are missing. Do not use for paper outputs.",
+    )
     args = parser.parse_args()
     
     fig_dir = args.results_dir / "figures"
@@ -432,11 +487,11 @@ def main():
     plt, sns = setup_matplotlib()
     
     # Plot figures
-    plot_main_comparison(df_metrics, fig_dir, plt, sns)
-    plot_bootstrap_cis(df_cis, fig_dir, plt, sns)
-    plot_stratified_density(df_density, fig_dir, plt, sns)
-    plot_error_taxonomy(df_taxonomy, fig_dir, plt, sns)
-    plot_hard_cases(df_features, fig_dir, plt, sns)
+    plot_main_comparison(df_metrics, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
+    plot_bootstrap_cis(df_cis, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
+    plot_stratified_density(df_density, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
+    plot_error_taxonomy(df_taxonomy, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
+    plot_hard_cases(df_features, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
     
     log.info("All figures generated successfully under %s", fig_dir)
 

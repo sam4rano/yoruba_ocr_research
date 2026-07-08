@@ -86,7 +86,7 @@ def ensure_importable() -> None:
 
 
 def main() -> None:
-    """CLI wrapper: ``python scripts/colab_stream.py bash scripts/shell/phase_04_train.sh``."""
+    """CLI wrapper: ``python scripts/colab_stream.py bash scripts/shell/phase_04_train_paddleocr_recognition.sh``."""
     import argparse
 
     parser = argparse.ArgumentParser(description="Run a command with streamed output.")

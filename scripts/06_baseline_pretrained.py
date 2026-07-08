@@ -33,7 +33,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-MODEL_NAME = "baseline_english_pretrained"
+MODEL_NAME = "paddleocr_en_pretrained"
 
 
 def parse_args() -> argparse.Namespace:

@@ -1,5 +1,0 @@
-model,universe_id,description,n,der_pct,der_n,der_insertion_rate,n_zero_diac_gt,total_gt_tokens
-baseline_english_pretrained,combining_marks,"Combining grave, acute, and dot below (reporting default)",326,100.0,319,0.0,7,3406
-baseline_english_pretrained,tone_only,Combining grave and acute only (subdot excluded),326,100.0,316,0.0,10,2363
-baseline_english_pretrained,all_combining,All Unicode combining characters in NFD,326,100.0,319,0.0,7,3406
-baseline_english_pretrained,marked_grapheme,NFC tonographs with any standard combining mark,326,100.0,319,0.0,7,3406

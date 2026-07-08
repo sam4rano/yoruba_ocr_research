@@ -49,4 +49,4 @@ run_py scripts/12_diagnose_hypotheses.py data \
   --split "$SPLIT" \
   --sample "${DIAG_SAMPLE:-20}" \
   --seed "${DIAG_SEED:-42}"
-log "Optional: after Qwen eval, run DIAG_ONLY=replay bash scripts/shell/phase_12_diagnose.sh"
+log "Optional: after VLM eval, run DIAG_ONLY=replay bash scripts/shell/phase_12_diagnose.sh"

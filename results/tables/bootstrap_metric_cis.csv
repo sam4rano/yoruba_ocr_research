@@ -1,4 +1,0 @@
-model,metric,point_estimate_pct,ci_lower_pct,ci_upper_pct,n_lines,n_bootstrap,ci_level
-baseline_english_pretrained,CER,100.4,96.3,105.2,326,10000,0.95
-baseline_english_pretrained,WER,106.1,103.0,109.9,326,10000,0.95
-baseline_english_pretrained,DER,100.0,100.0,100.0,326,10000,0.95

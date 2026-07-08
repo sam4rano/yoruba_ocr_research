@@ -45,17 +45,17 @@ log = logging.getLogger(__name__)
 
 
 DEFAULT_MODEL_JSONLS = [
-    "baseline_english_pretrained_test.jsonl",
-    "paddleocr_vl16_zero_shot_test.jsonl",
+    "paddleocr_en_pretrained_test.jsonl",
+    "paddleocrvl16_zero_shot_test.jsonl",
     "glm_ocr_zero_shot_test.jsonl",
-    "paddleocr_vl16_finetuned_test.jsonl",
+    "paddleocrvl16_sft_test.jsonl",
 ]
 
 PAIRWISE_COMPARISONS = (
-    ("paddleocr_vl16_zero_shot", "baseline_english_pretrained"),
-    ("glm_ocr_zero_shot", "baseline_english_pretrained"),
-    ("paddleocr_vl16_finetuned", "paddleocr_vl16_zero_shot"),
-    ("paddleocr_vl16_finetuned", "glm_ocr_zero_shot"),
+    ("paddleocrvl16_zero_shot", "paddleocr_en_pretrained"),
+    ("glm_ocr_zero_shot", "paddleocr_en_pretrained"),
+    ("paddleocrvl16_sft", "paddleocrvl16_zero_shot"),
+    ("paddleocrvl16_sft", "glm_ocr_zero_shot"),
 )
 
 

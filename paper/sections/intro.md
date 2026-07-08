@@ -1,19 +1,13 @@
 # Introduction
 
-The digitization of African-language texts remains a significant bottleneck in natural language processing research for the continent. While OCR technology has reached near-human performance for high-resource languages such as English, Chinese, and German [CITE: high-resource OCR survey], low-resource tonal languages—particularly those with complex diacritic systems—remain severely underserved.
+The digitization of African-language texts remains a bottleneck for language technology. Yorùbá is especially challenging because tone marks and subdots are not decorative: they distinguish lexical meaning. A recognizer that drops the grave in *ògùn* or the subdot in *ọmọ* may preserve the base Latin letters while corrupting the word.
 
-Yorùbá, spoken by over 50 million people across West Africa, presents a particularly acute challenge. The language employs a three-tone system (high, mid, and low) encoded orthographically through combinations of acute (´), grave (\`), and unmarked conventions applied to vowels and the syllabic nasal. Critically, these diacritics are not stylistic ornaments; they are semantically contrastive. The base form *ogun*, for instance, maps to four semantically unrelated lexical items depending solely on tonal marking: *ògún* (war), *ògùn* (medicine/juju), *ogún* (inheritance/share), and *ogún* (the number twenty). A system that drops or misreads tone marks does not produce a degraded transcription—it produces a semantically different and often nonsensical one.
+Standard OCR metrics such as Character Error Rate (CER) and Word Error Rate (WER) are necessary but incomplete for this setting. They do not isolate the error pattern most damaging to Yorùbá archival transcription: systematic failure on combining tone marks and subdots. This work therefore evaluates both general transcription quality and diacritic fidelity.
 
-Despite this linguistic reality, standard OCR evaluation metrics such as Character Error Rate (CER) and Word Error Rate (WER) treat all character substitutions equally. A system that transcribes *è* as *e* incurs the same penalty as one that substitutes an entirely unrelated character. This conflation obscures the specific failure mode most damaging for Yorùbá: the systematic dropping or misidentification of diacritics.
+We make three contributions:
 
-This paper addresses three interconnected gaps. There is no publicly available, linguistically validated OCR benchmark for Yorùbá. No prior work has systematically evaluated state-of-the-art multimodal large language models on Yorùbá OCR, despite their impressive performance on English text recognition tasks. And existing metrics are insufficiently sensitive to tonal error patterns.
+1. **A curated Yorùbá OCR dataset** of 2,945 annotated line crops from the *Yorùbá di Wúrà* graded reader series, stored as PaddleOCR-format train/validation/test labels under `data/processed`.
+2. **A reproducible active benchmark** covering Base PaddleOCR English-pretrained recognition, PaddleOCR-VL-1.6 zero-shot, GLM-OCR zero-shot, and optional PaddleOCR-VL-1.6 supervised fine-tuning.
+3. **Diacritic Error Rate (DER)**, a corpus-level metric over Unicode combining marks that directly measures tone-mark and subdot recovery.
 
-We present the following contributions:
-
-1. **A curated dataset** of 2,945 annotated line crops from the *Yorùbá di Wúrà* graded reader series (Books 1–6), merged into one corpus with an 80/10/10 line-level split (seed=42: 2,356 train / 294 val / 295 test). Annotations are human-corrected, UTF-8 normalized (NFC), and constrained to a 99-character Yorùbá diacritic dictionary.
-
-2. **A systematic benchmark** comparing PaddleOCR PP-OCRv4 (English pretrained and CRNN fine-tuned), TrOCR-large-printed, Qwen 2.5 VL, and PaddleOCR-VL-1.5 under zero-shot and LoRA fine-tuned conditions. The fine-tuned vision-language model achieves the lowest corpus DER on the held-out test split.
-
-3. **Diacritic Error Rate (DER)**, a novel evaluation metric that isolates tone-mark recognition failures from general character-level errors, enabling more targeted diagnostics of system behaviour on tonal orthographies.
-
-All data, code, and model checkpoints will be released publicly to support reproducible research on African-language OCR.
+The current paper build treats `results/tables/metrics.csv` and sibling JSONL/meta files as the source of truth. Stale pilot results from removed or renamed systems are not cited.

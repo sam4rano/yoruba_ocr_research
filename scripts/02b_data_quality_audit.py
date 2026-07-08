@@ -32,6 +32,7 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import logging
 import statistics
@@ -118,8 +119,8 @@ def load_label_entries(data_dir: Path, split: str) -> list[tuple[Path, str]]:
     return entries
 
 
-def load_image_dimensions(paths: list[Path]) -> list[tuple[int, int]]:
-    """Return ``(width, height)`` for each path; missing images are skipped.
+def load_image_dimensions(paths: list[Path]) -> list[tuple[Path, int, int]]:
+    """Return ``(path, width, height)`` for each path; missing images are skipped.
 
     Pillow is only imported here so the rest of the script still runs if
     the user just wants label stats.
@@ -133,15 +134,28 @@ def load_image_dimensions(paths: list[Path]) -> list[tuple[int, int]]:
         )
         return []
 
-    dims: list[tuple[int, int]] = []
+    dims: list[tuple[Path, int, int]] = []
     from tqdm import tqdm
     for p in tqdm(paths, desc="Reading image dimensions", unit="img"):
         try:
             with Image.open(p) as im:
-                dims.append(im.size)  # (w, h)
+                w, h = im.size
+                dims.append((p, int(w), int(h)))
         except (OSError, FileNotFoundError):
             continue
     return dims
+
+
+def _sha256_file(path: Path) -> str | None:
+    """Return a file SHA-256 for duplicate/leakage checks."""
+    try:
+        h = hashlib.sha256()
+        with path.open("rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 16), b""):
+                h.update(chunk)
+        return h.hexdigest()
+    except OSError:
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -216,13 +230,39 @@ def profile_split(
             exists,
             [str(p) for p in sample_paths],
         )
-    widths = [w for w, _ in dims]
-    heights = [h for _, h in dims]
+    widths = [w for _, w, _ in dims]
+    heights = [h for _, _, h in dims]
+    tall_examples = [
+        {"path": str(p), "height": h}
+        for p, _w, h in sorted(dims, key=lambda x: x[2], reverse=True)
+        if h > max_height
+    ][:20]
+
+    hash_to_rows: dict[str, list[dict]] = defaultdict(list)
+    for img_path, text in entries:
+        digest = _sha256_file(img_path)
+        if digest:
+            hash_to_rows[digest].append(
+                {
+                    "path": str(img_path),
+                    "label": text,
+                }
+            )
+    duplicate_hash_groups = [
+        {
+            "sha256": digest,
+            "count": len(rows),
+            "paths": [r["path"] for r in rows[:8]],
+            "label_variants": sorted({r["label"] for r in rows})[:8],
+        }
+        for digest, rows in hash_to_rows.items()
+        if len(rows) > 1
+    ]
 
     # Would-drop accounting (does not modify anything on disk)
     dropped_len_short = [t for _, t in entries if len(t) < min_len]
     dropped_len_long = [t for _, t in entries if len(t) > max_len]
-    dropped_height = [h for _, h in dims if h > max_height]
+    dropped_height = [h for _, _, h in dims if h > max_height]
     dropped_nonyor_samples = 0
     for _, text in entries:
         if any(ord(ch) not in YORUBA_WHITELIST_CODEPOINTS for ch in text):
@@ -270,10 +310,15 @@ def profile_split(
                 "threshold_max_height_px": max_height,
                 "count": len(dropped_height),
                 "example_heights": dropped_height[:10],
+                "examples": tall_examples,
             },
             "non_yoruba_codepoint": {
                 "count": dropped_nonyor_samples,
             },
+        },
+        "duplicate_image_hashes": {
+            "groups": len(duplicate_hash_groups),
+            "examples": duplicate_hash_groups[:20],
         },
     }
 
@@ -321,6 +366,46 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def cross_split_duplicate_hashes(data_dir: Path) -> dict:
+    """Return duplicate image-hash groups that cross train/val/test boundaries."""
+    hash_to_rows: dict[str, list[dict]] = defaultdict(list)
+    for split in SPLITS:
+        for img_path, text in load_label_entries(data_dir, split):
+            digest = _sha256_file(img_path)
+            if not digest:
+                continue
+            hash_to_rows[digest].append(
+                {
+                    "split": split,
+                    "path": str(img_path),
+                    "label": text,
+                }
+            )
+
+    groups = []
+    leakage_groups = []
+    for digest, rows in hash_to_rows.items():
+        if len(rows) <= 1:
+            continue
+        split_set = sorted({r["split"] for r in rows})
+        item = {
+            "sha256": digest,
+            "count": len(rows),
+            "splits": split_set,
+            "paths": [r["path"] for r in rows[:8]],
+            "label_variants": sorted({r["label"] for r in rows})[:8],
+        }
+        groups.append(item)
+        if len(split_set) > 1:
+            leakage_groups.append(item)
+
+    return {
+        "duplicate_groups": len(groups),
+        "cross_split_groups": len(leakage_groups),
+        "examples": leakage_groups[:20],
+    }
+
+
 def main() -> None:
     """Profile each split and write the consolidated JSON report."""
     args = parse_args()
@@ -353,6 +438,7 @@ def main() -> None:
         },
         "per_split": per_split,
         "totals": {k: dict(v) for k, v in totals.items()},
+        "cross_split_duplicate_image_hashes": cross_split_duplicate_hashes(args.data_dir),
     }
 
     args.out_json.parent.mkdir(parents=True, exist_ok=True)

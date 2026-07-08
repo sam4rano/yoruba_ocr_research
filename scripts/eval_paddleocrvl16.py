@@ -7,8 +7,8 @@ Does **not** modify ``data/processed``.
 See: https://huggingface.co/PaddlePaddle/PaddleOCR-VL-1.6
 
 Usage:
-    python scripts/15_baseline_paddleocr_vl16.py --split test
-    python scripts/15_baseline_paddleocr_vl16.py --split val --max-samples 50
+    python scripts/eval_paddleocrvl16.py --split test
+    python scripts/eval_paddleocrvl16.py --split val --max-samples 50
 """
 
 from __future__ import annotations
@@ -22,7 +22,7 @@ from pathlib import Path
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
 
-MODEL_LABEL = "paddleocr_vl16_zero_shot"
+MODEL_LABEL = "paddleocrvl16_zero_shot"
 DEFAULT_MODEL_ID = "PaddlePaddle/PaddleOCR-VL-1.6"
 
 
@@ -70,7 +70,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--quantize-4bit",
         action="store_true",
-        help="Load base model in 4-bit (requires bitsandbytes).",
+        default=False,
+        help="Load base model in 4-bit (requires bitsandbytes). Disabled by default; prefer hardware-native float16/bfloat16 for reproducible precision alignment.",
     )
     parser.add_argument(
         "--batch-size",
@@ -166,7 +167,14 @@ def load_model_and_processor(
     model_id: str,
     quantize_4bit: bool,
 ):
-    """Load HF PaddleOCR-VL model and processor (zero-shot, no adapters)."""
+    """Load HF PaddleOCR-VL model and processor (zero-shot, no adapters).
+
+    Precision policy (aligned with SFT training in train_paddleocrvl16_sft.py):
+      - GPU with bf16 support: bfloat16
+      - GPU without bf16:      float16 (e.g. T4)
+      - CPU (no CUDA):         float32
+      - 4-bit quantization:   only when --quantize-4bit is explicitly passed
+    """
     import torch
 
     try:
@@ -202,7 +210,21 @@ def load_model_and_processor(
     from paddle_vl_shared import (  # noqa: E402
         hf_trust_remote_code_model,
         hf_trust_remote_code_processor,
+        select_torch_dtype,
     )
+
+    # Flush Paddle/other framework CUDA contexts before loading a PyTorch model
+    # to prevent context conflicts that cause torch.cuda.is_available() to return False.
+    try:
+        import gc
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    except Exception:
+        pass
+
+    _dtype, _dtype_label = select_torch_dtype()
+    log.info("Loading PaddleOCR-VL-1.6 in %s (CUDA=%s)", _dtype_label, torch.cuda.is_available())
 
     kwargs: dict = {"trust_remote_code": hf_trust_remote_code_model()}
     if quantize_4bit:
@@ -212,10 +234,9 @@ def load_model_and_processor(
             raise ImportError("For --quantize-4bit install bitsandbytes") from exc
         kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
         kwargs["device_map"] = "auto"
+        log.info("4-bit quantization enabled (overrides %s default).", _dtype_label)
     else:
-        kwargs["torch_dtype"] = (
-            torch.bfloat16 if torch.cuda.is_available() else torch.float32
-        )
+        kwargs["dtype"] = _dtype
         if torch.cuda.is_available():
             kwargs["device_map"] = "auto"
 
@@ -309,9 +330,9 @@ def main() -> None:
     model_name = args.model_name
     if not model_name:
         if "finetuned" in args.model_id or "experiments" in args.model_id:
-            model_name = "paddleocr_vl16_finetuned"
+            model_name = "paddleocrvl16_sft"
         else:
-            model_name = "paddleocr_vl16_zero_shot"
+            model_name = "paddleocrvl16_zero_shot"
 
     if args.per_sample_log is None:
         args.per_sample_log = Path(f"results/tables/{model_name}_{args.split}.jsonl")
@@ -341,14 +362,26 @@ def main() -> None:
         results.append((pred, gt))
 
     metrics = aggregate_metrics(results)
+    cer_pct = f"{metrics['cer'] * 100:.2f}%" if metrics["cer"] is not None else "—"
+    wer_pct = f"{metrics['wer'] * 100:.2f}%" if metrics["wer"] is not None else "—"
+    der_pct = f"{metrics['der'] * 100:.2f}%" if metrics["der"] is not None else "—"
     log.info(
-        "%s — CER: %.4f  WER: %.4f  DER: %.4f  (n=%d)",
+        "%s — CER: %s  WER: %s  DER: %s  (n=%d)",
         model_name,
-        metrics["cer"],
-        metrics["wer"],
-        metrics["der"],
+        cer_pct,
+        wer_pct,
+        der_pct,
         metrics["n"],
     )
+    # Determine actual dtype string for provenance logging
+    if args.quantize_4bit:
+        _recorded_dtype = "4bit"
+    elif torch.cuda.is_available():
+        from paddle_vl_shared import select_torch_dtype
+        _recorded_dtype = select_torch_dtype()[1]
+    else:
+        _recorded_dtype = "float32"
+
     provenance: dict = {
         "model_kind": "paddleocr_vl",
         "base_model_id": args.model_id,
@@ -360,11 +393,7 @@ def main() -> None:
         "data_dir": str(args.data_dir),
         "n_images": len(pairs),
         "device": device,
-        "torch_dtype": (
-            "bfloat16"
-            if (not args.quantize_4bit and torch.cuda.is_available())
-            else ("4bit" if args.quantize_4bit else "float32")
-        ),
+        "torch_dtype": _recorded_dtype,
     }
     save_results(
         metrics,

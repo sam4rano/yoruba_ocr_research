@@ -1,1 +1,0 @@
-model_a,model_b,metric,mean_diff_pct,ci_lower_pct,ci_upper_pct,p_a_lower_than_b,n_bootstrap,ci_level

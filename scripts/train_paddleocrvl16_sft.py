@@ -1,5 +1,5 @@
 """
-Fine-tuning for PaddleOCR-VL-1.6 on exported JSONL (see ``14_export_paddleocr_vl_sft.py``).
+Fine-tuning for PaddleOCR-VL-1.6 on exported JSONL (see ``export_paddleocrvl16_sft.py``).
 
 **Training objective:** causal LM loss with **assistant tokens only** (standard SFT):
 prompt positions (vision + user text + generation header) are masked with ``-100`` in
@@ -10,12 +10,12 @@ Optional **gradient accumulation** (``--gradient-accumulation-steps``) reduces o
 frequency and can improve stability; micro-batch size remains one image (typical for VL).
 
 Outputs a fine-tuned model under ``--output-dir``; evaluate with
-``15_baseline_paddleocr_vl16.py --model-id <that dir>``.
+``eval_paddleocrvl16.py --model-id <that dir>``.
 
 Usage:
-    python scripts/14_export_paddleocr_vl_sft.py
-    python scripts/16_train_paddleocr_vl.py --epochs 5 --max-samples 500
-    python scripts/16_train_paddleocr_vl.py --gradient-accumulation-steps 16
+    python scripts/export_paddleocrvl16_sft.py
+    python scripts/train_paddleocrvl16_sft.py --epochs 5 --max-samples 500
+    python scripts/train_paddleocrvl16_sft.py --gradient-accumulation-steps 16
 """
 
 from __future__ import annotations
@@ -38,12 +38,12 @@ log = logging.getLogger(__name__)
 def parse_args() -> argparse.Namespace:
     """Parse CLI arguments."""
     parser = argparse.ArgumentParser(
-        description="Fine-tune PaddleOCR-VL-1.6 on paddleocr_vl16_sft JSONL export."
+        description="Fine-tune PaddleOCR-VL-1.6 on paddleocrvl16_sft JSONL export."
     )
     parser.add_argument(
         "--export-dir",
         type=Path,
-        default=Path("data/paddleocr_vl16_sft"),
+        default=Path("data/paddleocrvl16_sft"),
         help="Directory containing train.jsonl from script 14.",
     )
     parser.add_argument(
@@ -54,7 +54,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("experiments/paddleocr_vl16_finetuned"),
+        default=Path("experiments/paddleocrvl16_sft"),
     )
     parser.add_argument(
         "--epochs",
@@ -101,7 +101,7 @@ def load_train_samples(export_dir: Path, max_samples: int | None) -> list[dict]:
     path = export_dir / "train.jsonl"
     if not path.is_file():
         raise FileNotFoundError(
-            f"Missing {path}. Run: python scripts/14_export_paddleocr_vl_sft.py"
+            f"Missing {path}. Run: python scripts/export_paddleocrvl16_sft.py"
         )
     rows = []
     with path.open(encoding="utf-8") as fh:
@@ -248,6 +248,7 @@ def main() -> None:
     from paddle_vl_shared import (  # noqa: E402
         hf_trust_remote_code_model,
         hf_trust_remote_code_processor,
+        select_torch_dtype,
     )
 
     try:
@@ -288,8 +289,18 @@ def main() -> None:
         processor = AutoProcessor.from_pretrained(
             args.model_id, trust_remote_code=hf_trust_remote_code_processor()
         )
+
+        # Flush Paddle/other CUDA contexts before loading PyTorch model
+        import gc as _gc
+        _gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+
+        _dtype, _dtype_label = select_torch_dtype()
+        log.info("Loading PaddleOCR-VL-1.6 for SFT training in %s (CUDA=%s)", _dtype_label, torch.cuda.is_available())
+
         model_kwargs = {
-            "dtype": torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+            "dtype": _dtype,
             "trust_remote_code": hf_trust_remote_code_model(),
         }
         if torch.cuda.is_available():
@@ -354,8 +365,13 @@ def main() -> None:
     if args.resume and training_state_path.is_file():
         try:
             # Standalone weights are loaded in-place when resuming
+            import gc as _gc
+            _gc.collect()
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            _resume_dtype, _resume_dtype_label = select_torch_dtype()
             resume_kwargs = {
-                "dtype": torch.bfloat16 if torch.cuda.is_available() else torch.float32,
+                "dtype": _resume_dtype,
                 "trust_remote_code": hf_trust_remote_code_model(),
             }
             if torch.cuda.is_available():

@@ -12,7 +12,7 @@ logs without re-running model inference. Universes:
 Usage:
     python scripts/18_der_universe_ablation.py
     python scripts/18_der_universe_ablation.py \
-        --jsonl results/tables/paddleocr_vl16_zero_shot_test.jsonl
+        --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl
 """
 
 from __future__ import annotations
@@ -44,10 +44,10 @@ U_TONE_ONLY = frozenset({"\u0300", "\u0301"})
 
 
 DEFAULT_MODEL_JSONLS = [
-    "baseline_english_pretrained_test.jsonl",
-    "paddleocr_vl16_zero_shot_test.jsonl",
+    "paddleocr_en_pretrained_test.jsonl",
+    "paddleocrvl16_zero_shot_test.jsonl",
     "glm_ocr_zero_shot_test.jsonl",
-    "paddleocr_vl16_finetuned_test.jsonl",
+    "paddleocrvl16_sft_test.jsonl",
 ]
 
 

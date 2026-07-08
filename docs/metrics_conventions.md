@@ -9,7 +9,7 @@
   (each line weighted equally). Values **greater than 1** are valid when
   insertions or severe misalignment inflate edit distance beyond reference
   length — this is normal for diacritic-heavy low-resource OCR on an
-  out-of-domain model (e.g. English-only PP-OCRv4).
+  out-of-domain model (e.g. English-only PaddleOCR recognition).
 
 - **DER** (Diacritic Error Rate) is a **corpus-level, conditional** metric:
   - Predictions and references are preprocessed with `normalize_yoruba_text()`
@@ -43,7 +43,7 @@
   - `true`  — head weights were **not** restored (silent random head); the
     row does not measure a trained model.
   - `false` — integrity check passed.
-  - `n/a`   — non-Paddle baseline (Qwen 2.5-VL, PaddleOCR-VL 1.6);
+  - `n/a`   — non-Paddle/PyTorch VLM baseline (PaddleOCR-VL 1.6, GLM-OCR);
     the phantom concept does not apply.
   - `unknown` — provenance did not include an integrity report (legacy rows).
 

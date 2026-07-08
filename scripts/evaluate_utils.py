@@ -2,7 +2,7 @@
 Shared evaluation utilities: metric computation, data loading, result persistence.
 
 Imported by evaluation and baseline scripts (e.g. 05_evaluate.py, 06_baseline_pretrained.py,
-15_baseline_paddleocr_vl16.py, 12_diagnose_hypotheses.py,
+eval_paddleocrvl16.py, 12_diagnose_hypotheses.py,
 13_verify_eval_alignment.py).
 Not intended to be run directly.
 """
@@ -422,7 +422,7 @@ def save_results(
     * ``phantom`` — checkpoint-integrity flag:
       ``"true"``  = head weights not restored; the row measures a random head;
       ``"false"`` = clean;
-      ``"n/a"``   = non-Paddle baseline (Qwen, PaddleOCR-VL);
+      ``"n/a"``   = non-Paddle/PyTorch VLM baseline;
       ``"unknown"`` = provenance did not include an integrity report.
 
     Returns the path to the sibling meta file (or ``None`` when no

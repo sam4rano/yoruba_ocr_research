@@ -1,5 +1,0 @@
-model,density_quartile,n,cer_pct,wer_pct,der_pct,der_n
-baseline_english_pretrained,q1_low,88,92.2,101.1,100.0,81
-baseline_english_pretrained,q2,80,97.5,103.7,100.0,80
-baseline_english_pretrained,q3,79,98.1,106.2,100.0,79
-baseline_english_pretrained,q4_high,79,114.9,113.9,100.0,79
