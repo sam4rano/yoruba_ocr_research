@@ -8,3 +8,5 @@
 | [model_matrix.md](model_matrix.md) | Active model rows, script names, and baseline/SFT roles |
 | [metrics_conventions.md](metrics_conventions.md) | CER, WER, DER definitions and NFC handling |
 | [manual_qa_checklist.md](manual_qa_checklist.md) | Dataset / annotation QA before training |
+| [reproducibility_manifest.md](reproducibility_manifest.md) | Commit, split counts, checksums, runtime, and citable-output checklist |
+| [research_outputs.md](research_outputs.md) | Required comparison tables, research-grade figures, and final output sequence |

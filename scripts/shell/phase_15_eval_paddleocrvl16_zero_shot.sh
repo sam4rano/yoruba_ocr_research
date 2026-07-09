@@ -23,6 +23,7 @@ PADDLEOCRVL16_ARGS=(
   --results-csv "${METRICS_CSV:-results/tables/metrics.csv}"
 )
 [[ -n "${PADDLEOCRVL16_MAX_SAMPLES:-}" ]] && PADDLEOCRVL16_ARGS+=( --max-samples "$PADDLEOCRVL16_MAX_SAMPLES" )
+[[ -n "${PADDLEOCRVL16_MAX_NEW_TOKENS:-}" ]] && PADDLEOCRVL16_ARGS+=( --max-new-tokens "$PADDLEOCRVL16_MAX_NEW_TOKENS" )
 # PADDLEOCRVL16_QUANTIZE_4BIT=0: use hardware-native dtype (bf16 on L4/A100, fp16 on T4).
 # PADDLEOCRVL16_QUANTIZE_4BIT=1: use 4-bit quantization (useful for small VRAM, but record it).
 [[ "${PADDLEOCRVL16_QUANTIZE_4BIT:-0}" == "1" ]] && PADDLEOCRVL16_ARGS+=( --quantize-4bit )

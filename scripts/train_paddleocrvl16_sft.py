@@ -29,7 +29,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-os.environ["PYTORCH_ALLOC_CONF"] = "expandable_segments:True"
+os.environ.setdefault("PYTORCH_CUDA_ALLOC_CONF", "expandable_segments:True")
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
@@ -82,6 +82,21 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=16,
         help="Optimizer step every N forward passes (default 16).",
+    )
+    parser.add_argument(
+        "--max-pixels",
+        type=int,
+        default=512 * 28 * 28,
+        help=(
+            "Image processor longest_edge pixel cap. Lower values reduce VRAM "
+            "during SFT. Default 401408 (512*28*28) is safer on Colab T4."
+        ),
+    )
+    parser.add_argument(
+        "--empty-cache-steps",
+        type=int,
+        default=25,
+        help="Call gc.collect() + torch.cuda.empty_cache() every N micro-steps.",
     )
     parser.add_argument(
         "--full-sequence-loss",
@@ -418,11 +433,11 @@ def main() -> None:
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    # Must match eval (15_baseline_paddleocr_vl15.py) resolution to avoid
-    # train/eval distribution shift.  768 * 28 * 28 = 602,112 is safe for T4.
-    max_pixels = 768 * 28 * 28
+    max_pixels = int(args.max_pixels)
+    log.info("SFT image max_pixels=%d", max_pixels)
     device = next(model.parameters()).device
     grad_accum = max(1, int(args.gradient_accumulation_steps))
+    empty_cache_steps = max(0, int(args.empty_cache_steps))
 
     from tqdm import tqdm
 
@@ -435,7 +450,7 @@ def main() -> None:
         opt_steps = 0
         skipped = 0
         accum_counter = 0
-        opt.zero_grad()
+        opt.zero_grad(set_to_none=True)
 
         epoch_iterator = tqdm(
             samples,
@@ -454,6 +469,8 @@ def main() -> None:
             if not image_path:
                 continue
             image = Image.open(image_path).convert("RGB")
+            out = None
+            loss = None
 
 
             raw_asst = msgs[1]["content"]
@@ -508,6 +525,9 @@ def main() -> None:
                     USER_TEXT_OCR_YORUBA,
                 )
                 if not ok:
+                    del inputs, labels, image
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
                     continue
 
             # OOM-safe forward pass: skip sample on memory error instead of crashing
@@ -515,21 +535,38 @@ def main() -> None:
                 out = model(**inputs, labels=labels)
             except torch.cuda.OutOfMemoryError:
                 log.warning("OOM on sample %d — clearing cache and skipping.", rec_idx)
+                del inputs, labels, image
                 torch.cuda.empty_cache()
-                opt.zero_grad()
+                opt.zero_grad(set_to_none=True)
                 accum_counter = 0
                 skipped += 1
                 continue
 
-            loss = out.loss
-            if loss is None or torch.isnan(loss):
+            try:
+                loss = out.loss
+                if loss is None or torch.isnan(loss):
+                    skipped += 1
+                    del out, loss, inputs, labels, image
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                    continue
+                loss = loss / grad_accum
+                loss.backward()
+            except torch.cuda.OutOfMemoryError:
+                log.warning(
+                    "OOM during backward on sample %d — clearing cache and skipping.",
+                    rec_idx,
+                )
+                del out, loss, inputs, labels, image
+                torch.cuda.empty_cache()
+                opt.zero_grad(set_to_none=True)
+                accum_counter = 0
                 skipped += 1
                 continue
-            loss = loss / grad_accum
-            loss.backward()
             accum_counter += 1
             total_loss += float(loss.item()) * grad_accum
             micro_steps += 1
+            del out, loss, inputs, labels, image
 
             if accum_counter >= grad_accum:
                 # Gradient clipping to prevent training instability
@@ -538,7 +575,7 @@ def main() -> None:
                 )
                 opt.step()
                 scheduler.step()
-                opt.zero_grad()
+                opt.zero_grad(set_to_none=True)
                 accum_counter = 0
                 opt_steps += 1
                 current_lr = scheduler.get_last_lr()[0]
@@ -559,6 +596,15 @@ def main() -> None:
                         current_lr,
                         skipped,
                     )
+            if (
+                empty_cache_steps
+                and micro_steps > 0
+                and micro_steps % empty_cache_steps == 0
+                and torch.cuda.is_available()
+            ):
+                import gc as _gc
+                _gc.collect()
+                torch.cuda.empty_cache()
 
         if accum_counter > 0:
             torch.nn.utils.clip_grad_norm_(
@@ -566,7 +612,7 @@ def main() -> None:
             )
             opt.step()
             scheduler.step()
-            opt.zero_grad()
+            opt.zero_grad(set_to_none=True)
             opt_steps += 1
 
         log.info(

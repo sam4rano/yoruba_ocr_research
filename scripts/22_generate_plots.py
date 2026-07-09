@@ -2,11 +2,13 @@
 """
 Generate publication-quality SOTA performance figures from Yorùbá OCR results.
 
-Figures generated:
-1. Figure 1: Main Model Comparison (grouped bar chart for CER/WER/DER)
-2. Figure 2: Bootstrap Confidence Intervals (point + error bar for CER/WER/DER)
-3. Figure 3: Stratified DER by Text Density (line plot over quartiles)
-4. Figure 4: Error Taxonomy Distribution (stacked bar chart of error categories)
+Figures generated from real result artifacts:
+1. Main model comparison (grouped bar chart for CER/WER/DER)
+2. Relative error reduction vs English PP-OCR baseline
+3. Bootstrap confidence intervals (point + error bar for CER/WER/DER)
+4. Stratified DER by text density (line plot over quartiles)
+5. Error taxonomy distribution (stacked bar chart of error categories)
+6. Hard-case linguistic feature benchmark, when available
 
 By default, missing inputs are skipped rather than replaced with illustrative
 data. Use ``--allow-placeholder`` only for slide/layout mockups; never for
@@ -26,6 +28,8 @@ import numpy as np
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 log = logging.getLogger(__name__)
+logging.getLogger("fontTools").setLevel(logging.WARNING)
+logging.getLogger("matplotlib").setLevel(logging.WARNING)
 
 # Model display name mapping
 MODEL_DISPLAY = {
@@ -50,6 +54,9 @@ COLORS = {
     "paddleocrvl16_sft": "#16a085",     # Vibrant Teal
 }
 
+FIGURE_DPI = 300
+FIGURE_FORMATS = ("png", "pdf", "svg")
+
 
 def load_csv_safe(path: Path) -> pd.DataFrame | None:
     """Load a CSV file if it exists and has content."""
@@ -63,6 +70,69 @@ def load_csv_safe(path: Path) -> pd.DataFrame | None:
         return None
 
 
+def _to_float(value) -> float | None:
+    """Convert CSV values to float, accepting blanks and percent strings."""
+    if value is None or pd.isna(value):
+        return None
+    raw = str(value).strip()
+    if not raw or raw == "—":
+        return None
+    try:
+        return float(raw.rstrip("%"))
+    except ValueError:
+        return None
+
+
+def _pct_from_rate(value) -> float | None:
+    """Convert stored metric rate to percentage."""
+    number = _to_float(value)
+    return None if number is None else number * 100.0
+
+
+def load_main_metrics(results_dir: Path) -> pd.DataFrame | None:
+    """
+    Load the main comparison table for plotting.
+
+    Preference order:
+    1. ``metrics_summary.csv`` from ``scripts/11_compile_results.py``.
+    2. ``table1_main_comparison.csv``.
+    3. Raw ``metrics.csv`` latest test rows, converted to summary format.
+    """
+    for name in ("metrics_summary.csv", "table1_main_comparison.csv"):
+        df = load_csv_safe(results_dir / name)
+        if df is not None and "model_label" in df.columns:
+            return df
+
+    raw = load_csv_safe(results_dir / "metrics.csv")
+    if raw is None or "model" not in raw.columns:
+        return None
+
+    rows = []
+    for model in MODEL_ORDER:
+        subset = raw[raw["model"] == model]
+        if "split" in raw.columns:
+            test_subset = subset[subset["split"] == "test"]
+            if not test_subset.empty:
+                subset = test_subset
+        if subset.empty:
+            continue
+        row = subset.iloc[-1]
+        if str(row.get("phantom", "")).strip().lower() == "true":
+            continue
+        rows.append({
+            "model_label": model,
+            "display_name": MODEL_DISPLAY.get(model, model),
+            "cer_pct": _pct_from_rate(row.get("cer")),
+            "median_cer_pct": _pct_from_rate(row.get("median_cer")),
+            "micro_cer_pct": _pct_from_rate(row.get("micro_cer")),
+            "wer_pct": _pct_from_rate(row.get("wer")),
+            "der_pct": _pct_from_rate(row.get("der")),
+            "n": row.get("n", ""),
+            "der_n": row.get("der_n", ""),
+        })
+    return pd.DataFrame(rows) if rows else None
+
+
 def setup_matplotlib():
     """Import and configure matplotlib style settings."""
     cache_root = Path(tempfile.gettempdir()) / "yoruba_ocr_matplotlib"
@@ -74,7 +144,7 @@ def setup_matplotlib():
         matplotlib.use("Agg", force=True)
         import matplotlib.pyplot as plt
         import seaborn as sns
-        sns.set_theme(style="whitegrid")
+        sns.set_theme(style="whitegrid", context="paper")
         # Ensure clean text and layout styling
         plt.rcParams.update({
             "font.family": "sans-serif",
@@ -85,12 +155,40 @@ def setup_matplotlib():
             "ytick.labelsize": 9,
             "legend.fontsize": 9,
             "figure.titlesize": 13,
-            "figure.dpi": 150,
+            "figure.dpi": FIGURE_DPI,
+            "savefig.dpi": FIGURE_DPI,
+            "savefig.bbox": "tight",
+            "savefig.pad_inches": 0.04,
+            "pdf.fonttype": 42,
+            "ps.fonttype": 42,
+            "svg.fonttype": "none",
+            "axes.spines.top": False,
+            "axes.spines.right": False,
         })
         return plt, sns
     except ImportError:
         log.error("matplotlib or seaborn not installed. Plots cannot be generated.")
         raise
+
+
+def save_figure(fig, fig_dir: Path, stem: str) -> None:
+    """Save a figure as paper-ready PNG plus editable vector files."""
+    fig_dir.mkdir(parents=True, exist_ok=True)
+    for ext in FIGURE_FORMATS:
+        fig.savefig(fig_dir / f"{stem}.{ext}")
+    log.info("Saved %s.{%s}", stem, ",".join(FIGURE_FORMATS))
+
+
+def short_model_name(model: str) -> str:
+    """Compact model label for axes."""
+    return (
+        MODEL_DISPLAY.get(model, model)
+        .replace("PaddleOCR-VL-1.6", "VL-1.6")
+        .replace("PaddleOCR PP-OCR", "PP-OCR")
+        .replace(" (Zero-Shot)", "\nZS")
+        .replace(" (Fine-Tuned)", "\nFT")
+        .replace(" (EN)", "\nEN")
+    )
 
 
 def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
@@ -107,9 +205,9 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, al
                 row = sub.iloc[0]
                 plot_data.append({
                     "Model": MODEL_DISPLAY.get(model, model),
-                    "CER": float(row.get("cer_pct", 0)),
-                    "WER": float(row.get("wer_pct", 0)),
-                    "DER": float(row.get("der_pct", 0)) if not pd.isna(row.get("der_pct")) else 0,
+                    "CER": _to_float(row.get("cer_pct")),
+                    "WER": _to_float(row.get("wer_pct")),
+                    "DER": _to_float(row.get("der_pct")),
                 })
         plot_df = pd.DataFrame(plot_data)
     else:
@@ -129,6 +227,11 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, al
     if plot_df.empty:
         plt.close(fig)
         return
+    plot_df = plot_df.dropna(subset=["CER", "WER", "DER"], how="all")
+    if plot_df.empty:
+        log.warning("Skipping Fig 1: no numeric CER/WER/DER values available.")
+        plt.close(fig)
+        return
 
     # Reshape for bar plot
     melted = plot_df.melt(id_vars="Model", value_vars=["CER", "WER", "DER"], var_name="Metric", value_name="Error Rate (%)")
@@ -137,7 +240,7 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, al
     sns.barplot(data=melted, x="Model", y="Error Rate (%)", hue="Metric", palette="muted", ax=ax)
     
     # Formatting
-    ax.set_title("Figure 1: Main Metric Performance Comparison")
+    ax.set_title("Main Metric Performance Comparison")
     ax.set_ylabel("Error Rate (%)")
     ax.set_xlabel("")
     plt.xticks(rotation=15, ha="right")
@@ -155,9 +258,99 @@ def plot_main_comparison(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, al
                         textcoords='offset points')
             
     plt.tight_layout()
-    fig.savefig(fig_dir / "model_metrics_comparison.png", dpi=150)
+    save_figure(fig, fig_dir, "model_metrics_comparison")
     plt.close(fig)
-    log.info("Saved model_metrics_comparison.png")
+
+
+def plot_relative_error_reduction(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
+    """Plot relative CER/WER/DER reduction against the English PP-OCR baseline."""
+    fig, ax = plt.subplots(figsize=(8, 4.8))
+
+    if df is not None and "model_label" in df.columns:
+        rows = []
+        for model in MODEL_ORDER:
+            sub = df[df["model_label"] == model]
+            if sub.empty:
+                continue
+            row = sub.iloc[0]
+            rows.append({
+                "model": model,
+                "CER": _to_float(row.get("cer_pct")),
+                "WER": _to_float(row.get("wer_pct")),
+                "DER": _to_float(row.get("der_pct")),
+            })
+        source = pd.DataFrame(rows)
+    else:
+        source = pd.DataFrame()
+
+    if source.empty and allow_placeholder:
+        source = pd.DataFrame([
+            {"model": "paddleocr_en_pretrained", "CER": 62.4, "WER": 84.1, "DER": 95.3},
+            {"model": "paddleocrvl16_zero_shot", "CER": 24.1, "WER": 42.5, "DER": 35.1},
+            {"model": "glm_ocr_zero_shot", "CER": 19.5, "WER": 36.2, "DER": 28.6},
+            {"model": "paddleocrvl16_sft", "CER": 9.2, "WER": 18.4, "DER": 11.3},
+        ])
+
+    baseline = source[source["model"] == "paddleocr_en_pretrained"]
+    if baseline.empty:
+        log.warning("Skipping Fig 5: English PP-OCR baseline row is required for relative reduction.")
+        plt.close(fig)
+        return
+
+    baseline_row = baseline.iloc[0]
+    improvement_rows = []
+    for _, row in source.iterrows():
+        model = row["model"]
+        if model == "paddleocr_en_pretrained":
+            continue
+        for metric in ("CER", "WER", "DER"):
+            base_value = baseline_row.get(metric)
+            model_value = row.get(metric)
+            if base_value is None or pd.isna(base_value) or not base_value:
+                continue
+            if model_value is None or pd.isna(model_value):
+                continue
+            improvement_rows.append({
+                "Model": short_model_name(model),
+                "Metric": metric,
+                "Relative reduction (%)": ((base_value - model_value) / base_value) * 100.0,
+            })
+
+    improvement_df = pd.DataFrame(improvement_rows)
+    if improvement_df.empty:
+        log.warning("Skipping Fig 5: no comparable metric values available.")
+        plt.close(fig)
+        return
+
+    sns.barplot(
+        data=improvement_df,
+        x="Model",
+        y="Relative reduction (%)",
+        hue="Metric",
+        palette="colorblind",
+        ax=ax,
+    )
+    ax.axhline(0, color="#444444", linewidth=0.9)
+    ax.set_title("Relative Error Reduction vs English PP-OCR Baseline")
+    ax.set_xlabel("")
+    ax.set_ylabel("Reduction in error rate (%)")
+    max_abs = max(abs(improvement_df["Relative reduction (%)"].min()), abs(improvement_df["Relative reduction (%)"].max()))
+    ax.set_ylim(min(-5, improvement_df["Relative reduction (%)"].min() - 5), max(10, max_abs * 1.15))
+    for patch in ax.patches:
+        height = patch.get_height()
+        if not np.isnan(height):
+            ax.annotate(
+                f"{height:.1f}",
+                (patch.get_x() + patch.get_width() / 2, height),
+                ha="center",
+                va="bottom" if height >= 0 else "top",
+                fontsize=7,
+                xytext=(0, 2 if height >= 0 else -2),
+                textcoords="offset points",
+            )
+    plt.tight_layout()
+    save_figure(fig, fig_dir, "relative_error_reduction")
+    plt.close(fig)
 
 
 def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
@@ -199,7 +392,7 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allo
             elif not val_found:
                 continue
                 
-            plot_x.append(MODEL_DISPLAY[model].replace("PaddleOCR-VL-1.6", "VL-1.6").replace(" (Zero-Shot)", " (ZS)").replace(" (Fine-Tuned)", " (FT)"))
+            plot_x.append(short_model_name(model))
             plot_y.append(point)
             errors_lower.append(point - low)
             errors_upper.append(high - point)
@@ -230,11 +423,10 @@ def plot_bootstrap_cis(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allo
         plt.close(fig)
         return
 
-    plt.suptitle("Figure 2: Bootstrap Resampling Metric Confidence Intervals")
+    plt.suptitle("Bootstrap Resampling Metric Confidence Intervals")
     plt.tight_layout()
-    fig.savefig(fig_dir / "bootstrap_confidence_intervals.png", dpi=150)
+    save_figure(fig, fig_dir, "bootstrap_confidence_intervals")
     plt.close(fig)
-    log.info("Saved bootstrap_confidence_intervals.png")
 
 
 def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
@@ -277,16 +469,15 @@ def plot_stratified_density(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *,
         plt.close(fig)
         return
         
-    ax.set_title("Figure 3: Stratified Diacritic Error Rate (DER) by Character Density")
+    ax.set_title("Stratified Diacritic Error Rate (DER) by Character Density")
     ax.set_ylabel("Diacritic Error Rate (DER %)")
     ax.set_xlabel("Diacritic Density Quartile")
     ax.set_ylim(0, 105)
     ax.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0.)
     
     plt.tight_layout()
-    fig.savefig(fig_dir / "stratified_der_by_density.png", dpi=150)
+    save_figure(fig, fig_dir, "stratified_der_by_density")
     plt.close(fig)
-    log.info("Saved stratified_der_by_density.png")
 
 
 def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
@@ -349,7 +540,7 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, all
     plot_df.set_index("Model")[display_cols].plot(kind="bar", stacked=True, ax=ax, 
                                                  color=["#2ecc71", "#3498db", "#e67e22", "#e74c3c", "#95a5a6"])
     
-    ax.set_title("Figure 4: Character Diacritic Error Taxonomy Distribution")
+    ax.set_title("Character Diacritic Error Taxonomy Distribution")
     ax.set_ylabel("Percentage (%)")
     ax.set_xlabel("")
     plt.xticks(rotation=15, ha="right")
@@ -357,9 +548,8 @@ def plot_error_taxonomy(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, all
     ax.legend(title="Category", bbox_to_anchor=(1.02, 1), loc='upper left')
     
     plt.tight_layout()
-    fig.savefig(fig_dir / "error_taxonomy_distribution.png", dpi=150)
+    save_figure(fig, fig_dir, "error_taxonomy_distribution")
     plt.close(fig)
-    log.info("Saved error_taxonomy_distribution.png")
 
 
 def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_placeholder: bool):
@@ -378,10 +568,10 @@ def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_p
     }
     # Illustrative fallback values (CER %) per feature per model
     ILLUS = {
-        "Named Entities":      [72.1, 42.3, 31.4, 24.6, 8.2],
-        "Numerics":            [68.5, 38.9, 28.7, 21.3, 7.6],
-        "Historical Orthography": [85.3, 55.7, 44.2, 36.1, 14.9],
-        "Code-Mixed (Yor\u00f9b\u00e1\u2013English)": [78.4, 47.2, 36.8, 28.5, 11.3],
+        "Named Entities":      [72.1, 42.3, 31.4, 8.2],
+        "Numerics":            [68.5, 38.9, 28.7, 7.6],
+        "Historical Orthography": [85.3, 55.7, 44.2, 14.9],
+        "Code-Mixed (Yor\u00f9b\u00e1\u2013English)": [78.4, 47.2, 36.8, 11.3],
     }
 
     n_models = len(MODEL_ORDER)
@@ -389,7 +579,7 @@ def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_p
     x = range(n_features)
     width = 0.15
     offsets = [(i - n_models / 2 + 0.5) * width for i in range(n_models)]
-    COLORS = ["#636EFA", "#EF553B", "#00CC96", "#AB63FA", "#FFA15A"]
+    colors = ["#636EFA", "#EF553B", "#00CC96", "#AB63FA"]
 
     fig, ax = plt.subplots(figsize=(12, 6))
 
@@ -421,7 +611,7 @@ def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_p
             cer_vals,
             width=width * 0.9,
             label=MODEL_DISPLAY[model],
-            color=COLORS[m_idx],
+            color=colors[m_idx],
             alpha=0.87,
         )
         # Value labels on bars
@@ -445,16 +635,15 @@ def plot_hard_cases(df: pd.DataFrame | None, fig_dir: Path, plt, sns, *, allow_p
     ax.set_xticks(list(x))
     ax.set_xticklabels([FEATURE_SHORT[f] for f in FEATURES], fontsize=10)
     ax.set_ylabel("CER (%)")
-    ax.set_title("Figure 5: Hard-Case Benchmark — CER by Linguistic Feature Category")
+    ax.set_title("Hard-Case Benchmark — CER by Linguistic Feature Category")
     ax.set_ylim(0, max(max(v for v in ILLUS[f]) for f in FEATURES) * 1.25)
     ax.legend(title="Model", bbox_to_anchor=(1.02, 1), loc="upper left", fontsize=8)
     ax.yaxis.grid(True, linestyle="--", alpha=0.5)
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    fig.savefig(fig_dir / "hard_cases_benchmark.png", dpi=150)
+    save_figure(fig, fig_dir, "hard_cases_benchmark")
     plt.close(fig)
-    log.info("Saved hard_cases_benchmark.png")
 
 
 def main():
@@ -477,7 +666,7 @@ def main():
     fig_dir.mkdir(parents=True, exist_ok=True)
     
     # Load inputs
-    df_metrics = load_csv_safe(args.results_dir / "metrics_summary.csv")
+    df_metrics = load_main_metrics(args.results_dir)
     df_cis = load_csv_safe(args.results_dir / "bootstrap_metric_cis.csv")
     df_density = load_csv_safe(args.results_dir / "stratified_der_by_density.csv")
     df_taxonomy = load_csv_safe(args.results_dir / "error_taxonomy.csv")
@@ -488,12 +677,13 @@ def main():
     
     # Plot figures
     plot_main_comparison(df_metrics, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
+    plot_relative_error_reduction(df_metrics, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
     plot_bootstrap_cis(df_cis, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
     plot_stratified_density(df_density, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
     plot_error_taxonomy(df_taxonomy, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
     plot_hard_cases(df_features, fig_dir, plt, sns, allow_placeholder=args.allow_placeholder)
     
-    log.info("All figures generated successfully under %s", fig_dir)
+    log.info("Figure generation pass complete under %s. Warnings indicate skipped missing inputs.", fig_dir)
 
 
 if __name__ == "__main__":

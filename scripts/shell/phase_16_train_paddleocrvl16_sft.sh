@@ -24,6 +24,12 @@ fi
 if [[ -n "${PADDLEOCRVL16_SFT_GRAD_ACCUM:-}" ]]; then
   EXTRA+=(--gradient-accumulation-steps "$PADDLEOCRVL16_SFT_GRAD_ACCUM")
 fi
+if [[ -n "${PADDLEOCRVL16_SFT_MAX_PIXELS:-}" ]]; then
+  EXTRA+=(--max-pixels "$PADDLEOCRVL16_SFT_MAX_PIXELS")
+fi
+if [[ -n "${PADDLEOCRVL16_SFT_EMPTY_CACHE_STEPS:-}" ]]; then
+  EXTRA+=(--empty-cache-steps "$PADDLEOCRVL16_SFT_EMPTY_CACHE_STEPS")
+fi
 if [[ "${PADDLEOCRVL16_SFT_RESUME:-0}" == "1" ]]; then
   EXTRA+=(--resume)
 fi
