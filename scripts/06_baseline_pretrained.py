@@ -112,10 +112,11 @@ def parse_args() -> argparse.Namespace:
         "--rec_config",
         dest="rec_config",
         type=Path,
-        default=Path("configs/paddleocr_yoruba_rec.yml"),
+        default=Path("PaddleOCR/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml"),
         help=(
-            "YAML passed to scripts/05_evaluate.py — must match the PP-OCRv3/v4 family of "
-            "--pretrained-dir. Default matches 03_generate_config / 04_train."
+            "YAML passed to scripts/05_evaluate.py. For the English pretrained "
+            "baseline this must match the upstream PP-OCRv3 English checkpoint "
+            "architecture; do not use configs/paddleocr_yoruba_rec.yml here."
         ),
     )
     parser.add_argument(
@@ -170,8 +171,18 @@ def run_baseline(args: argparse.Namespace) -> None:
             dict_path,
         )
         sys.exit(1)
+    if not args.rec_config.exists():
+        log.error(
+            "Recognition config not found at %s. The English baseline expects "
+            "the upstream PP-OCRv3 English config, usually "
+            "PaddleOCR/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml. "
+            "Run the PaddleOCR clone step first or pass --rec-config explicitly.",
+            args.rec_config,
+        )
+        sys.exit(1)
 
     log.info("Using character dict: %s", dict_path)
+    log.info("Using recognition config: %s", args.rec_config)
 
     cmd = [
         sys.executable,

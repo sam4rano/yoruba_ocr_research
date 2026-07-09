@@ -15,13 +15,14 @@ if [[ "${EVAL_USE_GPU:-0}" == "1" ]]; then
   GPU=( --use-gpu )
 fi
 
+EN_REC_CONFIG="${PADDLE_EN_REC_CONFIG:-${PADDLE_DIR:-PaddleOCR}/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml}"
 REC_CONFIG="${PADDLE_REC_CONFIG:-configs/paddleocr_yoruba_rec.yml}"
 
 run_py scripts/06_baseline_pretrained.py \
   --pretrained-dir "$BASE_PRE" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "$SPLIT" \
-  --rec-config "$REC_CONFIG" \
+  --rec-config "$EN_REC_CONFIG" \
   --results-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
   --per-sample-log "results/tables/paddleocr_en_pretrained_${SPLIT}.jsonl" \
   "${GPU[@]}" \
