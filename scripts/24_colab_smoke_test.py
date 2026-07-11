@@ -28,7 +28,15 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = os.environ.get("PYTHON", sys.executable)
-SHELL_ENV = {**os.environ, "PYTHON": PY, "PROJECT_ROOT": str(ROOT)}
+SMOKE_CACHE = Path(os.environ.get("TMPDIR", "/tmp")) / "yoruba_ocr_smoke_cache"
+SMOKE_CACHE.mkdir(parents=True, exist_ok=True)
+SHELL_ENV = {
+    **os.environ,
+    "PYTHON": PY,
+    "PROJECT_ROOT": str(ROOT),
+    "MPLCONFIGDIR": os.environ.get("MPLCONFIGDIR", str(SMOKE_CACHE / "mpl")),
+    "XDG_CACHE_HOME": os.environ.get("XDG_CACHE_HOME", str(SMOKE_CACHE / "xdg")),
+}
 
 
 def run(cmd: list[str], *, cwd: Path = ROOT, env: dict | None = None) -> None:
@@ -160,15 +168,19 @@ def main() -> None:
     def compile_tables() -> None:
         check_path(ROOT / "results/tables/metrics.csv")
         run(["bash", "scripts/shell/phase_09_compile.sh"])
+        run([PY, "scripts/22_generate_plots.py"])
         check_path(ROOT / "results/tables/table1_main_comparison.csv")
         check_path(ROOT / "results/tables/metrics_summary.csv")
-        for fig_name in (
-            "model_metrics_comparison.png",
-            "bootstrap_confidence_intervals.png",
-            "stratified_der_by_density.png",
-            "error_taxonomy_distribution.png",
+        for stem in (
+            "model_metrics_comparison",
+            "relative_error_reduction",
+            "bootstrap_confidence_intervals",
+            "stratified_der_by_density",
+            "error_taxonomy_distribution",
+            "hard_cases_benchmark",
         ):
-            check_path(ROOT / "results/tables/figures" / fig_name)
+            for ext in ("png", "pdf", "svg"):
+                check_path(ROOT / "results/tables/figures" / f"{stem}.{ext}")
 
     def checkpoint_audit() -> None:
         run([
@@ -185,14 +197,25 @@ def main() -> None:
     def notebook_syntax() -> None:
         import ast
 
-        nb = json.loads((ROOT / "yor_ocr.ipynb").read_text(encoding="utf-8"))
-        for i, cell in enumerate(nb["cells"]):
-            if cell["cell_type"] != "code":
-                continue
-            ast.parse("".join(cell["source"]))
+        for nb_name in ("yor_ocr.ipynb", "yor_ocr_kaggle.ipynb"):
+            nb = json.loads((ROOT / nb_name).read_text(encoding="utf-8"))
+            for i, cell in enumerate(nb["cells"]):
+                if cell["cell_type"] != "code":
+                    continue
+                ast.parse("".join(cell["source"]))
 
     def deps_checks() -> None:
         subprocess.check_call([PY, "-c", "import editdistance"], env=SHELL_ENV)
+
+    def plotting_deps_checks() -> None:
+        code = (
+            "import numpy, pandas, matplotlib, seaborn; "
+            "print('numpy', numpy.__version__); "
+            "print('pandas', pandas.__version__); "
+            "print('matplotlib', matplotlib.__version__); "
+            "print('seaborn', seaborn.__version__)"
+        )
+        subprocess.check_call([PY, "-c", code], env=SHELL_ENV)
 
     def deps_full_checks() -> None:
         subprocess.check_call([PY, "-c", "import datasets"], env=SHELL_ENV)
@@ -218,7 +241,10 @@ def main() -> None:
             "--results-csv", "results/tables/metrics.csv",
             "--output-dir", "results/tables",
         ])
+        run([PY, "scripts/22_generate_plots.py"])
         check_path(ROOT / "results/tables/table1_main_comparison.csv")
+        check_path(ROOT / "results/tables/figures/model_metrics_comparison.png")
+        check_path(ROOT / "results/tables/figures/relative_error_reduction.png")
 
     def hf_dataset_card() -> None:
         run([PY, "scripts/25_upload_hf_dataset.py", "--dry-run"])
@@ -229,6 +255,7 @@ def main() -> None:
 
     step("data/processed layout", data_checks)
     step("python deps (editdistance)", deps_checks)
+    step("plotting deps (numpy/pandas/matplotlib)", plotting_deps_checks)
     step("02c refresh dataset report", refresh_report)
     step("phase_03 config", config_phase)
     step("VLM/SFT script syntax", vl_export)

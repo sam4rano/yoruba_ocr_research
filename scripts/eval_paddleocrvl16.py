@@ -385,6 +385,8 @@ def main() -> None:
     provenance: dict = {
         "model_kind": "paddleocr_vl",
         "base_model_id": args.model_id,
+        "base_model_revision": getattr(getattr(model, "config", None), "_commit_hash", None),
+        "processor_revision": getattr(processor, "_commit_hash", None),
         "quantize_4bit": bool(args.quantize_4bit),
         "max_new_tokens": args.max_new_tokens,
         "do_sample": False,

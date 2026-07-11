@@ -21,6 +21,9 @@ fi
 if [[ -n "${PADDLEOCRVL16_SFT_LR:-}" ]]; then
   EXTRA+=(--lr "$PADDLEOCRVL16_SFT_LR")
 fi
+if [[ -n "${PADDLEOCRVL16_SFT_TRAIN_SCOPE:-}" ]]; then
+  EXTRA+=(--train-scope "$PADDLEOCRVL16_SFT_TRAIN_SCOPE")
+fi
 if [[ -n "${PADDLEOCRVL16_SFT_GRAD_ACCUM:-}" ]]; then
   EXTRA+=(--gradient-accumulation-steps "$PADDLEOCRVL16_SFT_GRAD_ACCUM")
 fi
@@ -29,6 +32,12 @@ if [[ -n "${PADDLEOCRVL16_SFT_MAX_PIXELS:-}" ]]; then
 fi
 if [[ -n "${PADDLEOCRVL16_SFT_EMPTY_CACHE_STEPS:-}" ]]; then
   EXTRA+=(--empty-cache-steps "$PADDLEOCRVL16_SFT_EMPTY_CACHE_STEPS")
+fi
+if [[ -n "${PADDLEOCRVL16_SFT_VAL_SAMPLES:-}" ]]; then
+  EXTRA+=(--val-samples "$PADDLEOCRVL16_SFT_VAL_SAMPLES")
+fi
+if [[ -n "${PADDLEOCRVL16_SFT_EVAL_MAX_NEW_TOKENS:-}" ]]; then
+  EXTRA+=(--eval-max-new-tokens "$PADDLEOCRVL16_SFT_EVAL_MAX_NEW_TOKENS")
 fi
 if [[ "${PADDLEOCRVL16_SFT_RESUME:-0}" == "1" ]]; then
   EXTRA+=(--resume)

@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import math
 import os
 import sys
 from datetime import datetime, timezone
@@ -67,6 +68,16 @@ def parse_args() -> argparse.Namespace:
         default=2e-5,
     )
     parser.add_argument(
+        "--train-scope",
+        choices=["lm_head", "non_vision", "all"],
+        default="lm_head",
+        help=(
+            "Which parameters to update. 'lm_head' is safer on small Colab "
+            "runs; 'non_vision' matches the earlier full language-side SFT; "
+            "'all' also updates the vision tower and is not recommended on T4."
+        ),
+    )
+    parser.add_argument(
         "--max-samples",
         type=int,
         default=None,
@@ -97,6 +108,18 @@ def parse_args() -> argparse.Namespace:
         type=int,
         default=25,
         help="Call gc.collect() + torch.cuda.empty_cache() every N micro-steps.",
+    )
+    parser.add_argument(
+        "--val-samples",
+        type=int,
+        default=64,
+        help="Evaluate this many validation samples after each epoch (0 disables).",
+    )
+    parser.add_argument(
+        "--eval-max-new-tokens",
+        type=int,
+        default=256,
+        help="Generation cap for epoch validation.",
     )
     parser.add_argument(
         "--full-sequence-loss",
@@ -130,6 +153,201 @@ def load_train_samples(export_dir: Path, max_samples: int | None) -> list[dict]:
     if not rows:
         raise ValueError(f"No samples in {path}")
     return rows
+
+
+def load_jsonl_samples(path: Path, max_samples: int | None = None) -> list[dict]:
+    """Load JSONL records with an optional sample cap."""
+    if not path.is_file():
+        return []
+    rows = []
+    with path.open(encoding="utf-8") as fh:
+        for line in fh:
+            line = line.strip()
+            if not line:
+                continue
+            rows.append(json.loads(line))
+            if max_samples and len(rows) >= max_samples:
+                break
+    return rows
+
+
+def is_vision_param(name: str) -> bool:
+    """Heuristic for PaddleOCR-VL visual-tower parameter names."""
+    lname = name.lower()
+    return any(token in lname for token in ("visual", "vision", "image", "vit"))
+
+
+def is_lm_head_param(name: str) -> bool:
+    """Heuristic for output-head parameters across HF remote-code variants."""
+    lname = name.lower()
+    return any(
+        token in lname
+        for token in (
+            "lm_head",
+            "embed_out",
+            "output_projection",
+            "output_layer",
+            "language_model.output",
+            "model.output",
+        )
+    )
+
+
+def apply_train_scope(model, train_scope: str) -> str:
+    """Set requires_grad according to train scope and return effective scope."""
+    if train_scope == "lm_head":
+        output_param_ids: set[int] = set()
+        if hasattr(model, "get_output_embeddings"):
+            output_embeddings = model.get_output_embeddings()
+            if output_embeddings is not None:
+                output_param_ids = {id(param) for param in output_embeddings.parameters()}
+
+        matched = 0
+        for name, param in model.named_parameters():
+            trainable = id(param) in output_param_ids or is_lm_head_param(name)
+            param.requires_grad = trainable
+            matched += int(trainable)
+        if matched:
+            return "lm_head"
+        raise RuntimeError(
+            "train_scope=lm_head could not identify the model output embeddings. "
+            "Refusing to fall back to non_vision because that can exceed Colab T4 VRAM."
+        )
+
+    for name, param in model.named_parameters():
+        if train_scope == "all":
+            param.requires_grad = True
+        elif train_scope == "non_vision":
+            param.requires_grad = not is_vision_param(name)
+        else:
+            raise ValueError(f"Unsupported train_scope={train_scope}")
+    return train_scope
+
+
+def extract_image_path(record: dict) -> str | None:
+    """Return the image path from an exported SFT record."""
+    for part in record.get("messages", [{}])[0].get("content", []):
+        if isinstance(part, dict) and part.get("type") == "image":
+            return part.get("image")
+    return None
+
+
+def extract_assistant_text(record: dict) -> str:
+    """Return assistant transcript from an exported SFT record."""
+    messages = record.get("messages", [])
+    if len(messages) < 2:
+        return ""
+    content = messages[1].get("content", "")
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        texts = []
+        for part in content:
+            if isinstance(part, dict) and part.get("type") == "text":
+                texts.append(str(part.get("text", "")))
+        return "".join(texts)
+    return str(content)
+
+
+def transcribe_for_validation(
+    *,
+    model,
+    processor,
+    image,
+    device,
+    user_prompt: str,
+    max_pixels: int,
+    max_new_tokens: int,
+) -> str:
+    """Generate one transcript during epoch validation."""
+    import torch
+
+    from paddle_vl_shared import clean_vl_transcript  # noqa: E402
+
+    messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "image", "image": image},
+                {"type": "text", "text": user_prompt},
+            ],
+        }
+    ]
+    inputs = processor.apply_chat_template(
+        messages,
+        add_generation_prompt=True,
+        tokenize=True,
+        return_dict=True,
+        return_tensors="pt",
+        processor_kwargs={
+            "images_kwargs": {
+                "size": {
+                    "shortest_edge": getattr(
+                        processor.image_processor, "min_pixels", 28 * 28 * 4
+                    ),
+                    "longest_edge": max_pixels,
+                }
+            }
+        },
+    )
+    if hasattr(inputs, "to"):
+        inputs = inputs.to(device)
+    else:
+        inputs = {k: v.to(device) for k, v in inputs.items()}
+    with torch.no_grad():
+        output_ids = model.generate(
+            **inputs, max_new_tokens=max_new_tokens, do_sample=False
+        )
+    new_tokens = output_ids[0][inputs["input_ids"].shape[-1]:]
+    return clean_vl_transcript(processor.decode(new_tokens, skip_special_tokens=True))
+
+
+def validate_epoch(
+    *,
+    model,
+    processor,
+    val_samples: list[dict],
+    device,
+    max_pixels: int,
+    max_new_tokens: int,
+    user_prompt: str,
+) -> dict:
+    """Run a small validation subset and return aggregate metrics."""
+    from PIL import Image
+    from evaluate_utils import aggregate_metrics  # noqa: E402
+
+    if not val_samples:
+        return {"n": 0}
+    was_training = model.training
+    model.eval()
+    pairs: list[tuple[str, str]] = []
+    failed = 0
+    for rec in val_samples:
+        image_path = extract_image_path(rec)
+        gt = extract_assistant_text(rec)
+        if not image_path or not gt:
+            failed += 1
+            continue
+        try:
+            image = Image.open(image_path).convert("RGB")
+            pred = transcribe_for_validation(
+                model=model,
+                processor=processor,
+                image=image,
+                device=device,
+                user_prompt=user_prompt,
+                max_pixels=max_pixels,
+                max_new_tokens=max_new_tokens,
+            )
+            pairs.append((pred, gt))
+        except Exception as exc:  # noqa: BLE001
+            failed += 1
+            log.warning("Validation sample failed (%s): %s", image_path, exc)
+    if was_training:
+        model.train()
+    metrics = aggregate_metrics(pairs) if pairs else {"n": 0}
+    metrics["failed"] = failed
+    return metrics
 
 
 def build_labels_assistant_only(
@@ -259,6 +477,35 @@ def main() -> None:
     samples = load_train_samples(args.export_dir, args.max_samples)
     log.info("Training samples: %d", len(samples))
 
+    training_state_path = args.output_dir / "training_state.json"
+    start_epoch = 0
+    load_model_id: str | Path = args.model_id
+    if args.resume and training_state_path.is_file():
+        try:
+            state = json.loads(training_state_path.read_text(encoding="utf-8"))
+            saved_scope = state.get("train_scope")
+            if saved_scope and saved_scope != args.train_scope:
+                raise ValueError(
+                    f"checkpoint train_scope={saved_scope!r} does not match "
+                    f"requested train_scope={args.train_scope!r}"
+                )
+            if not saved_scope:
+                raise ValueError(
+                    "checkpoint predates train-scope metadata; start a clean run "
+                    "to avoid mixing incompatible experiments"
+                )
+            start_epoch = int(state.get("completed_epochs", 0))
+            load_model_id = args.output_dir
+            log.info(
+                "Resuming weights from epoch %d checkpoint %s.",
+                start_epoch,
+                args.output_dir,
+            )
+        except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
+            start_epoch = 0
+            load_model_id = args.model_id
+            log.warning("Resume checkpoint rejected: %s. Starting cleanly.", exc)
+
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import (  # noqa: E402
         hf_trust_remote_code_model,
@@ -321,7 +568,7 @@ def main() -> None:
         if torch.cuda.is_available():
             model_kwargs["device_map"] = "auto"
         model = AutoModel.from_pretrained(
-            args.model_id,
+            load_model_id,
             **model_kwargs,
         )
 
@@ -355,51 +602,29 @@ def main() -> None:
             "PaddleOCR-VL architecture loading failed. Please install transformers>=5.0.0 and accelerate>=1.1.0 and restart your kernel."
         ) from exc
 
-    # Freeze the vision tower to save VRAM and avoid overfitting to scan artefacts.
-    for name, param in model.named_parameters():
-        if "visual" in name or "vision" in name:
-            param.requires_grad = False
-        else:
-            param.requires_grad = True
-
-    # Enable gradient checkpointing to save memory
+    effective_train_scope = apply_train_scope(model, args.train_scope)
+    log.info(
+        "SFT train scope after resume/load: requested=%s effective=%s",
+        args.train_scope,
+        effective_train_scope,
+    )
     if hasattr(model, "enable_input_require_grads"):
         model.enable_input_require_grads()
-    model.gradient_checkpointing_enable()
-
-    # Print parameter training stats
+    if hasattr(model, "gradient_checkpointing_enable"):
+        model.gradient_checkpointing_enable()
+    model.train()
+    trainable_names = [name for name, param in model.named_parameters() if param.requires_grad]
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     all_params = sum(p.numel() for p in model.parameters())
+    if trainable_params == 0:
+        raise RuntimeError(f"No trainable parameters selected by train_scope={args.train_scope}")
     log.info(
-        f"Trainable params: {trainable_params:,} || All params: {all_params:,} || Trainable%: {100 * trainable_params / all_params:.4f}"
+        "Post-resume trainable params: %s || All params: %s || Trainable%%: %.4f",
+        f"{trainable_params:,}",
+        f"{all_params:,}",
+        100 * trainable_params / all_params,
     )
-
-    training_state_path = args.output_dir / "training_state.json"
-    start_epoch = 0
-
-    if args.resume and training_state_path.is_file():
-        try:
-            # Standalone weights are loaded in-place when resuming
-            import gc as _gc
-            _gc.collect()
-            if torch.cuda.is_available():
-                torch.cuda.empty_cache()
-            _resume_dtype, _resume_dtype_label = select_torch_dtype()
-            resume_kwargs = {
-                "dtype": _resume_dtype,
-                "trust_remote_code": hf_trust_remote_code_model(),
-            }
-            if torch.cuda.is_available():
-                resume_kwargs["device_map"] = "auto"
-            model = AutoModel.from_pretrained(
-                args.output_dir,
-                **resume_kwargs,
-            )
-            state = json.loads(training_state_path.read_text(encoding="utf-8"))
-            start_epoch = int(state.get("completed_epochs", 0))
-            log.info("Resuming training from epoch %d with checkpoint %s.", start_epoch, args.output_dir)
-        except Exception as e:
-            log.warning("Could not resume checkpoint weights: %s. Starting from scratch.", e)
+    log.info("Post-resume trainable parameter groups preview: %s", trainable_names[:12])
 
     opt = torch.optim.AdamW(
         [p for p in model.parameters() if p.requires_grad],
@@ -408,11 +633,12 @@ def main() -> None:
     )
 
     # Learning rate scheduler: linear warmup + cosine decay
-    total_steps = (len(samples) * args.epochs) // max(
-        1, int(args.gradient_accumulation_steps)
+    remaining_epochs = max(0, args.epochs - start_epoch)
+    steps_per_epoch = math.ceil(
+        len(samples) / max(1, int(args.gradient_accumulation_steps))
     )
+    total_steps = max(1, steps_per_epoch * max(1, remaining_epochs))
     warmup_steps = max(1, total_steps // 10)  # 10% warmup
-    import math
 
     from torch.optim.lr_scheduler import LambdaLR
 
@@ -433,6 +659,23 @@ def main() -> None:
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
 
     args.output_dir.mkdir(parents=True, exist_ok=True)
+    val_samples = load_jsonl_samples(args.export_dir / "val.jsonl", args.val_samples)
+    if args.val_samples and not val_samples:
+        log.warning("Validation requested but no val.jsonl samples were found under %s.", args.export_dir)
+    if val_samples:
+        log.info("Epoch validation enabled: %d samples", len(val_samples))
+    train_log_path = args.output_dir / "training_log.jsonl"
+    best_dir = args.output_dir / "best"
+    best_validation_path = args.output_dir / "best_validation.json"
+    best_cer = float("inf")
+    if start_epoch > 0 and best_validation_path.is_file():
+        try:
+            best_state = json.loads(best_validation_path.read_text(encoding="utf-8"))
+            best_cer = float(best_state.get("cer", float("inf")))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            log.warning("Could not read %s; best-model tracking restarts.", best_validation_path)
+    if start_epoch == 0 and train_log_path.exists():
+        train_log_path.unlink()
     max_pixels = int(args.max_pixels)
     log.info("SFT image max_pixels=%d", max_pixels)
     device = next(model.parameters()).device
@@ -460,21 +703,21 @@ def main() -> None:
         )
 
         for rec_idx, rec in enumerate(epoch_iterator):
-            msgs = rec["messages"]
-            image_path = None
-            for part in msgs[0]["content"]:
-                if part.get("type") == "image":
-                    image_path = part["image"]
-                    break
+            image_path = extract_image_path(rec)
             if not image_path:
+                skipped += 1
                 continue
-            image = Image.open(image_path).convert("RGB")
+            try:
+                image = Image.open(image_path).convert("RGB")
+            except (OSError, ValueError) as exc:
+                log.warning("Unreadable training image %s: %s", image_path, exc)
+                skipped += 1
+                continue
             out = None
             loss = None
 
 
-            raw_asst = msgs[1]["content"]
-            assistant_text = raw_asst if isinstance(raw_asst, str) else str(raw_asst)
+            assistant_text = extract_assistant_text(rec)
             user_messages = [
                 {
                     "role": "user",
@@ -528,6 +771,7 @@ def main() -> None:
                     del inputs, labels, image
                     if torch.cuda.is_available():
                         torch.cuda.empty_cache()
+                    skipped += 1
                     continue
 
             # OOM-safe forward pass: skip sample on memory error instead of crashing
@@ -544,7 +788,7 @@ def main() -> None:
 
             try:
                 loss = out.loss
-                if loss is None or torch.isnan(loss):
+                if loss is None or not torch.isfinite(loss):
                     skipped += 1
                     del out, loss, inputs, labels, image
                     if torch.cuda.is_available():
@@ -615,14 +859,99 @@ def main() -> None:
             opt.zero_grad(set_to_none=True)
             opt_steps += 1
 
+        train_mean_loss = total_loss / max(micro_steps, 1)
+        if micro_steps == 0:
+            raise RuntimeError(
+                "No training samples produced a valid optimization step. "
+                "Check the exported image paths and assistant-token masking."
+            )
+        val_metrics = {}
+        if val_samples:
+            val_metrics = validate_epoch(
+                model=model,
+                processor=processor,
+                val_samples=val_samples,
+                device=device,
+                max_pixels=max_pixels,
+                max_new_tokens=int(args.eval_max_new_tokens),
+                user_prompt=USER_TEXT_OCR_YORUBA,
+            )
+            log.info(
+                "epoch %d validation: n=%s CER=%s WER=%s DER=%s failed=%s",
+                epoch + 1,
+                val_metrics.get("n"),
+                (
+                    f"{val_metrics['cer'] * 100:.2f}%"
+                    if val_metrics.get("cer") is not None
+                    else "—"
+                ),
+                (
+                    f"{val_metrics['wer'] * 100:.2f}%"
+                    if val_metrics.get("wer") is not None
+                    else "—"
+                ),
+                (
+                    f"{val_metrics['der'] * 100:.2f}%"
+                    if val_metrics.get("der") is not None
+                    else "—"
+                ),
+                val_metrics.get("failed", 0),
+            )
+            current_cer = val_metrics.get("cer")
+            if current_cer is not None and float(current_cer) < best_cer:
+                best_cer = float(current_cer)
+                best_dir.mkdir(parents=True, exist_ok=True)
+                model.save_pretrained(best_dir)
+                processor.save_pretrained(best_dir)
+                best_validation_path.write_text(
+                    json.dumps(
+                        {
+                            "epoch": epoch + 1,
+                            "cer": best_cer,
+                            "wer": val_metrics.get("wer"),
+                            "der": val_metrics.get("der"),
+                            "n": val_metrics.get("n"),
+                            "checkpoint": str(best_dir),
+                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                        },
+                        indent=2,
+                        ensure_ascii=False,
+                    )
+                    + "\n",
+                    encoding="utf-8",
+                )
+                log.info(
+                    "New best validation CER %.2f%% at epoch %d → %s",
+                    best_cer * 100,
+                    epoch + 1,
+                    best_dir,
+                )
+
         log.info(
             "epoch %d done: micro_steps=%d opt_steps=%d skipped=%d mean_loss=%.4f",
             epoch + 1,
             micro_steps,
             opt_steps,
             skipped,
-            total_loss / max(micro_steps, 1),
+            train_mean_loss,
         )
+        with train_log_path.open("a", encoding="utf-8") as fh:
+            fh.write(
+                json.dumps(
+                    {
+                        "epoch": epoch + 1,
+                        "micro_steps": micro_steps,
+                        "opt_steps": opt_steps,
+                        "skipped": skipped,
+                        "mean_loss": train_mean_loss,
+                        "val": val_metrics,
+                        "train_scope": effective_train_scope,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            )
         model.save_pretrained(args.output_dir)
         processor.save_pretrained(args.output_dir)
         training_state_path.write_text(
@@ -630,6 +959,12 @@ def main() -> None:
                 {
                     "completed_epochs": epoch + 1,
                     "total_epochs": args.epochs,
+                    "train_scope": effective_train_scope,
+                    "base_model_id": args.model_id,
+                    "learning_rate": args.lr,
+                    "gradient_accumulation_steps": grad_accum,
+                    "max_pixels": max_pixels,
+                    "full_sequence_loss": bool(args.full_sequence_loss),
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
                 indent=2,

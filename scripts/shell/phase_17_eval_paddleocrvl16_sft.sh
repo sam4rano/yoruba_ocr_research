@@ -25,8 +25,13 @@ if [[ "${PADDLEOCRVL16_EVAL_4BIT:-0}" == "1" ]]; then
 fi
 
 require_python
+MODEL_DIR="${PADDLEOCRVL16_SFT_DIR:-experiments/paddleocrvl16_sft}"
+if [[ -f "${MODEL_DIR}/best/config.json" ]]; then
+  MODEL_DIR="${MODEL_DIR}/best"
+  log "Evaluating best validation checkpoint: ${MODEL_DIR}"
+fi
 run_py scripts/eval_paddleocrvl16.py \
-  --model-id "${PADDLEOCRVL16_SFT_DIR:-experiments/paddleocrvl16_sft}" \
+  --model-id "${MODEL_DIR}" \
   --model-name "paddleocrvl16_sft" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "test" \

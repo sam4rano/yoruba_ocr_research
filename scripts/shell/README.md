@@ -76,6 +76,7 @@ bash scripts/shell/phase_02_analyze.sh
 | `SKIP_PADDLEOCRVL16_SFT_TRAIN` | `1` to skip phase 16 SFT training |
 | `SKIP_PADDLEOCRVL16_SFT_EVAL` | `1` to skip phase 17 SFT eval |
 | `PADDLEOCRVL16_SFT_EPOCHS` | Epochs for phase 16 SFT (default `5`) |
+| `PADDLEOCRVL16_SFT_TRAIN_SCOPE` | Trainable scope for phase 16 (default `lm_head`; use `non_vision` only on larger GPUs) |
 | `DRIVE_BACKUP_ROOT` | Parent directory for timestamped backup (phase 99) |
 | `BACKUP_EXPERIMENTS` | `1` (default) includes `experiments/` in backup |
 | `GIT_SNAPSHOT` | `1` + phase 99 runs optional `git commit` on `results/tables` |
