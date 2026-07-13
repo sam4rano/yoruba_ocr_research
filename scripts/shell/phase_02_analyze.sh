@@ -6,7 +6,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "${SCRIPT_DIR}/lib_common.sh"
 
 require_python
-run_py scripts/02_analyze_dataset.py \
+run_py scripts/analyze_dataset.py \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --output-dir "${RESULTS_TABLES:-results/tables}" \
   --plot

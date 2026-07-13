@@ -1,8 +1,8 @@
 """
 Shared Yorùbá Unicode whitelist.
 
-Both ``scripts/01_consolidate_data.py`` (filtering) and
-``scripts/02b_data_quality_audit.py`` (reporting) rely on this set being
+Both ``scripts/consolidate_data.py`` (filtering) and
+``scripts/audit_data_quality.py`` (reporting) rely on this set being
 identical, so it lives in a single module instead of being duplicated.
 
 Every codepoint here is either:

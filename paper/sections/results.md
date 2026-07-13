@@ -12,21 +12,21 @@ This section is regenerated after the active benchmark is rerun. The authoritati
 
 ## Main Comparison
 
-Table 1 is produced by `scripts/11_compile_results.py` from fresh test-split rows. Rows with `phantom=true`, missing provenance, stale checkpoints without JSONL evidence, or mismatched sample counts are not citable.
+Table 1 is produced by `scripts/compile_results.py` from fresh test-split rows. Rows with `phantom=true`, missing provenance, stale checkpoints without JSONL evidence, or mismatched sample counts are not citable.
 
 Expected active rows:
 
 | Model key | Status source |
 | --- | --- |
-| `paddleocr_en_pretrained` | `scripts/05_evaluate.py` |
+| `paddleocr_en_pretrained` | `scripts/evaluate_paddleocr_recognition.py` |
 | `paddleocrvl16_zero_shot` | `scripts/eval_paddleocrvl16.py` |
 | `glm_ocr_zero_shot` | `scripts/eval_glm_ocr.py` |
 | `paddleocrvl16_sft` | optional SFT via phases 14, 16, 17 |
 
 ## Stratified Analysis
 
-After all expected JSONL logs exist, `scripts/17_stratified_error_analysis.py` computes minimal-pair, diacritic-density, book/source, and error-taxonomy diagnostics. These diagnostics should be interpreted as secondary analyses, not substitutes for the main frozen-split comparison.
+After all expected JSONL logs exist, `scripts/analyze_stratified_errors.py` computes minimal-pair, diacritic-density, book/source, and error-taxonomy diagnostics. These diagnostics should be interpreted as secondary analyses, not substitutes for the main frozen-split comparison.
 
 ## Uncertainty
 
-`scripts/19_bootstrap_metric_cis.py` computes line-level bootstrap confidence intervals and pairwise comparisons. Bootstrap outputs are invalidated whenever the split, labels, model rows, or JSONL logs change.
+`scripts/bootstrap_metric_cis.py` computes line-level bootstrap confidence intervals and pairwise comparisons. Bootstrap outputs are invalidated whenever the split, labels, model rows, or JSONL logs change.

@@ -1,9 +1,9 @@
 """
 Shared evaluation utilities: metric computation, data loading, result persistence.
 
-Imported by evaluation and baseline scripts (e.g. 05_evaluate.py, 06_baseline_pretrained.py,
-eval_paddleocrvl16.py, 12_diagnose_hypotheses.py,
-13_verify_eval_alignment.py).
+Imported by evaluation and baseline scripts (e.g. evaluate_paddleocr_recognition.py, evaluate_paddleocr_en_pretrained.py,
+eval_paddleocrvl16.py, diagnose_experiment.py,
+verify_eval_alignment.py).
 Not intended to be run directly.
 """
 
@@ -403,6 +403,7 @@ def save_results(
     jsonl_path: Path,
     *,
     provenance: dict | None = None,
+    sample_metadata: list[dict] | None = None,
 ) -> Path | None:
     """
     Persist aggregate scores to the metrics CSV, a per-sample JSONL log,
@@ -482,9 +483,14 @@ def save_results(
             writer = csv.DictWriter(fh, fieldnames=existing_fields)
             writer.writerow({k: row.get(k, "") for k in existing_fields})
 
+    if sample_metadata is not None and len(sample_metadata) != len(metrics["rows"]):
+        raise ValueError("sample_metadata length must match metrics rows")
     with jsonl_path.open("w", encoding="utf-8") as fh:
-        for sample_row in metrics["rows"]:
-            fh.write(json.dumps(sample_row, ensure_ascii=False) + "\n")
+        for idx, sample_row in enumerate(metrics["rows"]):
+            persisted = dict(sample_row)
+            if sample_metadata is not None:
+                persisted.update(sample_metadata[idx])
+            fh.write(json.dumps(persisted, ensure_ascii=False) + "\n")
 
     if provenance is not None and meta_path is not None:
         meta_payload = _build_meta_payload(

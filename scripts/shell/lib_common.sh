@@ -42,6 +42,18 @@ require_python() {
   command -v "$PYTHON" >/dev/null 2>&1 || die "$PYTHON not found"
 }
 
+model_result_complete() {
+  local model="$1"
+  local split="${2:-test}"
+  local tables_dir="${RESULTS_TABLES_DIR:-results/tables}"
+  [[ "${SKIP_COMPLETED_EVAL:-0}" == "1" ]] || return 1
+  run_py scripts/check_completed_metric.py \
+    --model "$model" \
+    --split "$split" \
+    --data-dir "${PROCESSED_DIR:-data/processed}" \
+    --tables-dir "$tables_dir"
+}
+
 check_deps() {
   cd_project
   if [[ ! -d "PaddleOCR" ]]; then

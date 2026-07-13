@@ -13,8 +13,8 @@ sections) and a CSV (for the results/ archive). Numbers are rounded to
 1 decimal place (as percentages) per the experiment-reporting skill.
 
 Usage:
-    python scripts/11_compile_results.py
-    python scripts/11_compile_results.py \
+    python scripts/compile_results.py
+    python scripts/compile_results.py \
         --results-csv results/tables/metrics.csv \
         --output-dir results/tables
 """
@@ -41,7 +41,7 @@ MODEL_DISPLAY = {
     "paddleocr_en_pretrained": "PaddleOCR PP-OCR (EN pretrained)",
     "paddleocrvl16_zero_shot": "PaddleOCR-VL-1.6 (zero-shot)",
     "glm_ocr_zero_shot": "GLM-OCR (zero-shot)",
-    "paddleocrvl16_sft": "PaddleOCR-VL-1.6 (fine-tuned language model)",
+    "paddleocrvl16_sft": "PaddleOCR-VL-1.6 (SFT; scope in metadata)",
 }
 
 # Ordered model rows for Table 1

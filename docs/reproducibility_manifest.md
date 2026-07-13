@@ -8,12 +8,13 @@ submission or artifact package.
 
 | Field | Value |
 | --- | --- |
-| Manifest date | 2026-07-09 |
-| Source repository commit inspected | `68f64260599e66f106bda91e65383e0b0ff68c35` |
-| Working tree state | Dirty at inspection time; final paper runs should record a clean commit SHA. |
+| Manifest date | 2026-07-12 |
+| Source repository commit before pipeline cleanup | `5476b181f8e2e5c96bef7ed30bf6ccd09bcb84b6` |
+| Working tree state | Pipeline cleanup in progress; replace this row with the clean final commit before the experiment run. |
 | Canonical local root | `/Users/mac/Desktop/yoruba_ocr_research` |
-| Primary Colab notebook | `yor_ocr.ipynb` |
-| Primary Kaggle notebook | `yor_ocr_kaggle.ipynb` |
+| Primary Colab notebook | `notebooks/colab_ocr.ipynb` |
+| Primary Kaggle notebook | `notebooks/kaggle_ocr.ipynb` |
+| Primary Lightning notebook | `notebooks/lightning_ocr.ipynb` |
 
 ## Dataset snapshot
 
@@ -64,7 +65,7 @@ repository and checksum that file.
 
 | Model key | Source | Role | Revision policy |
 | --- | --- | --- | --- |
-| `paddleocr_en_pretrained` | English PP-OCRv3 recognition checkpoint loaded by `scripts/06_baseline_pretrained.py` | Classical OCR control | Record downloaded checkpoint URL/hash in `results/tables/meta/*.json` for the final run. |
+| `paddleocr_en_pretrained` | English PP-OCRv3 recognition checkpoint loaded by `scripts/evaluate_paddleocr_en_pretrained.py` | Classical OCR control | Record downloaded checkpoint URL/hash in `results/tables/meta/*.json` for the final run. |
 | `paddleocrvl16_zero_shot` | `PaddlePaddle/PaddleOCR-VL-1.6` | Zero-shot VLM OCR | Record Hugging Face resolved commit/revision in the per-run meta file. |
 | `glm_ocr_zero_shot` | `zai-org/GLM-OCR` | Zero-shot VLM OCR | Record Hugging Face resolved commit/revision in the per-run meta file. |
 | `paddleocrvl16_sft` | Fine-tuned from `PaddlePaddle/PaddleOCR-VL-1.6` | Supervised VLM adaptation | Record base model revision, checkpoint directory, epoch count, and training arguments. |
@@ -75,8 +76,9 @@ Model-row definitions are maintained in `docs/model_matrix.md`.
 
 | Environment | Purpose | Notes |
 | --- | --- | --- |
-| Colab Pro T4 | Main low-cost GPU path | Use `docs/colab_pro_t4.md` and `yor_ocr.ipynb`. |
-| Kaggle GPU | Alternative GPU path | Use `docs/kaggle_gpu.md` and `yor_ocr_kaggle.ipynb`. |
+| Colab Pro T4 | Main low-cost GPU path | Use `docs/colab_pro_t4.md` and `notebooks/colab_ocr.ipynb`. |
+| Kaggle GPU | Alternative GPU path | Use `docs/kaggle_gpu.md` and `notebooks/kaggle_ocr.ipynb`. |
+| Lightning AI GPU | Persistent GPU path | Use `docs/lightning_ai.md` and `notebooks/lightning_ocr.ipynb`. |
 | Local macOS workspace | Code editing, syntax checks, documentation | Local Python versions observed: system `Python 3.14.4`, project venv `Python 3.11.15`. |
 
 Final paper artifacts should also record:
@@ -99,6 +101,6 @@ the same clean repository commit:
 - `results/tables/table1_main_comparison.csv` and `.md` are regenerated.
 - `results/tables/figures/` contains plots regenerated without
   `--allow-placeholder`.
-- `paper/sections/*.md` and `FormattingGuidelines-IJCAI-ECAI-26/yoruba_ocr.tex`
-  cite the same final table values.
-
+- `paper/sections/*.md` and the regenerated IJCAI manuscript cite the same
+  final table values. The stale pre-regeneration manuscript is intentionally
+  absent from the clean workspace.

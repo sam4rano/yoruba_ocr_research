@@ -7,10 +7,10 @@ alwaysApply: true
 
 ## What this project is
 A benchmark dataset + fine-tuning study for Yorùbá OCR submitted to
-Deep Learning Indaba 2026 (IJCAI volume). The **primary supervised model**
-is **PaddleOCR-VL-1.5** (LoRA fine-tuned on Yorùbá line crops); PaddleOCR
-PP-OCRv4 fine-tuning remains a classical CRNN comparison and the target of
-scripted ablations. The researcher built a custom annotation platform
+Deep Learning Indaba 2026 (IJCAI volume). The active comparison contains
+PaddleOCR PP-OCRv3 English pretrained recognition, PaddleOCR-VL-1.6 and
+GLM-OCR zero-shot baselines, and PaddleOCR-VL-1.6 supervised adaptation.
+Classical PaddleOCR recognition fine-tuning is optional. The researcher built a custom annotation platform
 (yoruba-ocr.vercel.app) and exported data in PaddleOCR line-crop format.
 
 ## Verified dataset facts (do not invent alternatives)
@@ -19,36 +19,31 @@ scripted ablations. The researcher built a custom annotation platform
 - Format: line crops (PNG) + tab-separated label files (PaddleOCR format)
   - Each label line: images/{split}/hash_lineNNNN.png<TAB>ground_truth_text
 - 25+ independent annotation export batches in data/raw/
-- Approximate totals after consolidation + hygiene: 2,945 unique lines
-  (80/10/10 line-level split with `--resplit --seed 42`: 2,356 train /
-  294 val / 295 test; reported Table 1 metrics use prior n=326 test export)
+- Frozen split: 2,945 unique lines (2,367 train / 252 validation / 326 test)
 - Character dictionary: built from consolidated labels (currently **99** graphemes excl. space on disk; varies with hygiene)
 - Metadata columns: image, text, source, year, dialect, corrected, parent_image, line_index
-- Consolidated data lives in data/processed/ after running 01_consolidate_data.py
+- Consolidated data lives in data/processed/ after running consolidate_data.py
 
 ## Pipeline scripts (in execution order)
-1. scripts/01_consolidate_data.py  — merge exports, deduplicate, copy to data/processed/
-2. scripts/02_analyze_dataset.py   — EDA: char/diacritic distribution, text length stats
-3. scripts/03_generate_config.py   — download pretrained weights + write fine-tune YAML
-4. scripts/04_train_paddleocr.py   — PP-OCRv4 CRNN fine-tuning (comparison + ablations; needs PaddleOCR repo)
-5. scripts/05_evaluate.py          — CER/WER/DER evaluation for any model
-6. scripts/06_baseline_pretrained.py — English pretrained PP-OCR eval (via 05)
-7. scripts/09_baseline_qwen.py, scripts/10_ablation_study.py — optional Qwen / PP-OCRv4 ablations
-8. scripts/11_compile_results.py   — paper tables from metrics.csv
-9. **PaddleOCR-VL-1.5 (HF) — main supervised track:** scripts/14–16 + adapter eval (15)
-10. scripts/17–19 — stratified DER, DER-universe, bootstrap CIs
-11. **OOTB baselines (Section A):** `22_evaluate_trocr.py` (zero-shot), `20_baseline_surya_v2.py`
-12. **Fine-tuned (Section B):** VL-1.5 LoRA (16); TrOCR (`21–22` via `phase_21_trocr.sh`); optional Surya Foundation (`26–28`)
-13. **Hub release:** `25_upload_hf_dataset.py`, `29_upload_hf_models.py`
-14. **Run hygiene:** scripts/metrics_lifecycle.py, scripts/02c_refresh_dataset_report.py
+1. scripts/consolidate_data.py  — merge exports, deduplicate, copy to data/processed/
+2. scripts/analyze_dataset.py   — EDA: char/diacritic distribution, text length stats
+3. scripts/generate_paddleocr_config.py   — download pretrained weights + write fine-tune YAML
+4. scripts/train_paddleocr_recognition.py — optional classical recognition fine-tuning
+5. scripts/evaluate_paddleocr_en_pretrained.py — English pretrained PP-OCRv3 control
+6. scripts/eval_paddleocrvl16.py — PaddleOCR-VL-1.6 zero-shot or SFT-checkpoint evaluation
+7. scripts/eval_glm_ocr.py — GLM-OCR zero-shot evaluation
+8. scripts/export_paddleocrvl16_sft.py and scripts/train_paddleocrvl16_sft.py — supervised adaptation
+9. scripts/analyze_stratified_errors.py, scripts/ablate_der_universe.py, scripts/bootstrap_metric_cis.py — robustness analyses
+10. scripts/compile_results.py and scripts/generate_plots.py — paper tables and figures
+11. scripts/metrics_lifecycle.py and scripts/refresh_dataset_report.py — run hygiene
+12. scripts/publish_hf_dataset.py — optional dataset release
 
 ## Models being compared
-1. PaddleOCR-VL-1.5 (Hugging Face) — zero-shot + **LoRA fine-tuned (primary supervised)**; scripts 14–16
-2. PaddleOCR PP-OCRv4 English pretrained — baseline (`05_evaluate.py`)
-3. PaddleOCR PP-OCRv4 CRNN fine-tuned — classical comparison + ablation target (`04`, `10`)
-4. TrOCR-large-printed — zero-shot (`22` + `--pretrained-model-id`); **fine-tuned in Section B** (`21–22`)
-5. Surya v2 — zero-shot recognition on line crops (`20`); optional Surya Foundation fine-tune (`26–28`)
-6. Qwen 2.5 VL — zero-shot multimodal (`09`, optional)
+1. PaddleOCR PP-OCRv3 English pretrained — classical zero-shot control
+2. PaddleOCR-VL-1.6 — zero-shot multimodal OCR baseline
+3. GLM-OCR — zero-shot multimodal OCR baseline
+4. PaddleOCR-VL-1.6 SFT — supervised adaptation; `lm_head` is the default scope
+5. PaddleOCR recognition fine-tune — optional classical comparison
 
 ## Metrics
 - CER — Character Error Rate (NFC-normalised edit distance / gt char count)

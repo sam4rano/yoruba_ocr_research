@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
         "--export-dir",
         type=Path,
         default=Path("data/paddleocrvl16_sft"),
-        help="Directory containing train.jsonl from script 14.",
+        help="Directory containing train.jsonl from export_paddleocrvl16_sft.py.",
     )
     parser.add_argument(
         "--model-id",
@@ -435,6 +435,18 @@ def build_labels_assistant_only(
 def main() -> None:
     """Run VLM fine-tuning and save model."""
     args = parse_args()
+    if args.epochs < 1:
+        raise ValueError("--epochs must be at least 1")
+    if args.lr <= 0:
+        raise ValueError("--lr must be positive")
+    if args.gradient_accumulation_steps < 1:
+        raise ValueError("--gradient-accumulation-steps must be at least 1")
+    if args.max_samples is not None and args.max_samples < 1:
+        raise ValueError("--max-samples must be at least 1")
+    if args.val_samples < 0:
+        raise ValueError("--val-samples cannot be negative")
+    if args.max_pixels < 28 * 28:
+        raise ValueError("--max-pixels is too small for the image processor")
     import random
 
     import numpy as np
@@ -478,9 +490,11 @@ def main() -> None:
     log.info("Training samples: %d", len(samples))
 
     training_state_path = args.output_dir / "training_state.json"
+    optimizer_state_path = args.output_dir / "optimizer_scheduler_state.pt"
     start_epoch = 0
     load_model_id: str | Path = args.model_id
-    if args.resume and training_state_path.is_file():
+    resume_payload = None
+    if args.resume and training_state_path.is_file() and optimizer_state_path.is_file():
         try:
             state = json.loads(training_state_path.read_text(encoding="utf-8"))
             saved_scope = state.get("train_scope")
@@ -494,7 +508,24 @@ def main() -> None:
                     "checkpoint predates train-scope metadata; start a clean run "
                     "to avoid mixing incompatible experiments"
                 )
+            saved_total_epochs = int(state.get("total_epochs", 0))
+            if saved_total_epochs != args.epochs:
+                raise ValueError(
+                    f"checkpoint total_epochs={saved_total_epochs} does not match "
+                    f"requested epochs={args.epochs}"
+                )
+            try:
+                resume_payload = torch.load(
+                    optimizer_state_path, map_location="cpu", weights_only=False
+                )
+            except TypeError:
+                resume_payload = torch.load(optimizer_state_path, map_location="cpu")
             start_epoch = int(state.get("completed_epochs", 0))
+            if int(resume_payload.get("completed_epochs", -1)) != start_epoch:
+                raise ValueError(
+                    "training_state.json and optimizer/scheduler checkpoint are from "
+                    "different epochs"
+                )
             load_model_id = args.output_dir
             log.info(
                 "Resuming weights from epoch %d checkpoint %s.",
@@ -502,9 +533,21 @@ def main() -> None:
                 args.output_dir,
             )
         except (OSError, ValueError, TypeError, json.JSONDecodeError) as exc:
-            start_epoch = 0
-            load_model_id = args.model_id
-            log.warning("Resume checkpoint rejected: %s. Starting cleanly.", exc)
+            raise RuntimeError(
+                "Resume checkpoint is incomplete or incompatible. Use the original "
+                "training arguments, or choose a new --output-dir for a clean run. "
+                f"Details: {exc}"
+            ) from exc
+    elif args.resume:
+        raise FileNotFoundError(
+            "Resume requires both training state files: "
+            f"{training_state_path} and {optimizer_state_path}"
+        )
+    elif training_state_path.exists() or optimizer_state_path.exists():
+        raise FileExistsError(
+            f"Existing training state found under {args.output_dir}. Pass --resume "
+            "with matching arguments or choose a new --output-dir."
+        )
 
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import (  # noqa: E402
@@ -633,11 +676,10 @@ def main() -> None:
     )
 
     # Learning rate scheduler: linear warmup + cosine decay
-    remaining_epochs = max(0, args.epochs - start_epoch)
     steps_per_epoch = math.ceil(
         len(samples) / max(1, int(args.gradient_accumulation_steps))
     )
-    total_steps = max(1, steps_per_epoch * max(1, remaining_epochs))
+    total_steps = max(1, steps_per_epoch * max(1, args.epochs))
     warmup_steps = max(1, total_steps // 10)  # 10% warmup
 
     from torch.optim.lr_scheduler import LambdaLR
@@ -649,6 +691,22 @@ def main() -> None:
         return 0.5 * (1.0 + math.cos(math.pi * progress))
 
     scheduler = LambdaLR(opt, lr_lambda)
+    if resume_payload is not None:
+        opt.load_state_dict(resume_payload["optimizer"])
+        scheduler.load_state_dict(resume_payload["scheduler"])
+        for state_values in opt.state.values():
+            for key, value in state_values.items():
+                if torch.is_tensor(value):
+                    state_values[key] = value.to(device=next(model.parameters()).device)
+        random.setstate(resume_payload["python_random_state"])
+        np.random.set_state(resume_payload["numpy_random_state"])
+        torch.set_rng_state(resume_payload["torch_random_state"])
+        if torch.cuda.is_available() and resume_payload.get("cuda_random_state_all"):
+            torch.cuda.set_rng_state_all(resume_payload["cuda_random_state_all"])
+        log.info(
+            "Restored optimizer, scheduler, and RNG state at completed epoch %d.",
+            start_epoch,
+        )
     log.info(
         "LR schedule: %d warmup → cosine decay over %d total steps",
         warmup_steps,
@@ -954,24 +1012,44 @@ def main() -> None:
             )
         model.save_pretrained(args.output_dir)
         processor.save_pretrained(args.output_dir)
-        training_state_path.write_text(
-            json.dumps(
-                {
-                    "completed_epochs": epoch + 1,
-                    "total_epochs": args.epochs,
-                    "train_scope": effective_train_scope,
-                    "base_model_id": args.model_id,
-                    "learning_rate": args.lr,
-                    "gradient_accumulation_steps": grad_accum,
-                    "max_pixels": max_pixels,
-                    "full_sequence_loss": bool(args.full_sequence_loss),
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                },
-                indent=2,
-            )
-            + "\n",
-            encoding="utf-8",
+        optimizer_tmp = optimizer_state_path.with_suffix(".pt.tmp")
+        torch.save(
+            {
+                "completed_epochs": epoch + 1,
+                "optimizer": opt.state_dict(),
+                "scheduler": scheduler.state_dict(),
+                "python_random_state": random.getstate(),
+                "numpy_random_state": np.random.get_state(),
+                "torch_random_state": torch.get_rng_state(),
+                "cuda_random_state_all": (
+                    torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None
+                ),
+            },
+            optimizer_tmp,
         )
+        optimizer_tmp.replace(optimizer_state_path)
+        training_state = {
+            "completed_epochs": epoch + 1,
+            "total_epochs": args.epochs,
+            "train_scope": effective_train_scope,
+            "base_model_id": args.model_id,
+            "base_model_revision": getattr(
+                getattr(model, "config", None), "_commit_hash", None
+            ),
+            "learning_rate": args.lr,
+            "gradient_accumulation_steps": grad_accum,
+            "max_pixels": max_pixels,
+            "full_sequence_loss": bool(args.full_sequence_loss),
+            "seed": args.seed,
+            "validation_samples": len(val_samples),
+            "best_checkpoint": str(best_dir) if best_dir.is_dir() else None,
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
+        training_state_tmp = training_state_path.with_suffix(".json.tmp")
+        training_state_tmp.write_text(
+            json.dumps(training_state, indent=2) + "\n", encoding="utf-8"
+        )
+        training_state_tmp.replace(training_state_path)
         log.info("Checkpoint saved after epoch %d → %s", epoch + 1, args.output_dir)
 
     model.save_pretrained(args.output_dir)

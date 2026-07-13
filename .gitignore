@@ -66,3 +66,7 @@ drive_results/
 
 # Notebook checkpoints
 .ipynb_checkpoints/
+
+# Interrupted VLM inference checkpoints (resumed automatically)
+results/tables/*.jsonl.partial
+results/tables/.active_notebook_run_id

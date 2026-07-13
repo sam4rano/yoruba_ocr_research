@@ -18,7 +18,7 @@ combining diacritics, so DER will be near 1.0.
 Important: ``paddleocr`` (pip) v3.x is a PaddleX pipeline and its Python
 API is not compatible with the legacy ``ocr(..., det=..., cls=...)``
 signature. For consistent evaluation this script delegates to
-``scripts/05_evaluate.py``, which loads checkpoints via the cloned
+``scripts/evaluate_paddleocr_recognition.py``, which loads checkpoints via the cloned
 PaddleOCR repo (``ppocr.*``).
 """
 
@@ -58,7 +58,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=None,
         help=(
-            "Character dictionary passed to 05_evaluate.py. Defaults to "
+            "Character dictionary passed to evaluate_paddleocr_recognition.py. Defaults to "
             "PaddleOCR/ppocr/utils/en_dict.txt so the English pretrained "
             "checkpoint's CTC head loads correctly. Override with the "
             "Yorùbá dict only if you deliberately want to reproduce the "
@@ -114,7 +114,7 @@ def parse_args() -> argparse.Namespace:
         type=Path,
         default=Path("PaddleOCR/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml"),
         help=(
-            "YAML passed to scripts/05_evaluate.py. For the English pretrained "
+            "YAML passed to scripts/evaluate_paddleocr_recognition.py. For the English pretrained "
             "baseline this must match the upstream PP-OCRv3 English checkpoint "
             "architecture; do not use configs/paddleocr_yoruba_rec.yml here."
         ),
@@ -141,7 +141,7 @@ def parse_args() -> argparse.Namespace:
         dest="allow_head_reinit",
         action="store_true",
         help=(
-            "Pass --allow-head-reinit through to 05_evaluate.py. Only use "
+            "Pass --allow-head-reinit through to evaluate_paddleocr_recognition.py. Only use "
             "together with --use-yoruba-dict to reproduce the phantom "
             "baseline on purpose."
         ),
@@ -186,7 +186,7 @@ def run_baseline(args: argparse.Namespace) -> None:
 
     cmd = [
         sys.executable,
-        "scripts/05_evaluate.py",
+        "scripts/evaluate_paddleocr_recognition.py",
         "--model-dir",
         str(args.pretrained_dir / "best_accuracy.pdparams"),
         "--data-dir",

@@ -11,14 +11,14 @@ with this script by pointing --model-dir at the appropriate weights directory.
 
 Usage:
     # Fine-tuned model evaluation
-    python scripts/05_evaluate.py \
+    python scripts/evaluate_paddleocr_recognition.py \
         --model-dir experiments/finetuned/best_accuracy \
         --data-dir data/processed \
         --split test \
         --model-name paddleocr_recognition_finetuned
 
     # Pretrained English baseline evaluation (preferred wrapper)
-    python scripts/06_baseline_pretrained.py \
+    python scripts/evaluate_paddleocr_en_pretrained.py \
         --pretrained-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
         --data-dir data/processed \
         --split test
@@ -417,7 +417,7 @@ def parse_args() -> argparse.Namespace:
         help=(
             "PaddleOCR YAML config used for training (must match checkpoint family). "
             "Defaults to experiments/finetuned/config.yml if present, else "
-            "configs/paddleocr_yoruba_rec.yml (same as scripts/03_generate_config.py and "
+            "configs/paddleocr_yoruba_rec.yml (same as scripts/generate_paddleocr_config.py and "
             "train_paddleocr_recognition.py). Override only if you trained with a custom YAML; "
             "the baseline and fine-tuned runs MUST use the same --rec-config."
         ),
@@ -507,7 +507,7 @@ def main() -> None:
         csv_path=args.results_csv,
         jsonl_path=per_sample_log,
         provenance={
-            "script": "scripts/05_evaluate.py",
+            "script": "scripts/evaluate_paddleocr_recognition.py",
             "model_dir": str(args.model_dir),
             "dict_path": str(dict_path),
             "rec_config": str(rec_config),

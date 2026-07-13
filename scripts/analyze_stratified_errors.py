@@ -11,8 +11,8 @@ density) and reports:
     total tone drop).
 
 Usage:
-    python scripts/17_stratified_error_analysis.py
-    python scripts/17_stratified_error_analysis.py \
+    python scripts/analyze_stratified_errors.py
+    python scripts/analyze_stratified_errors.py \
         --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl \
         --jsonl results/tables/glm_ocr_zero_shot_test.jsonl
 """

@@ -5,8 +5,8 @@ Use when ``SKIP_CONSOLIDATE=1`` but you need accurate counts in
 ``research_approach.md`` and dataset cards.
 
 Usage:
-    python scripts/02c_refresh_dataset_report.py
-    python scripts/02c_refresh_dataset_report.py --data-dir data/processed
+    python scripts/refresh_dataset_report.py
+    python scripts/refresh_dataset_report.py --data-dir data/processed
 """
 
 from __future__ import annotations

@@ -13,20 +13,20 @@ analysis raised:
   Greek / Turkish / Vietnamese glyphs that inflate the character
   dictionary?
 * How many samples would be dropped by a given set of hygiene thresholds
-  *before* we apply them for real in ``01_consolidate_data.py``?
+  *before* we apply them for real in ``consolidate_data.py``?
 
 Output:
     results/tables/data_quality.json   (default, override with --out-json)
 
 Nothing in ``data/processed/`` is modified. The thresholds used for the
 "would_drop" block default to the ones we plan to use in
-``01_consolidate_data.py``'s hygiene mode but can be overridden on the
+``consolidate_data.py``'s hygiene mode but can be overridden on the
 command line to explore alternatives.
 
 Usage::
 
-    python scripts/02b_data_quality_audit.py
-    python scripts/02b_data_quality_audit.py --min-label-len 3 --max-label-len 80
+    python scripts/audit_data_quality.py
+    python scripts/audit_data_quality.py --min-label-len 3 --max-label-len 80
 """
 
 from __future__ import annotations

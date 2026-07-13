@@ -5,8 +5,8 @@ Aggregates git provenance, pipeline toggles, dataset counts, model rows in
 metrics.csv, and paths to every paper table artifact under results/tables/.
 
 Usage:
-    python scripts/23_write_research_approach.py
-    python scripts/23_write_research_approach.py --output research_approach.md
+    python scripts/write_research_approach.py
+    python scripts/write_research_approach.py --output research_approach.md
 """
 
 from __future__ import annotations
@@ -155,12 +155,12 @@ def main() -> None:
         "",
         "## Workflow",
         "",
-        "1. Code synced from GitHub into the Drive repo folder (`git fetch` + `reset --hard`).",
-        "2. `data/` on Drive is **not** in git — uploads persist across pulls.",
-        "3. Models evaluated on `data/processed/` test split; metrics append to `results/tables/metrics.csv`.",
-        "4. `scripts/11_compile_results.py` builds Table 1 (containing zero-shot models and fine-tuned PaddleOCR-VL-1.6).",
-        "5. Analysis scripts 17–19 add bootstrap CIs, stratified DER, DER-universe ablation.",
-        "6. Timestamped backup under `My Drive/yoruba_ocr_backups/` (Phase 99).",
+        "1. Record the clean repository commit before starting the final run.",
+        "2. Keep the frozen `data/processed/` split unchanged across all model rows.",
+        "3. Evaluate each model with resumable per-sample logs; failed samples block publication by default.",
+        "4. `scripts/compile_results.py` builds Table 1 from traceable zero-shot and supervised rows.",
+        "5. The stratified-error, DER-universe, and bootstrap scripts add robustness analyses.",
+        "6. Phase 99 optionally writes a timestamped backup to `DRIVE_BACKUP_ROOT`.",
         "",
         "## Dataset (this run)",
         "",
@@ -176,7 +176,7 @@ def main() -> None:
         "",
         "## Benchmark Architecture",
         "",
-        "The benchmark evaluates OCR on Yorùbá line crops with PaddleOCR English-pretrained recognition, PaddleOCR-VL-1.6 zero-shot, GLM-OCR zero-shot, and optional PaddleOCR-VL-1.6 SFT.",
+        "The benchmark evaluates OCR on Yorùbá line crops with PaddleOCR English-pretrained recognition, PaddleOCR-VL-1.6 zero-shot, GLM-OCR zero-shot, and PaddleOCR-VL-1.6 supervised adaptation. The default SFT scope updates `lm_head`; broader scopes are separate experiments and are recorded in metadata.",
         "",
         "## Table 1 — headline metrics (test split)",
         "",
@@ -198,9 +198,9 @@ def main() -> None:
         "",
         "| Model key | Script |",
         "| --- | --- |",
-        "| PaddleOCR EN pretrained | `scripts/06_baseline_pretrained.py` |",
-        "| PaddleOCR-VL-1.6 zero-shot | `eval_paddleocrvl16.py` |",
-        "| GLM-OCR zero-shot | `eval_glm_ocr.py` |",
+        "| PaddleOCR EN pretrained | `scripts/evaluate_paddleocr_en_pretrained.py` |",
+        "| PaddleOCR-VL-1.6 zero-shot | `scripts/eval_paddleocrvl16.py` |",
+        "| GLM-OCR zero-shot | `scripts/eval_glm_ocr.py` |",
         "| PaddleOCR-VL-1.6 SFT | `scripts/train_paddleocrvl16_sft.py` (train), `scripts/eval_paddleocrvl16.py` (eval) |",
         "",
     ]

@@ -26,10 +26,11 @@ globs: scripts/**/*.py, notebooks/**/*.ipynb
 
 ## Yorùbá-specific
 - Always use unicodedata.normalize('NFC', text) before comparison
-- Character dictionary path: data/processed/dictionary/yoruba_dict.txt
+- Character dictionary path: data/processed/dictionary/yoruba_char_dict.txt
 - Diacritic characters to track: ẹ ọ ṣ + combining grave/acute/macron
 
 ## Never
 - Hardcode file paths
 - Use os.path (use pathlib)
 - Commit results to the repo without the generating script
+- Convert failed inference into an unlabelled empty prediction; record the error and fail publication by default

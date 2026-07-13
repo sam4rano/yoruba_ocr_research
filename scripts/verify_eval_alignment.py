@@ -7,8 +7,8 @@ today, tables in the paper can disagree with the repo — this script surfaces t
 Writes ``results/tables/eval_alignment_report.json`` with expected vs reported counts.
 
 Usage:
-    python scripts/13_verify_eval_alignment.py
-    python scripts/13_verify_eval_alignment.py --strict  # exit 1 on any mismatch
+    python scripts/verify_eval_alignment.py
+    python scripts/verify_eval_alignment.py --strict  # exit 1 on any mismatch
 """
 
 from __future__ import annotations

@@ -9,8 +9,8 @@ Inter-annotator agreement (Cohen's κ) is not computed here: raw exports contain
 only final corrected labels (`corrected=yes`) with no per-annotator fields.
 
 Usage:
-    python scripts/19_bootstrap_metric_cis.py
-    python scripts/19_bootstrap_metric_cis.py --n-bootstrap 10000 --seed 42
+    python scripts/bootstrap_metric_cis.py
+    python scripts/bootstrap_metric_cis.py --n-bootstrap 10000 --seed 42
 """
 
 from __future__ import annotations

@@ -17,9 +17,9 @@ Optional PaddleOCR recognition fine-tuning can be reported as a classical superv
 
 After inference, the pipeline runs:
 
-- `scripts/11_compile_results.py` for Table 1.
-- `scripts/17_stratified_error_analysis.py` for minimal-pair and density diagnostics.
-- `scripts/18_der_universe_ablation.py` for alternative DER universes.
-- `scripts/19_bootstrap_metric_cis.py` for confidence intervals.
+- `scripts/compile_results.py` for Table 1.
+- `scripts/analyze_stratified_errors.py` for minimal-pair and density diagnostics.
+- `scripts/ablate_der_universe.py` for alternative DER universes.
+- `scripts/bootstrap_metric_cis.py` for confidence intervals.
 
 All analysis outputs are invalidated by any change to `data/processed`, `metrics.csv`, or the per-sample JSONL logs.

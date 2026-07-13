@@ -2,13 +2,13 @@
 
 ## Dataset
 
-The benchmark uses line-level crops from the *Yorùbá di Wúrà* graded reader series. Raw annotation exports are consolidated by `scripts/01_consolidate_data.py`, which normalizes labels to NFC, applies hygiene filters, writes PaddleOCR-format labels, and records a consolidation report. The current frozen processed split contains 2,945 unique line crops: 2,367 train, 252 validation, and 326 test. Any future resplit must trigger full reevaluation before the paper is regenerated.
+The benchmark uses line-level crops from the *Yorùbá di Wúrà* graded reader series. Raw annotation exports are consolidated by `scripts/consolidate_data.py`, which normalizes labels to NFC, applies hygiene filters, writes PaddleOCR-format labels, and records a consolidation report. The current frozen processed split contains 2,945 unique line crops: 2,367 train, 252 validation, and 326 test. Any future resplit must trigger full reevaluation before the paper is regenerated.
 
 The character dictionary contains 99 non-space characters observed after normalization. PaddleOCR uses `use_space_char=True`, so space is handled separately from the dictionary file.
 
 ## Data Quality
 
-The read-only audit `scripts/02b_data_quality_audit.py` checks label lengths, image dimensions, Unicode blocks, non-Yorùbá codepoints, duplicate image hashes, and cross-split duplicate hashes. Tall crops are reported for manual QA because they may represent multi-line noise; they are not silently removed from an already frozen split.
+The read-only audit `scripts/audit_data_quality.py` checks label lengths, image dimensions, Unicode blocks, non-Yorùbá codepoints, duplicate image hashes, and cross-split duplicate hashes. Tall crops are reported for manual QA because they may represent multi-line noise; they are not silently removed from an already frozen split.
 
 ## Systems
 
@@ -30,6 +30,6 @@ CER and WER are computed on NFC-normalized text. DER is computed over NFD combin
 
 Before publication, the pipeline must pass:
 
-- `scripts/13_verify_eval_alignment.py` so reported `n` matches current labels.
-- `scripts/12_diagnose_hypotheses.py checkpoints` so stale or phantom checkpoint rows are excluded.
-- `scripts/22_generate_plots.py` without placeholder data.
+- `scripts/verify_eval_alignment.py` so reported `n` matches current labels.
+- `scripts/diagnose_experiment.py checkpoints` so stale or phantom checkpoint rows are excluded.
+- `scripts/generate_plots.py` without placeholder data.

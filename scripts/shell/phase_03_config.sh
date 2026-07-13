@@ -7,7 +7,7 @@ source "${SCRIPT_DIR}/lib_common.sh"
 
 require_python
 CFG=(
-  scripts/03_generate_config.py
+  scripts/generate_paddleocr_config.py
   --data-dir "${PROCESSED_DIR:-data/processed}"
   --output-config "${TRAIN_CONFIG:-configs/paddleocr_yoruba_rec.yml}"
   --pretrained-dir "${PRETRAINED_ROOT:-experiments/baseline/pretrained}"

@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import json
 import logging
 import sys
 from pathlib import Path
@@ -76,8 +77,18 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--batch-size",
         type=int,
-        default=10,
-        help="Progress logging interval.",
+        default=4,
+        help="Images per generation batch. Failed/OOM batches retry one image at a time.",
+    )
+    parser.add_argument(
+        "--no-resume",
+        action="store_true",
+        help="Discard a compatible partial checkpoint and restart inference.",
+    )
+    parser.add_argument(
+        "--allow-failures",
+        action="store_true",
+        help="Publish metrics with failed samples counted as empty predictions. Default: stop before publishing metrics.",
     )
     parser.add_argument(
         "--results-csv",
@@ -99,41 +110,44 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def transcribe_one(
-    img_path: Path,
+def transcribe_batch(
+    image_paths: list[Path],
     model,
     processor,
     device: str,
     user_prompt: str,
     max_new_tokens: int,
-) -> str:
-    """
-    Run a single line image through PaddleOCR-VL-1.6 and return cleaned text.
-    """
+) -> list[str]:
+    """Transcribe a batch of line images with one generation call."""
     import torch
     from PIL import Image
 
     sys.path.insert(0, str(Path(__file__).parent))
     from paddle_vl_shared import clean_vl_transcript  # noqa: E402
 
-    image = Image.open(img_path).convert("RGB")
-
-
-    messages = [
-        {
-            "role": "user",
-            "content": [
-                {"type": "image", "image": image},
-                {"type": "text", "text": user_prompt},
-            ],
-        }
+    images = []
+    for image_path in image_paths:
+        with Image.open(image_path) as image:
+            images.append(image.convert("RGB"))
+    conversations = [
+        [
+            {
+                "role": "user",
+                "content": [
+                    {"type": "image", "image": image},
+                    {"type": "text", "text": user_prompt},
+                ],
+            }
+        ]
+        for image in images
     ]
 
     max_pixels = 768 * 28 * 28
     inputs = processor.apply_chat_template(
-        messages,
+        conversations if len(conversations) > 1 else conversations[0],
         add_generation_prompt=True,
         tokenize=True,
+        padding=len(conversations) > 1,
         return_dict=True,
         return_tensors="pt",
         processor_kwargs={
@@ -157,10 +171,14 @@ def transcribe_one(
             **inputs, max_new_tokens=max_new_tokens, do_sample=False
         )
 
-    inp = inputs["input_ids"]
-    new_tokens = output_ids[0][inp.shape[-1]:]
-    raw = processor.decode(new_tokens, skip_special_tokens=True)
-    return clean_vl_transcript(raw)
+    input_width = inputs["input_ids"].shape[-1]
+    predictions = []
+    for generated in output_ids:
+        new_tokens = generated[input_width:] if generated.shape[-1] > input_width else generated
+        predictions.append(
+            clean_vl_transcript(processor.decode(new_tokens, skip_special_tokens=True))
+        )
+    return predictions
 
 
 def load_model_and_processor(
@@ -326,6 +344,7 @@ def main() -> None:
         save_results,
     )
     from paddle_vl_shared import USER_TEXT_OCR_YORUBA  # noqa: E402
+    from vl_eval_runtime import evaluate_resumable, run_fingerprint, sample_id  # noqa: E402
 
     model_name = args.model_name
     if not model_name:
@@ -338,28 +357,60 @@ def main() -> None:
         args.per_sample_log = Path(f"results/tables/{model_name}_{args.split}.jsonl")
 
     pairs = load_test_pairs(args.data_dir, args.split)
-    if args.max_samples:
+    if args.max_samples is not None:
+        if args.max_samples < 1:
+            raise ValueError("--max-samples must be at least 1")
         pairs = pairs[: args.max_samples]
+    if not pairs:
+        raise ValueError(f"No readable samples found for split={args.split}")
+    if args.batch_size < 1:
+        raise ValueError("--batch-size must be at least 1")
+
+    fingerprint_payload = {
+        "model_id": args.model_id,
+        "model_name": model_name,
+        "split": args.split,
+        "prompt_sha256": _sha256_text(USER_TEXT_OCR_YORUBA),
+        "max_new_tokens": args.max_new_tokens,
+        "quantize_4bit": bool(args.quantize_4bit),
+        "samples": [sample_id(path, gt) for path, gt in pairs],
+    }
+    fingerprint = run_fingerprint(fingerprint_payload)
+    partial_path = args.per_sample_log.with_suffix(args.per_sample_log.suffix + ".partial")
+    if args.no_resume and partial_path.exists():
+        partial_path.unlink()
 
     model, processor = load_model_and_processor(args.model_id, args.quantize_4bit)
     device = str(next(model.parameters()).device)
 
-    from tqdm import tqdm
-    results: list[tuple[str, str]] = []
-    for img_path, gt in tqdm(pairs, desc="Evaluating PaddleOCR-VL-1.6", unit="img"):
-        try:
-            pred = transcribe_one(
-                img_path,
-                model,
-                processor,
-                device,
-                USER_TEXT_OCR_YORUBA,
-                args.max_new_tokens,
-            )
-        except Exception as exc:  # noqa: BLE001
-            log.warning("Failed on %s: %s", img_path.name, exc)
-            pred = ""
-        results.append((pred, gt))
+    def infer(paths: list[Path]) -> list[str]:
+        return transcribe_batch(
+            paths,
+            model,
+            processor,
+            device,
+            USER_TEXT_OCR_YORUBA,
+            args.max_new_tokens,
+        )
+
+    results, sample_rows = evaluate_resumable(
+        pairs,
+        transcribe_batch=infer,
+        batch_size=args.batch_size,
+        partial_path=partial_path,
+        fingerprint=fingerprint,
+        resume=not args.no_resume,
+        description="Evaluating PaddleOCR-VL-1.6",
+    )
+    failures = [row for row in sample_rows if row["status"] != "ok"]
+    if failures and not args.allow_failures:
+        examples = "; ".join(
+            f"{Path(row['image_path']).name}: {row['error']}" for row in failures[:3]
+        )
+        raise RuntimeError(
+            f"{len(failures)} inference samples failed; metrics were not published. "
+            f"Fix the runtime and rerun to resume from {partial_path}. Examples: {examples}"
+        )
 
     metrics = aggregate_metrics(results)
     cer_pct = f"{metrics['cer'] * 100:.2f}%" if metrics["cer"] is not None else "—"
@@ -394,9 +445,26 @@ def main() -> None:
         "prompt_sha256": _sha256_text(USER_TEXT_OCR_YORUBA),
         "data_dir": str(args.data_dir),
         "n_images": len(pairs),
+        "batch_size": args.batch_size,
+        "resume_enabled": not args.no_resume,
+        "run_fingerprint": fingerprint,
+        "failure_count": len(failures),
+        "failures_allowed": bool(args.allow_failures),
         "device": device,
         "torch_dtype": _recorded_dtype,
     }
+    local_model_path = Path(args.model_id)
+    training_root = local_model_path.parent if local_model_path.name == "best" else local_model_path
+    training_state_path = training_root / "training_state.json"
+    best_validation_path = training_root / "best_validation.json"
+    if training_state_path.is_file():
+        provenance["sft_training_state"] = json.loads(
+            training_state_path.read_text(encoding="utf-8")
+        )
+    if best_validation_path.is_file():
+        provenance["sft_best_validation"] = json.loads(
+            best_validation_path.read_text(encoding="utf-8")
+        )
     save_results(
         metrics,
         model_name=model_name,
@@ -404,7 +472,9 @@ def main() -> None:
         csv_path=args.results_csv,
         jsonl_path=args.per_sample_log,
         provenance=provenance,
+        sample_metadata=sample_rows,
     )
+    partial_path.unlink(missing_ok=True)
     log.info("Results appended to %s", args.results_csv)
 
 

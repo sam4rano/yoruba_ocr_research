@@ -10,8 +10,8 @@ Computes and saves:
     char_frequency_top.png
 
 Usage:
-    python scripts/02_analyze_dataset.py
-    python scripts/02_analyze_dataset.py --data-dir data/processed \
+    python scripts/analyze_dataset.py
+    python scripts/analyze_dataset.py --data-dir data/processed \
         --output-dir results/tables --plot
 """
 
@@ -177,7 +177,7 @@ def parse_args() -> argparse.Namespace:
         "--data_dir",
         type=Path,
         default=Path("data/processed"),
-        help="Processed dataset root (output of 01_consolidate_data.py).",
+        help="Processed dataset root (output of consolidate_data.py).",
     )
     parser.add_argument(
         "--output-dir",

@@ -47,7 +47,7 @@
     the phantom concept does not apply.
   - `unknown` — provenance did not include an integrity report (legacy rows).
 
-`scripts/11_compile_results.py` skips rows with `phantom=true` or **stale**
+`scripts/compile_results.py` skips rows with `phantom=true` or **stale**
 checkpoints (meta references a missing `.pdparams` file) when building Table 1.
 
 ## Archiving before re-runs
@@ -89,7 +89,7 @@ scripts 17--19 cannot mix archived and fresh inference logs.
 Recompute corpus DER under alternative diacritic extractors (no re-inference):
 
 ```bash
-.venv/bin/python scripts/18_der_universe_ablation.py
+.venv/bin/python scripts/ablate_der_universe.py
 ```
 
 Outputs:
@@ -106,7 +106,7 @@ Headline `metrics.csv` DER matches the **all combining (NFD)** row within
 ## Bootstrap confidence intervals
 
 ```bash
-.venv/bin/python scripts/19_bootstrap_metric_cis.py
+.venv/bin/python scripts/bootstrap_metric_cis.py
 ```
 
 Outputs `bootstrap_metric_cis.csv`, `bootstrap_pairwise_comparison.csv`, and
@@ -127,7 +127,7 @@ non-empty, **re-run** evaluations or freeze the dataset version referenced in
 the paper. Then run the checkpoint audit:
 
 ```bash
-python scripts/12_diagnose_hypotheses.py checkpoints --fail-on-phantom
+python scripts/diagnose_experiment.py checkpoints --fail-on-phantom
 ```
 
 which scans `metrics.csv` + sibling `meta.json` files and exits non-zero if

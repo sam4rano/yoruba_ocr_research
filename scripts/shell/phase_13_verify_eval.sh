@@ -14,7 +14,7 @@ EXTRA=()
 [[ "${VERIFY_STRICT:-0}" == "1" ]] && EXTRA+=(--strict)
 
 require_python
-run_py scripts/13_verify_eval_alignment.py \
+run_py scripts/verify_eval_alignment.py \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --metrics-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
   --output-json "${RESULTS_TABLES:-results/tables}/eval_alignment_report.json" \

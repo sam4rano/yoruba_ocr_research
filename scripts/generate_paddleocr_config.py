@@ -5,8 +5,8 @@ from the current machine's project root.
 Downloads the PP-OCRv3 English pretrained recognition weights if not present.
 
 Usage:
-    python scripts/03_generate_config.py
-    python scripts/03_generate_config.py \
+    python scripts/generate_paddleocr_config.py
+    python scripts/generate_paddleocr_config.py \
         --data-dir data/processed \
         --output-config configs/paddleocr_yoruba_rec.yml \
         --pretrained-dir experiments/baseline/pretrained \
@@ -379,7 +379,7 @@ def main() -> None:
         n_chars = count_dict_chars(dict_path)
         log.info("Character dictionary: %d chars at %s", n_chars, dict_path)
     except FileNotFoundError as exc:
-        log.error("%s — run 01_consolidate_data.py first.", exc)
+        log.error("%s — run consolidate_data.py first.", exc)
         sys.exit(1)
 
     # Download pretrained weights unless instructed to skip

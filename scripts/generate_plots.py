@@ -94,7 +94,7 @@ def load_main_metrics(results_dir: Path) -> pd.DataFrame | None:
     Load the main comparison table for plotting.
 
     Preference order:
-    1. ``metrics_summary.csv`` from ``scripts/11_compile_results.py``.
+    1. ``metrics_summary.csv`` from ``scripts/compile_results.py``.
     2. ``table1_main_comparison.csv``.
     3. Raw ``metrics.csv`` latest test rows, converted to summary format.
     """

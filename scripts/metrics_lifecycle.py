@@ -90,7 +90,7 @@ def checkpoint_status_for_row(
     """
     Return checkpoint audit status for one metrics.csv row.
 
-    Mirrors ``12_diagnose_hypotheses.py checkpoints`` logic:
+    Mirrors ``diagnose_experiment.py checkpoints`` logic:
     ``ok`` | ``phantom`` | ``stale`` | ``no_meta``.
 
     Non-Paddle models (phantom="n/a") never produce ``.pdparams`` files;
@@ -158,7 +158,12 @@ def archive_eval_artifacts(tables_dir: Path) -> Path:
             shutil.copy2(src, dest / name)
 
     jsonl_archived: list[Path] = []
-    for pattern in ("*_test.jsonl", "*_val.jsonl", "*_train.jsonl"):
+    for pattern in (
+        "*_test.jsonl",
+        "*_val.jsonl",
+        "*_train.jsonl",
+        "*.jsonl.partial",
+    ):
         for src in sorted(tables_dir.glob(pattern)):
             shutil.copy2(src, dest / src.name)
             jsonl_archived.append(src)
@@ -227,7 +232,12 @@ def reset_generated_artifacts(tables_dir: Path) -> None:
             path.unlink()
             removed += 1
 
-    for pattern in ("*_test.jsonl", "*_val.jsonl", "*_train.jsonl"):
+    for pattern in (
+        "*_test.jsonl",
+        "*_val.jsonl",
+        "*_train.jsonl",
+        "*.jsonl.partial",
+    ):
         for path in tables_dir.glob(pattern):
             path.unlink()
             removed += 1
@@ -245,9 +255,10 @@ def reset_generated_artifacts(tables_dir: Path) -> None:
 
     fig_dir = tables_dir / "figures"
     if fig_dir.is_dir():
-        for path in fig_dir.glob("*.png"):
-            path.unlink()
-            removed += 1
+        for extension in ("*.png", "*.pdf", "*.svg"):
+            for path in fig_dir.glob(extension):
+                path.unlink()
+                removed += 1
 
     for path in (tables_dir.parent / ".DS_Store", tables_dir / ".DS_Store"):
         if path.is_file():

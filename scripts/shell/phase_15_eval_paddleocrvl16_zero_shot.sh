@@ -9,6 +9,10 @@ if [[ "${SKIP_PADDLEOCRVL16_ZERO_SHOT:-0}" == "1" ]]; then
   log "WARN: SKIP_PADDLEOCRVL16_ZERO_SHOT=1 — skipping PaddleOCR-VL-1.6 eval."
   exit 0
 fi
+if model_result_complete paddleocrvl16_zero_shot "${EVAL_SPLIT:-test}"; then
+  log "Complete PaddleOCR-VL-1.6 zero-shot evidence already exists; skipping evaluation."
+  exit 0
+fi
 
 if [[ -x "${PROJECT_ROOT}/.venv/bin/python" ]]; then
   export PYTHON="${PROJECT_ROOT}/.venv/bin/python"
@@ -24,6 +28,9 @@ PADDLEOCRVL16_ARGS=(
 )
 [[ -n "${PADDLEOCRVL16_MAX_SAMPLES:-}" ]] && PADDLEOCRVL16_ARGS+=( --max-samples "$PADDLEOCRVL16_MAX_SAMPLES" )
 [[ -n "${PADDLEOCRVL16_MAX_NEW_TOKENS:-}" ]] && PADDLEOCRVL16_ARGS+=( --max-new-tokens "$PADDLEOCRVL16_MAX_NEW_TOKENS" )
+[[ -n "${PADDLEOCRVL16_BATCH_SIZE:-}" ]] && PADDLEOCRVL16_ARGS+=( --batch-size "$PADDLEOCRVL16_BATCH_SIZE" )
+[[ "${PADDLEOCRVL16_NO_RESUME:-0}" == "1" ]] && PADDLEOCRVL16_ARGS+=( --no-resume )
+[[ "${PADDLEOCRVL16_ALLOW_FAILURES:-0}" == "1" ]] && PADDLEOCRVL16_ARGS+=( --allow-failures )
 # PADDLEOCRVL16_QUANTIZE_4BIT=0: use hardware-native dtype (bf16 on L4/A100, fp16 on T4).
 # PADDLEOCRVL16_QUANTIZE_4BIT=1: use 4-bit quantization (useful for small VRAM, but record it).
 [[ "${PADDLEOCRVL16_QUANTIZE_4BIT:-0}" == "1" ]] && PADDLEOCRVL16_ARGS+=( --quantize-4bit )

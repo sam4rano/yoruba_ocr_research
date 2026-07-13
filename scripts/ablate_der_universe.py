@@ -10,8 +10,8 @@ logs without re-running model inference. Universes:
   * marked_grapheme — NFC codepoints whose NFD contains a mark in the standard set
 
 Usage:
-    python scripts/18_der_universe_ablation.py
-    python scripts/18_der_universe_ablation.py \
+    python scripts/ablate_der_universe.py
+    python scripts/ablate_der_universe.py \
         --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl
 """
 

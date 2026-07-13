@@ -13,10 +13,23 @@ if [[ "${SKIP_PADDLEOCRVL16_SFT_EVAL:-0}" == "1" ]]; then
   log "SKIP_PADDLEOCRVL16_SFT_EVAL=1; skip phase 17"
   exit 0
 fi
+if model_result_complete paddleocrvl16_sft test; then
+  log "Complete PaddleOCR-VL-1.6 SFT evidence already exists; skipping evaluation."
+  exit 0
+fi
 
 EXTRA=()
 if [[ -n "${PADDLEOCRVL16_EVAL_MAX_SAMPLES:-}" ]]; then
   EXTRA+=(--max-samples "$PADDLEOCRVL16_EVAL_MAX_SAMPLES")
+fi
+if [[ -n "${PADDLEOCRVL16_EVAL_BATCH_SIZE:-}" ]]; then
+  EXTRA+=(--batch-size "$PADDLEOCRVL16_EVAL_BATCH_SIZE")
+fi
+if [[ "${PADDLEOCRVL16_EVAL_NO_RESUME:-0}" == "1" ]]; then
+  EXTRA+=(--no-resume)
+fi
+if [[ "${PADDLEOCRVL16_EVAL_ALLOW_FAILURES:-0}" == "1" ]]; then
+  EXTRA+=(--allow-failures)
 fi
 # PADDLEOCRVL16_EVAL_4BIT=0: use hardware-native dtype (bf16 on L4/A100, fp16 on T4).
 # PADDLEOCRVL16_EVAL_4BIT=1: use 4-bit quantization only when VRAM is critically limited.
@@ -35,6 +48,6 @@ run_py scripts/eval_paddleocrvl16.py \
   --model-name "paddleocrvl16_sft" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "test" \
-  --results-csv "${RESULTS_CSV:-results/tables/metrics.csv}" \
+  --results-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
   --per-sample-log "${PROJECT_ROOT}/results/tables/paddleocrvl16_sft_test.jsonl" \
   "${EXTRA[@]}"

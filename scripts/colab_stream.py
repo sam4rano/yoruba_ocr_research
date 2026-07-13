@@ -18,6 +18,37 @@ from typing import Mapping, Sequence, Union
 Cmd = Union[str, Sequence[str]]
 
 
+LEGACY_SCRIPT_NAMES = {
+    "scripts/audit_data_quality.py": "scripts/02b_data_quality_audit.py",
+    "scripts/refresh_dataset_report.py": "scripts/02c_refresh_dataset_report.py",
+    "scripts/smoke_test_runtime.py": "scripts/24_colab_smoke_test.py",
+}
+
+
+def _validate_local_command(argv: Sequence[str], cwd: str | Path | None) -> None:
+    """Fail clearly when a notebook and its checked-out scripts are out of sync."""
+    if len(argv) < 2 or not argv[1].startswith("scripts/"):
+        return
+
+    root = Path(cwd) if cwd is not None else Path.cwd()
+    requested = root / argv[1]
+    if requested.is_file():
+        return
+
+    legacy_name = LEGACY_SCRIPT_NAMES.get(argv[1])
+    legacy_hint = ""
+    if legacy_name and (root / legacy_name).is_file():
+        legacy_hint = (
+            f" Found legacy file {legacy_name}; this confirms that the notebook "
+            "is newer than the checked-out repository."
+        )
+    raise FileNotFoundError(
+        f"Required command file is missing: {requested}.{legacy_hint} "
+        "Rerun the notebook's 'Pull code from GitHub' cell and confirm its "
+        "project-layout check passes before continuing."
+    )
+
+
 def run_cmd(
     cmd: Cmd,
     *,
@@ -31,6 +62,7 @@ def run_cmd(
     Raises ``subprocess.CalledProcessError`` on non-zero exit.
     """
     argv = split(cmd) if isinstance(cmd, str) else list(cmd)
+    _validate_local_command(argv, cwd)
     merged = os.environ.copy()
     merged["PYTHONUNBUFFERED"] = "1"
     if env:

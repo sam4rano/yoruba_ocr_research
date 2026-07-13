@@ -93,12 +93,17 @@ Paddle, Torch, `transformers`, or `accelerate`.
 The notebook exposes:
 
 ```python
+RUN_ID = "yoruba-ocr-final-v1"  # Keep unchanged when resuming; change for a new experiment.
 RUN_RESET = True
 RUN_PADDLE_BASELINE = True
 RUN_VLM_ZERO_SHOT = True
 RUN_PADDLEOCRVL16_SFT = False
 RUN_ANALYSIS = True
 ```
+
+Initialization is idempotent per `RUN_ID`. Rerunning all cells with the same ID
+does not erase partial inference or training state, and already complete model
+rows are skipped after evidence and sample-count validation.
 
 Suggested order:
 
@@ -126,6 +131,11 @@ os.environ["GLM_MAX_SAMPLES"] = "5"
 ```
 
 Remove those caps before final paper metrics.
+
+Zero-shot and SFT-checkpoint evaluation also resume automatically from
+fingerprinted partial JSONL logs. Set `PADDLEOCRVL16_BATCH_SIZE` or
+`GLM_BATCH_SIZE` to tune throughput; use `2` on constrained GPUs and try `4`
+on L4-class hardware. Failed samples block metrics publication by default.
 
 ## 5. Outputs
 
@@ -169,7 +179,6 @@ experiments/paddleocrvl16_sft/
 - **Paddle import fails:** adjust `PADDLE_PIP_SPEC`, restart, reinstall.
 - **Hugging Face model fails:** confirm `transformers>=5`, Internet access, and
   enough disk in the Studio.
-- **SFT interrupted:** set `PADDLEOCRVL16_SFT_RESUME=1` and rerun the SFT cell.
+- **SFT interrupted:** set `PADDLEOCRVL16_SFT_RESUME=1` and rerun the SFT cell. Weights, optimizer, scheduler, and RNG states are restored together.
 - **Final table missing rows:** check `results/tables/metrics.csv` and per-model
   JSONL logs before running analysis and compile.
-

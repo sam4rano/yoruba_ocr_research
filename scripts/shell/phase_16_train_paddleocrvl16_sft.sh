@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Phase 16: Fine-tune PaddleOCR-VL-1.6 language model on export from phase 14 (long-running GPU job).
+# Phase 16: Supervised PaddleOCR-VL-1.6 adaptation on the phase 14 export (long-running GPU job).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=lib_common.sh

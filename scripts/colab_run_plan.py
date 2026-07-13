@@ -1,18 +1,18 @@
 """
 Colab notebook run plan → pipeline ``SKIP_*`` environment variables.
 
-Edit ``RUN_PLAN`` in ``yor_ocr.ipynb`` Step 1, then call ``apply_run_plan()``.
+Edit ``RUN_PLAN`` in ``notebooks/colab_ocr.ipynb`` Step 1, then call ``apply_run_plan()``.
 
 Active model stack (3 models zero-shot + 1 fine-tuned):
   - Base PaddleOCR (English pretrained recognition) [zero-shot]
   - PaddleOCR-VL-1.6 [zero-shot]
   - GLM-OCR [zero-shot]
-  - PaddleOCR-VL-1.6 fine-tuned [fine-tuned LM]
+  - PaddleOCR-VL-1.6 supervised adaptation [output-head SFT by default]
 
 Sections
 --------
 A  Out-of-the-box zero-shot: PaddleOCR EN pretrained, PaddleOCR-VL-1.6, GLM-OCR
-B  PaddleOCR-VL-1.6 LM fine-tuning
+B  PaddleOCR-VL-1.6 supervised fine-tuning
 D  Analysis + compile Table 1
 Appendix  HF dataset upload
 """
@@ -31,7 +31,7 @@ DEFAULT_RUN_PLAN: dict[str, bool] = {
 
 DATA_DEFAULTS: dict[str, str] = {
     "USE_EXISTING_PROCESSED_DATA": "1",
-    "ARCHIVE_METRICS_BEFORE_RUN": "1",
+    "SKIP_COMPLETED_EVAL": "1",
     "SKIP_CONSOLIDATE": "1",
     "RUN_RESPLIT": "0",
     "RESET_PROCESSED": "0",
@@ -83,7 +83,7 @@ def print_run_summary(plan: Mapping[str, bool] | None = None) -> None:
         f"  A  OOTB zero-shot baselines   : {'ON' if p['A_baselines_ootb'] else 'OFF'}",
         "       → PaddleOCR EN pretrained, PaddleOCR-VL-1.6, GLM-OCR",
         f"  B  PaddleOCR-VL-1.6 fine-tune : {'ON' if p['B_vl16_finetune'] else 'OFF'}",
-        "       → export SFT data + full LM fine-tuning (long GPU run)",
+        "       → export SFT data + output-head adaptation by default",
         f"  D  Analysis + compile         : {'ON' if p['D_analysis_compile'] else 'OFF'}",
         "─── Appendix (default OFF) ───",
         f"  + HF dataset upload           : {'ON' if p.get('appendix_hf_dataset') else 'off'}",

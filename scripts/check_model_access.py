@@ -7,8 +7,8 @@ pretrained weights — without running full GPU eval unless ``--live`` is set.
 
 
 Usage:
-    python scripts/30_e2e_network_check.py
-    python scripts/30_e2e_network_check.py --live --max-samples 1
+    python scripts/check_model_access.py
+    python scripts/check_model_access.py --live --max-samples 1
 """
 
 from __future__ import annotations

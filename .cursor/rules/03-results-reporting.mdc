@@ -11,10 +11,9 @@ BAD: "Table 2 shows the results of our experiment comparing..."
 
 ## Every number rule
 State value -> (Table/Figure reference) -> interpretation
-When referring to the **primary supervised result**, name **PaddleOCR-VL-1.5 LoRA**
-unless the sentence is explicitly about PP-OCRv4 CRNN or ablations on that stack.
-Example: "The LoRA fine-tuned VL model achieves a CER of 4.2% (Table 1),
-compared to 18.7% for the pretrained PP-OCRv4 baseline — a 77% relative reduction."
+When referring to the supervised result, name **PaddleOCR-VL-1.6 SFT** and
+state its recorded train scope (`lm_head`, `non_vision`, or `all`). Never insert
+example metric values: every value must come from the regenerated metrics CSV.
 
 ## Standard results table format
 | Model | CER ↓ | WER ↓ | DER ↓ | Notes |
@@ -29,9 +28,10 @@ Report to 1 decimal place.
 3. Interpretation: what this reveals about the model
 4. One sentence connecting back to the main finding
 
-## LLM vs fine-tuned analysis (key finding for this paper)
-Frame it as: LLMs recover semantic content but not tonal fidelity.
-This is the central insight — give it its own paragraph.
+## Zero-shot vs supervised analysis
+Compare CER, WER, and DER separately. Treat any claim about semantic recovery
+or tonal fidelity as a result to be established by the regenerated data, not a
+prewritten conclusion.
 
 ## Language for uncertainty
 "suggests" not "proves"

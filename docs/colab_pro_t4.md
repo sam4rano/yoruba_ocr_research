@@ -10,7 +10,13 @@ with data already present as:
 - `data/processed/` — consolidated PaddleOCR-format dataset (line images + labels)  
 - `data/splits/` — optional split files if your workflow uses them  
 
-The pipeline in this repo expects **`data/processed/`** as the working dataset root for training and evaluation. If `processed` is complete and consistent with `01_consolidate_data.py` output, you can skip consolidation or re-run it only if you need a clean merge from `raw`.
+The pipeline in this repo expects **`data/processed/`** as the working dataset root for training and evaluation. If `processed` is complete and consistent with `consolidate_data.py` output, you can skip consolidation or re-run it only if you need a clean merge from `raw`.
+
+Use the notebook and scripts from the **same Git revision**. The canonical notebook
+expects descriptive script names such as `scripts/smoke_test_runtime.py` and
+`scripts/refresh_dataset_report.py`. If the Drive checkout instead contains
+`scripts/24_colab_smoke_test.py` or `scripts/02c_refresh_dataset_report.py`, it is
+the retired numbered layout and must be updated before continuing.
 
 ---
 
@@ -49,6 +55,23 @@ Confirm:
 ```python
 !ls -la data/processed data/raw 2>/dev/null || echo "Check paths"
 ```
+
+### Notebook/repository mismatch
+
+An error saying that `smoke_test_runtime.py` or `refresh_dataset_report.py` is
+missing does not indicate a data or Python problem. It means the opened notebook
+is newer than the code fetched into Drive. Rerun **Pull code from GitHub** and
+confirm it prints:
+
+```text
+Repository code and notebook layout are aligned.
+```
+
+Do not work around this by copying or renaming the old numbered scripts: that
+would leave the evaluation, resume, and failure-handling code on the old
+revision. If the pull cell reports that `origin/main` itself has the legacy
+layout, publish the notebook and code changes together first, then rerun the
+cell.
 
 ---
 
@@ -93,7 +116,7 @@ If `transformers.__version__` still shows `<5` after installation, restart the C
 
 ---
 
-## 4. Clone PaddleOCR (required for training and `05_evaluate.py`)
+## 4. Clone PaddleOCR (required for training and `evaluate_paddleocr_recognition.py`)
 
 From `PROJECT_ROOT`:
 
@@ -118,7 +141,7 @@ Expected minimum for training/eval:
 If you only uploaded `raw` and need a fresh merge:
 
 ```bash
-python scripts/01_consolidate_data.py --help
+python scripts/consolidate_data.py --help
 # Run with your repo’s documented arguments after inspecting the script.
 ```
 
@@ -134,8 +157,8 @@ Run from `PROJECT_ROOT` with `python` (or `python3` if that is what Colab uses �
 
 | Step | Script | Role |
 |------|--------|------|
-| 1 | `scripts/02_analyze_dataset.py` | EDA; updates local JSON under `results/tables/` |
-| 2 | `scripts/03_generate_config.py` | Downloads pretrained weights (if configured) + writes YAML |
+| 1 | `scripts/analyze_dataset.py` | EDA; updates local JSON under `results/tables/` |
+| 2 | `scripts/generate_paddleocr_config.py` | Downloads pretrained weights (if configured) + writes YAML |
 | 3 | `scripts/train_paddleocr_recognition.py` | Optional PaddleOCR recognition fine-tuning via `PaddleOCR/tools/train.py` |
 
 **Training on T4 (single GPU):**
@@ -152,17 +175,17 @@ Do **not** pass `--cpu` on Colab when you want GPU training. Use `--epochs`, `--
 
 | Step | Script | Role |
 |------|--------|------|
-| 4 | `scripts/05_evaluate.py` | Paddle checkpoints: CER / WER / DER → `results/tables/metrics.csv` + JSONL |
-| 5 | `scripts/06_baseline_pretrained.py` | English pretrained baseline (delegates to `05`) |
+| 4 | `scripts/evaluate_paddleocr_recognition.py` | Paddle checkpoints: CER / WER / DER → `results/tables/metrics.csv` + JSONL |
+| 5 | `scripts/evaluate_paddleocr_en_pretrained.py` | English pretrained baseline (delegates to the recognition evaluator) |
 | 6 | `scripts/eval_paddleocrvl16.py` | PaddleOCR-VL-1.6 zero-shot baseline |
 | 7 | `scripts/eval_glm_ocr.py` | GLM-OCR zero-shot baseline |
 | 8 | `scripts/export_paddleocrvl16_sft.py` + `scripts/train_paddleocrvl16_sft.py` | Optional PaddleOCR-VL-1.6 SFT |
-| 9 | `scripts/11_compile_results.py` | Paper tables from `metrics.csv` |
+| 9 | `scripts/compile_results.py` | Paper tables from `metrics.csv` |
 
 **Evaluate optional PaddleOCR recognition fine-tune** (point `--model-dir` at the directory containing `best_accuracy.pdparams` or the checkpoint prefix your run produced, often under `experiments/finetuned/`):
 
 ```bash
-python scripts/05_evaluate.py \
+python scripts/evaluate_paddleocr_recognition.py \
   --model-dir experiments/finetuned \
   --data-dir data/processed \
   --split test \
@@ -218,7 +241,7 @@ python scripts/eval_paddleocrvl16.py \
 **Compile tables:**
 
 ```bash
-python scripts/11_compile_results.py
+python scripts/compile_results.py
 ```
 
 ---
@@ -230,7 +253,7 @@ All metrics that belong in the paper should trace to:
 - `results/tables/metrics.csv` — master table (append-only across runs)  
 - `results/tables/*_test.jsonl` / `*_val.jsonl` — per-sample logs  
 - `results/tables/train_run.json` — last optional PaddleOCR recognition training invocation metadata (`train_paddleocr_recognition.py`)  
-- `results/tables/table1_main_comparison.md` (and related) — after `11_compile_results.py`  
+- `results/tables/table1_main_comparison.md` (and related) — after `compile_results.py`
 - `experiments/` — checkpoints and ablation configs  
 
 ---
@@ -291,6 +314,8 @@ Drive holds files; **git history** lives where you push (GitHub/GitLab).
 - **Model downloads:** PaddleOCR-VL-1.6 and GLM-OCR are large Hugging Face downloads. Set `HF_HOME`/`HF_HUB_CACHE` to a Drive or project-local cache if you need persistence across sessions.
 - **Runtime restart:** after upgrading `transformers`, `accelerate`, `torch`, or Paddle, restart the runtime before loading PaddleOCR-VL-1.6 or GLM-OCR.
 - **T4 memory:** T4 uses float16 by default because it does not support native bfloat16. Use `PADDLEOCRVL16_QUANTIZE_4BIT=1` or `GLM_QUANTIZE_4BIT=1` only when VRAM is tight; do not mix 4-bit and non-4-bit results in the same comparison without recording it.
+- **Batching and resume:** start with `PADDLEOCRVL16_BATCH_SIZE=2` and `GLM_BATCH_SIZE=2` on T4. Evaluation writes compatible partial checkpoints and resumes automatically after a disconnect. Failed samples block metrics publication by default.
+- **Run identity:** keep the notebook `RUN_ID` unchanged when reconnecting or rerunning all cells. The first run initializes outputs; later executions with the same ID preserve partial checkpoints and skip only fully validated model rows. Change `RUN_ID` to intentionally begin a new experiment.
 - **Reproducibility:** record `pip freeze > results/tables/pip_freeze_colab.txt` once per successful run.  
 - **Secrets:** never commit `HF_TOKEN`; use Colab secrets or env vars.
 
@@ -303,7 +328,7 @@ The repo includes `scripts/shell/` with one script per phase plus `run_all.sh`. 
 ## 12. Minimal “smoke test” before a full train
 
 ```bash
-python scripts/06_baseline_pretrained.py \
+python scripts/evaluate_paddleocr_en_pretrained.py \
   --pretrained-dir experiments/baseline/pretrained/en_PP-OCRv3_rec_train \
   --data-dir data/processed \
   --split test \

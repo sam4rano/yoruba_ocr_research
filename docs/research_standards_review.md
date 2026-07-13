@@ -24,10 +24,13 @@ Older PaddleOCR-VL-1.5 LoRA, Qwen, TrOCR, and ablation claims are no longer part
 - **Prompt consistency:** VL-1.6 and GLM-OCR use deterministic generation and fixed transcript prompts for line crops.
 - **Deduplication & Splits:** All model rows are evaluated on the exact same frozen test split.
 
-### Gaps vs "production" VLM benchmarks
+### Runtime and efficiency policy
 
-- **Throughput:** Zero-shot VLM evaluation scripts run single-image loops. While simple and reliable, they do not yet leverage large batch inference, resume-by-sample JSONL checkpoints, or vLLM-style serving.
+- **Throughput:** Zero-shot scripts batch compatible processor calls and automatically retry a failed/OOM batch one image at a time. Batch size is recorded in provenance.
+- **Interruption safety:** Every sample is appended to a fingerprinted `.jsonl.partial` checkpoint. A rerun resumes only when model, prompt, precision, split, generation cap, and ordered sample identities match.
+- **Failure integrity:** Failed samples stop metrics publication by default. `--allow-failures` is an explicit lower-bound mode that records each error and counts its prediction as empty.
 - **Quantization:** Standard model parameters are loaded in float16/bfloat16. High-resource environments may run in 8-bit/4-bit quantization, which is supported but optional here.
+- **Remaining scaling limit:** The scripts use direct Hugging Face generation rather than a dedicated serving engine such as vLLM. This is appropriate for the 326-line test split but not a high-throughput production service.
 
 ---
 
@@ -35,7 +38,7 @@ Older PaddleOCR-VL-1.5 LoRA, Qwen, TrOCR, and ablation claims are no longer part
 
 ### Alignment
 
-- **Eval YAML:** Eval `05_evaluate.py` uses the same YAML family as the checkpoint. The config fallback is `configs/paddleocr_yoruba_rec.yml` to prevent mixing incompatible weights and architectures.
+- **Eval YAML:** Eval `evaluate_paddleocr_recognition.py` uses the same YAML family as the checkpoint. The config fallback is `configs/paddleocr_yoruba_rec.yml` to prevent mixing incompatible weights and architectures.
 - **Dictionary:** Forcing the Yorùbá character dict at decode time for both baseline and fine-tuned models is a deliberate **fair decoding** choice; it is not the same as “English-only out-of-the-box PaddleOCR,” and must be stated clearly in the paper.
 
 ### Standard CRNN / CTC expectations
@@ -55,17 +58,17 @@ Older PaddleOCR-VL-1.5 LoRA, Qwen, TrOCR, and ablation claims are no longer part
 ## 5. Documentation and reproducibility checklist
 
 - [ ] Record `pip freeze`, Paddle / CUDA / `transformers` versions per paper run.
-- [ ] Store `experiments/finetuned/config.yml` or exact CLI for `05` next to published PaddleOCR recognition numbers.
-- [ ] Record SFT epoch-level validation CER/DER and best-checkpoint selection before citing the VL-1.6 fine-tuned row.
+- [ ] Preserve the generated PaddleOCR recognition config and per-run metadata next to published recognition numbers.
+- [ ] Confirm the generated SFT `training_log.jsonl` and `best_validation.json` are included before citing the VL-1.6 fine-tuned row.
 
 ---
 
 ## 6. Epoch budget (PaddleOCR recognition)
 
-- **PaddleOCR recognition** (`03` / `04`): Default **`epoch_num` is 40** in generated and checked-in YAMLs. Recognition CTC runs often **plateau well before 100**; validation accuracy from Paddle’s training logs or a held-out eval should be monitored. Override with `CONFIG_EPOCHS=30` when running `phase_03_config.sh`, or `--epochs` on `03_generate_config.py`.
+- **PaddleOCR recognition** (`03` / `04`): Default **`epoch_num` is 40** in generated and checked-in YAMLs. Recognition CTC runs often **plateau well before 100**; validation accuracy from Paddle’s training logs or a held-out eval should be monitored. Override with `CONFIG_EPOCHS=30` when running `phase_03_config.sh`, or `--epochs` on `generate_paddleocr_config.py`.
 
 ---
 
 ## 7. Bottom line
 
-The repo is **methodologically coherent** when all rows are regenerated from one frozen `data/processed` split: shared crops, NFC text, aligned decoding choices, deterministic VLM generation, and traceable JSONL/meta files. The main **honest limitations** are engine heterogeneity across baselines, project-specific DER, single-image VLM throughput, and the need to freeze one split definition before citation.
+The repo is **methodologically coherent** when all rows are regenerated from one frozen `data/processed` split: shared crops, NFC text, aligned decoding choices, deterministic resumable VLM generation, and traceable JSONL/meta files. The main **honest limitations** are engine heterogeneity across baselines, project-specific DER, direct-Hugging-Face rather than serving-engine throughput, and the need to freeze one split definition before citation.

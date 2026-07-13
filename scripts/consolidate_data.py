@@ -13,8 +13,8 @@ batch from the Yorùbá di Wúrà annotation platform. This script:
   6. Saves a JSON consolidation report to results/tables/.
 
 Usage:
-    python scripts/01_consolidate_data.py
-    python scripts/01_consolidate_data.py --raw-dir data/raw \
+    python scripts/consolidate_data.py
+    python scripts/consolidate_data.py --raw-dir data/raw \
         --output-dir data/processed --log-file results/tables/consolidation.json
 """
 
@@ -42,7 +42,7 @@ EXPORT_PATTERN = re.compile(r"^yoruba_ocr_(\d+)")
 # scripts/yoruba_charset.py. We import the helper here instead of
 # re-defining it so the hygiene filter and the audit tool can never
 # drift apart.
-# Support both "python scripts/01_consolidate_data.py" and module-style
+# Support both "python scripts/consolidate_data.py" and module-style
 # invocation from the repo root.
 import sys as _sys
 

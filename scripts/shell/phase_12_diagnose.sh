@@ -16,24 +16,24 @@ SPLIT="${EVAL_SPLIT:-test}"
 if [[ -n "${DIAG_ONLY:-}" ]]; then
   case "${DIAG_ONLY}" in
     eval)
-      run_py scripts/12_diagnose_hypotheses.py eval
+      run_py scripts/diagnose_experiment.py eval
       ;;
     identity)
-      run_py scripts/12_diagnose_hypotheses.py identity --data-dir "$PROCESSED" --split "$SPLIT"
+      run_py scripts/diagnose_experiment.py identity --data-dir "$PROCESSED" --split "$SPLIT"
       ;;
     data)
-      run_py scripts/12_diagnose_hypotheses.py data \
+      run_py scripts/diagnose_experiment.py data \
         --data-dir "$PROCESSED" \
         --split "$SPLIT" \
         --sample "${DIAG_SAMPLE:-20}" \
         --seed "${DIAG_SEED:-42}"
       ;;
     replay)
-      run_py scripts/12_diagnose_hypotheses.py replay \
-        --jsonl "${DIAG_JSONL:-results/tables/qwen25_vl_zero_shot_test.jsonl}"
+      run_py scripts/diagnose_experiment.py replay \
+        --jsonl "${DIAG_JSONL:-results/tables/paddleocrvl16_zero_shot_test.jsonl}"
       ;;
     setup-hint)
-      run_py scripts/12_diagnose_hypotheses.py setup-hint
+      run_py scripts/diagnose_experiment.py setup-hint
       ;;
     *)
       die "DIAG_ONLY must be eval|identity|data|replay|setup-hint (got ${DIAG_ONLY})"
@@ -42,9 +42,9 @@ if [[ -n "${DIAG_ONLY:-}" ]]; then
   exit 0
 fi
 
-run_py scripts/12_diagnose_hypotheses.py eval
-run_py scripts/12_diagnose_hypotheses.py identity --data-dir "$PROCESSED" --split "$SPLIT"
-run_py scripts/12_diagnose_hypotheses.py data \
+run_py scripts/diagnose_experiment.py eval
+run_py scripts/diagnose_experiment.py identity --data-dir "$PROCESSED" --split "$SPLIT"
+run_py scripts/diagnose_experiment.py data \
   --data-dir "$PROCESSED" \
   --split "$SPLIT" \
   --sample "${DIAG_SAMPLE:-20}" \

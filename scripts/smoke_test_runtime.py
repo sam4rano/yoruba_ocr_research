@@ -8,12 +8,12 @@ Two modes:
       Use after Step 3 install, before GPU baselines.
 
   --full
-      Also runs analysis 17–19, compile+alignment, checkpoint audit, HF card dry-run.
+      Also runs error analyses, compile+alignment, checkpoint audit, and HF card dry-run.
       Requires prior eval JSONL logs under results/tables/.
 
 Usage:
-    python scripts/24_colab_smoke_test.py --quick --skip-config
-    python scripts/24_colab_smoke_test.py --full --skip-config
+    python scripts/smoke_test_runtime.py --quick --skip-config
+    python scripts/smoke_test_runtime.py --full --skip-config
 """
 
 from __future__ import annotations
@@ -75,7 +75,7 @@ def main() -> None:
     mode.add_argument(
         "--full",
         action="store_true",
-        help="Full pipeline smoke: includes analysis 17–19 and HF card dry-run.",
+        help="Full pipeline smoke: includes error analyses and HF card dry-run.",
     )
     parser.add_argument(
         "--network",
@@ -124,7 +124,7 @@ def main() -> None:
             raise ValueError(f"test split too small: {n_test} lines")
 
     def audit_and_eda() -> None:
-        run([PY, "scripts/02b_data_quality_audit.py",
+        run([PY, "scripts/audit_data_quality.py",
              "--data-dir", "data/processed",
              "--out-json", "results/tables/data_quality.json"])
         check_path(ROOT / "results/tables/data_quality.json")
@@ -144,7 +144,7 @@ def main() -> None:
             "eval_glm_ocr.py",
             "train_paddleocrvl16_sft.py",
             "export_paddleocrvl16_sft.py",
-            "22_generate_plots.py",
+            "generate_plots.py",
         ):
             script = ROOT / "scripts" / name
             check_path(script)
@@ -152,9 +152,9 @@ def main() -> None:
 
     def analysis() -> None:
         for script in (
-            "17_stratified_error_analysis.py",
-            "18_der_universe_ablation.py",
-            "19_bootstrap_metric_cis.py",
+            "analyze_stratified_errors.py",
+            "ablate_der_universe.py",
+            "bootstrap_metric_cis.py",
         ):
             run([PY, f"scripts/{script}"])
         for name in (
@@ -168,7 +168,7 @@ def main() -> None:
     def compile_tables() -> None:
         check_path(ROOT / "results/tables/metrics.csv")
         run(["bash", "scripts/shell/phase_09_compile.sh"])
-        run([PY, "scripts/22_generate_plots.py"])
+        run([PY, "scripts/generate_plots.py"])
         check_path(ROOT / "results/tables/table1_main_comparison.csv")
         check_path(ROOT / "results/tables/metrics_summary.csv")
         for stem in (
@@ -184,20 +184,24 @@ def main() -> None:
 
     def checkpoint_audit() -> None:
         run([
-            PY, "scripts/12_diagnose_hypotheses.py", "checkpoints",
+            PY, "scripts/diagnose_experiment.py", "checkpoints",
             "--csv", "results/tables/metrics.csv",
             "--report", "results/tables/checkpoint_audit.json",
         ])
         check_path(ROOT / "results/tables/checkpoint_audit.json")
 
     def research_doc() -> None:
-        run([PY, "scripts/23_write_research_approach.py", "--output", "research_approach.md"])
+        run([PY, "scripts/write_research_approach.py", "--output", "research_approach.md"])
         check_path(ROOT / "research_approach.md")
 
     def notebook_syntax() -> None:
         import ast
 
-        for nb_name in ("yor_ocr.ipynb", "yor_ocr_kaggle.ipynb"):
+        for nb_name in (
+            "notebooks/colab_ocr.ipynb",
+            "notebooks/kaggle_ocr.ipynb",
+            "notebooks/lightning_ocr.ipynb",
+        ):
             nb = json.loads((ROOT / nb_name).read_text(encoding="utf-8"))
             for i, cell in enumerate(nb["cells"]):
                 if cell["cell_type"] != "code":
@@ -222,11 +226,11 @@ def main() -> None:
         deps_checks()
 
     def network_checks() -> None:
-        run([PY, "scripts/30_e2e_network_check.py"])
+        run([PY, "scripts/check_model_access.py"])
         check_path(ROOT / "results/tables/e2e_network_check.json")
 
     def refresh_report() -> None:
-        run([PY, "scripts/02c_refresh_dataset_report.py"])
+        run([PY, "scripts/refresh_dataset_report.py"])
 
     def compile_tables_quick() -> None:
         metrics = ROOT / "results/tables/metrics.csv"
@@ -237,17 +241,17 @@ def main() -> None:
             print("metrics.csv has no model rows — skipping compile (run baselines first)")
             return
         run([
-            PY, "scripts/11_compile_results.py",
+            PY, "scripts/compile_results.py",
             "--results-csv", "results/tables/metrics.csv",
             "--output-dir", "results/tables",
         ])
-        run([PY, "scripts/22_generate_plots.py"])
+        run([PY, "scripts/generate_plots.py"])
         check_path(ROOT / "results/tables/table1_main_comparison.csv")
         check_path(ROOT / "results/tables/figures/model_metrics_comparison.png")
         check_path(ROOT / "results/tables/figures/relative_error_reduction.png")
 
     def hf_dataset_card() -> None:
-        run([PY, "scripts/25_upload_hf_dataset.py", "--dry-run"])
+        run([PY, "scripts/publish_hf_dataset.py", "--dry-run"])
         check_path(ROOT / "data/hf_export/README.md")
         check_path(ROOT / "data/hf_export/LICENSE")
         if "cc-by-4.0" not in (ROOT / "data/hf_export/README.md").read_text(encoding="utf-8"):
@@ -256,18 +260,18 @@ def main() -> None:
     step("data/processed layout", data_checks)
     step("python deps (editdistance)", deps_checks)
     step("plotting deps (numpy/pandas/matplotlib)", plotting_deps_checks)
-    step("02c refresh dataset report", refresh_report)
+    step("refresh dataset report", refresh_report)
     step("phase_03 config", config_phase)
     step("VLM/SFT script syntax", vl_export)
     step("compile table1 (if metrics.csv exists)", compile_tables_quick)
-    step("yor_ocr.ipynb syntax", notebook_syntax)
+    step("platform notebook syntax", notebook_syntax)
 
     if args.network:
         step("e2e network checks", network_checks)
 
     if args.full:
-        step("02b data quality audit", audit_and_eda)
-        step("analysis 17-19", analysis)
+        step("data quality audit", audit_and_eda)
+        step("error analyses", analysis)
         step("phase_09 compile + alignment", compile_tables)
         step("checkpoint audit", checkpoint_audit)
         step("research_approach.md", research_doc)

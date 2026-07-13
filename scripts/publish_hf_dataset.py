@@ -6,9 +6,9 @@ and book-level metadata, writes a dataset card (README.md), and optionally
 pushes to Hugging Face.
 
 Usage:
-    python scripts/25_upload_hf_dataset.py --dry-run
-    python scripts/25_upload_hf_dataset.py --repo-id USER/yoruba-ocr-line-crops --push
-    python scripts/25_upload_hf_dataset.py --export-dir data/hf_export --dry-run
+    python scripts/publish_hf_dataset.py --dry-run
+    python scripts/publish_hf_dataset.py --repo-id USER/yoruba-ocr-line-crops --push
+    python scripts/publish_hf_dataset.py --export-dir data/hf_export --dry-run
 """
 
 from __future__ import annotations
@@ -114,7 +114,7 @@ def load_metadata_index(raw_dir: Path) -> dict[str, dict[str, str]]:
     Build ``{image_basename: metadata}`` from raw export CSVs.
 
     Later exports overwrite earlier ones on filename collision, matching
-    consolidation policy in ``01_consolidate_data.py``.
+    consolidation policy in ``consolidate_data.py``.
     """
     index: dict[str, dict[str, str]] = {}
 
@@ -358,7 +358,7 @@ line of text plus a human-corrected UTF-8 NFC transcription.
   [Yorùbá OCR Hub](https://yoruba-ocr.vercel.app); OCR-assisted hypotheses
   reviewed and corrected by fluent annotators.
 - **Consolidation:** {n_exports} independent export batches merged and deduplicated
-  (see project script ``01_consolidate_data.py``).
+  (see project script ``consolidate_data.py``).
 
 ## Splits
 
@@ -408,7 +408,7 @@ PaddleOCR-format label files (``image<TAB>text``) live in the
 
 Benchmark models with **CER**, **WER**, and **DER** (Diacritic Error Rate) as
 defined in the Deep Learning Indaba 2026 paper accompanying this release.
-Evaluation scripts: ``scripts/05_evaluate.py``.
+Evaluation scripts: ``scripts/evaluate_paddleocr_recognition.py``.
 
 ## License and attribution
 

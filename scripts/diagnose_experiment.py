@@ -13,11 +13,11 @@ Setup (VLMs, Paddle, etc.) is validated indirectly: if (1)–(3) pass, bad model
 reflect the recogniser or prompt, not the dataset or eval code.
 
 Usage:
-    python scripts/12_diagnose_hypotheses.py eval
-    python scripts/12_diagnose_hypotheses.py identity --data-dir data/processed --split test
-    python scripts/12_diagnose_hypotheses.py data --split test --sample 15 --seed 0
-    python scripts/12_diagnose_hypotheses.py replay --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl
-    python scripts/12_diagnose_hypotheses.py checkpoints --csv results/tables/metrics.csv
+    python scripts/diagnose_experiment.py eval
+    python scripts/diagnose_experiment.py identity --data-dir data/processed --split test
+    python scripts/diagnose_experiment.py data --split test --sample 15 --seed 0
+    python scripts/diagnose_experiment.py replay --jsonl results/tables/paddleocrvl16_zero_shot_test.jsonl
+    python scripts/diagnose_experiment.py checkpoints --csv results/tables/metrics.csv
 """
 
 from __future__ import annotations

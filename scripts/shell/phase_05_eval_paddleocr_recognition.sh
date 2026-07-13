@@ -18,15 +18,19 @@ fi
 EN_REC_CONFIG="${PADDLE_EN_REC_CONFIG:-${PADDLE_DIR:-PaddleOCR}/configs/rec/PP-OCRv3/en_PP-OCRv3_mobile_rec.yml}"
 REC_CONFIG="${PADDLE_REC_CONFIG:-configs/paddleocr_yoruba_rec.yml}"
 
-run_py scripts/06_baseline_pretrained.py \
-  --pretrained-dir "$BASE_PRE" \
-  --data-dir "${PROCESSED_DIR:-data/processed}" \
-  --split "$SPLIT" \
-  --rec-config "$EN_REC_CONFIG" \
-  --results-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
-  --per-sample-log "results/tables/paddleocr_en_pretrained_${SPLIT}.jsonl" \
-  "${GPU[@]}" \
-  --paddle-dir "${PADDLE_DIR:-PaddleOCR}"
+if model_result_complete paddleocr_en_pretrained "$SPLIT"; then
+  log "Complete PaddleOCR EN evidence already exists; skipping evaluation."
+else
+  run_py scripts/evaluate_paddleocr_en_pretrained.py \
+    --pretrained-dir "$BASE_PRE" \
+    --data-dir "${PROCESSED_DIR:-data/processed}" \
+    --split "$SPLIT" \
+    --rec-config "$EN_REC_CONFIG" \
+    --results-csv "${METRICS_CSV:-results/tables/metrics.csv}" \
+    --per-sample-log "results/tables/paddleocr_en_pretrained_${SPLIT}.jsonl" \
+    "${GPU[@]}" \
+    --paddle-dir "${PADDLE_DIR:-PaddleOCR}"
+fi
 
 # PaddleOCR recognition fine-tuned checkpoint is OPTIONAL (classical comparison).
 # Skip automatically when:
@@ -41,7 +45,11 @@ if [[ ! -d "$FINETUNE_DIR" ]]; then
   exit 0
 fi
 
-run_py scripts/05_evaluate.py \
+if model_result_complete paddleocr_recognition_finetuned "$SPLIT"; then
+  log "Complete PaddleOCR fine-tuned evidence already exists; skipping evaluation."
+  exit 0
+fi
+run_py scripts/evaluate_paddleocr_recognition.py \
   --model-dir "$FINETUNE_DIR" \
   --data-dir "${PROCESSED_DIR:-data/processed}" \
   --split "$SPLIT" \

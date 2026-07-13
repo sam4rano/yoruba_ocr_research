@@ -95,12 +95,18 @@ than 5 after installation, restart the Kaggle session and rerun setup cells.
 In the notebook's run-plan cell:
 
 ```python
+RUN_ID = "yoruba-ocr-final-v1"  # Keep unchanged when resuming; change for a new experiment.
 RUN_RESET = True
 RUN_PADDLE_BASELINE = True
 RUN_VLM_ZERO_SHOT = True
 RUN_PADDLEOCRVL16_SFT = False
 RUN_ANALYSIS = True
 ```
+
+`RUN_RESET=True` is idempotent for the selected `RUN_ID`: the first execution
+cleans generated outputs, while rerunning after a disconnect preserves partial
+inference and training checkpoints. Completed rows are skipped only after their
+metrics, JSONL, metadata, and split counts all pass the completion check.
 
 Recommended first Kaggle run:
 
@@ -115,6 +121,19 @@ import os
 os.environ["PADDLEOCRVL16_QUANTIZE_4BIT"] = "1"
 os.environ["GLM_QUANTIZE_4BIT"] = "1"
 ```
+
+Inference defaults to batches of four and writes a fingerprinted partial log
+after every batch. Reduce the batch on a T4 if needed; rerunning resumes
+compatible completed samples automatically:
+
+```python
+os.environ["PADDLEOCRVL16_BATCH_SIZE"] = "2"
+os.environ["GLM_BATCH_SIZE"] = "2"
+```
+
+Do not enable `PADDLEOCRVL16_ALLOW_FAILURES` or `GLM_ALLOW_FAILURES` for a
+citable run. The default failure gate is deliberate: dependency and model-load
+errors must not be reported as empty OCR predictions.
 
 Do not mix 4-bit and non-4-bit rows in the same final comparison unless the
 precision choice is recorded in the report.
@@ -153,5 +172,6 @@ artifact after the notebook finishes.
 - **PaddleOCR-VL or GLM load fails:** confirm Internet is on, `transformers>=5`,
   and enough disk remains under `/kaggle/working`.
 - **Out of memory:** enable 4-bit quantization for zero-shot runs or reduce
-  sample count with `PADDLEOCRVL16_MAX_SAMPLES` / `GLM_MAX_SAMPLES`.
-
+  batch size first, then use 4-bit quantization. Use sample caps only for smoke tests.
+- **Interrupted evaluation:** rerun the same cell; compatible `.jsonl.partial`
+  progress is resumed. Set the model-specific `*_NO_RESUME=1` only to restart.

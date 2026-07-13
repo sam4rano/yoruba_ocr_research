@@ -11,7 +11,7 @@ if [[ "${SKIP_CONSOLIDATE:-0}" == "1" ]]; then
   exit 0
 fi
 
-run_py scripts/01_consolidate_data.py \
+run_py scripts/consolidate_data.py \
   --raw-dir "${RAW_DIR:-data/raw}" \
   --output-dir "${PROCESSED_DIR:-data/processed}" \
   --log-file "${CONSOLIDATE_LOG:-results/tables/consolidation_report.json}"
